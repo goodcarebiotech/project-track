@@ -1764,6 +1764,49 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
 .pprog b{font-size:13px;font-weight:650;color:#fff}
 .mx tbody th .pt2{height:4px;margin-top:6px;background:rgba(255,255,255,.16)}
 .mx tbody th .pt2 i{background:#7ED4A5}
+/* ===== 分頁（總覽／依商品／流程…）：明顯、看得出可以切換 ===== */
+.seg.views{padding:4px;gap:2px;border-radius:14px;background:var(--card);border:1px solid var(--sep-strong);box-shadow:0 1px 2px rgba(0,0,0,.04),0 6px 18px rgba(11,74,163,.08)}
+.seg.views button{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border-radius:10px;font-size:14.5px;font-weight:600;color:#48484A;transition:background .15s,color .15s}
+.seg.views button:hover{background:#F0F4FA;color:#0B4AA3}
+.seg.views button.on{background:linear-gradient(180deg,#1660D0,#0A47A6);color:#fff;box-shadow:0 2px 8px rgba(10,71,166,.35)}
+.seg.views .vi{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* ===== 狀態／人員篩選：小一點、自然一點 ===== */
+.bar .chip,.prow .chip{height:30px;padding:0 11px;gap:5px;font-size:13.5px;font-weight:500;color:var(--label-2);border-radius:999px;background:transparent}
+.bar .chip:hover,.prow .chip:hover{background:var(--fill)}
+.bar .chip i,.prow .chip i{font-size:12.5px;color:var(--label-3)}
+.bar .chip.on,.prow .chip.on{background:#E8F0FC;color:#0B4AA3;font-weight:650}
+.bar .chip.on i,.prow .chip.on i{color:#4F7FC4}
+.prow .chip .av{width:18px;height:18px;font-size:10px}
+.persons .lbl{font-size:11.5px;margin-right:2px}
+.bar{margin-bottom:10px}
+@media (max-width:899px){
+  .hero>.seg.views{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));width:100%;padding:4px;gap:2px}
+  .seg.views button{flex-direction:column;justify-content:center;gap:3px;height:52px;padding:0 2px;font-size:11.5px;border-radius:10px}
+  .seg.views .vi{width:19px;height:19px}
+  .bar .chip,.prow .chip{height:28px;padding:0 9px;font-size:13px}
+  .bar .chip i,.prow .chip i{font-size:12px}
+  .chips{gap:2px}
+  /* 編輯視窗：狀態、負責人欄縮窄，看得到預計日期 */
+  .stt col:nth-child(1){width:28px!important}
+  .stt col:nth-child(2){width:84px!important}
+  .stt col:nth-child(3){width:78px!important}
+  .stt col:nth-child(4){width:98px!important}
+  .stt th:nth-child(2),.stt td.t-n{left:28px}
+  .stt select.stsel{font-size:12.5px;padding:0 16px 0 7px;height:30px;background-position:calc(100% - 10px) 13px,calc(100% - 6px) 13px}
+  .stt .nm2{font-size:12px;padding:2px 7px}
+  .stt .nm2.add{width:22px;height:22px;padding:0}
+  .stt td{padding-left:4px;padding-right:4px}
+  .stt th{padding-left:6px;padding-right:4px;font-size:12px}
+}
+@media (max-width:899px){
+  .stt col:nth-child(2){width:92px!important}
+  .stt col:nth-child(3){width:76px!important}
+  .stt col:nth-child(4){width:92px!important}
+  .stt td.t-n{font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stt td.t-n small{white-space:normal}
+  .stt td.t-n .ugt,.stt td.t-n .ugb{width:16px;min-width:16px;height:16px;font-size:9.5px;margin-right:2px;border-width:1px}
+  .stt select.stsel{font-size:12px;padding:0 14px 0 6px;background-position:calc(100% - 9px) 13px,calc(100% - 5px) 13px}
+}
 </style>
 </head>
 <body>
@@ -2364,6 +2407,16 @@ function placeWhoPop() {
   if (y + h > innerHeight - 12) y = Math.max(12, r.top - h - 6);
   p.style.left = (x - o.left) + 'px'; p.style.top = (y - o.top) + 'px';
 }
+/* 分頁圖示 */
+const VI = d => `<svg class="vi" viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+const VIEW_ICON = {
+  table: VI('<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>'),
+  product: VI('<rect x="3.5" y="4" width="17" height="16" rx="2.5"/><path d="M3.5 9h17M8 13h8M8 16.5h5"/>'),
+  flow: VI('<circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><path d="M6 8v8M10 6h10M10 18h10M10 12h7"/><circle cx="6" cy="12" r="2"/>'),
+  zone: VI('<path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>'),
+  stats: VI('<path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/>'),
+  log: VI('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>')
+};
 function render() {
   closePop();
   const prods = visibleProducts(), all = [];
@@ -2376,7 +2429,7 @@ function render() {
   const tabs = [['table', '總覽'], ['product', '依商品'], ['flow', '流程'], ...(S.user.zone ? [['zone', '昶明區']] : []), ['stats', '統計'], ['log', '更新紀錄']];
   const titles = { table: ['製作進度', `${prods.length} 個商品・<b>${openN}</b> 格未完成・<b>${doneN}</b> 格已完成`], product: ['製作進度', `${prods.length} 個商品・<b>${openN}</b> 格未完成・<b>${doneN}</b> 格已完成`], zone: ['昶明區', ''], flow: ['流程紀錄', ''], stats: ['進度統計', '依目前資料即時計算（不含已結案商品）'], log: ['更新紀錄', ''] };
   let html = `<div class="hero${S.view === 'flow' ? ' compact' : ''}"><div><h1>${titles[S.view][0]}</h1>${titles[S.view][1] ? `<p>${titles[S.view][1]}</p>` : ''}</div>
-    <div class="seg" role="tablist" aria-label="檢視">${tabs.map(([v, n]) => `<button role="tab" class="${S.view === v ? 'on' : ''}" aria-selected="${S.view === v}" data-act="view" data-v="${v}">${n}</button>`).join('')}</div></div>`;
+    <div class="seg views" role="tablist" aria-label="檢視">${tabs.map(([v, n]) => `<button role="tab" class="${S.view === v ? 'on' : ''}" aria-selected="${S.view === v}" data-act="view" data-v="${v}">${VIEW_ICON[v] || ''}<span>${n}</span></button>`).join('')}</div></div>`;
   if (S.view === 'log') { $('#main').innerHTML = html + logView(); if (!S.logs) loadLogs(); return; }
   if (S.view === 'stats') { $('#main').innerHTML = html + statsView(); setHH(); return; }
   if (S.view === 'flow') { $('#main').innerHTML = html + flowView(); setHH(); fitFlowTable(); return; }
