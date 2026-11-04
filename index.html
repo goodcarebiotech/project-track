@@ -1807,6 +1807,69 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
   .stt td.t-n .ugt,.stt td.t-n .ugb{width:16px;min-width:16px;height:16px;font-size:9.5px;margin-right:2px;border-width:1px}
   .stt select.stsel{font-size:12px;padding:0 14px 0 6px;background-position:calc(100% - 9px) 13px,calc(100% - 5px) 13px}
 }
+/* ===== v24：狀態篩選＝底線分頁；人員篩選＝外框膠囊（參考 Apple / eBay Playbook / Material 的 filter chip） ===== */
+/* 狀態：純文字分頁，選中＝深色粗體＋底線，數字小灰字 */
+.bar{align-items:flex-end;border-bottom:1px solid #E5E5EA;margin-bottom:12px}
+.bar .chips{gap:22px;align-items:flex-end}
+.bar .chip{position:relative;height:38px;padding:0 1px;gap:5px;border:0;border-radius:0;background:none!important;color:#6E6E73;font-size:14px;font-weight:500;letter-spacing:-.01em;box-shadow:none}
+.bar .chip:hover{color:#1D1D1F}
+.bar .chip > i:not(.av){font-style:normal;font-size:12px;font-weight:500;color:#AEAEB2;font-variant-numeric:tabular-nums}
+.bar .chip::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;border-radius:2px;background:transparent;transition:background .15s}
+.bar .chip.on{color:#1D1D1F;font-weight:650}
+.bar .chip.on > i:not(.av){color:#0B4AA3}
+.bar .chip.on::after{background:#0B4AA3}
+.bar .tools{padding-bottom:5px}
+/* 人員：白底細框膠囊，頭像保留顏色、白字 */
+.prow{align-items:center}
+.prow .chips{gap:6px}
+.persons .lbl{font-size:12px;font-weight:500;color:#8E8E93;margin-right:4px;letter-spacing:.02em}
+.prow .chip{height:30px;padding:0 11px;gap:6px;border:1px solid #E1E1E6;border-radius:999px;background:#fff;color:#3A3A3C;font-size:13.5px;font-weight:500;box-shadow:none;transition:border-color .15s,background .15s}
+.prow .chip:has(.av){padding-left:4px}
+.prow .chip:hover{border-color:#C7C7CC;background:#fff}
+.prow .chip > i:not(.av){font-style:normal;font-size:12px;color:#8E8E93;font-variant-numeric:tabular-nums}
+.prow .chip .av{width:22px;height:22px;font-size:11px;color:#fff}
+.prow .chip.on{border-color:#0B4AA3;background:#F1F6FD;color:#0B4AA3;font-weight:600;box-shadow:inset 0 0 0 .5px #0B4AA3}
+.prow .chip.on > i:not(.av){color:#0B4AA3}
+.prow .chip .av{color:#fff!important}
+/* 編輯視窗：負責人「＋」置中 */
+.nm2.add{display:inline-grid;place-items:center;width:24px;height:24px;padding:0;line-height:1;font-size:15px}
+/* 統計：最近更新放在品名最右邊 */
+.st-pn{display:flex!important;align-items:baseline;gap:10px;min-width:0}
+.st-pn>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st-pn time{margin-left:auto;flex:none;font-size:12px;color:var(--label-3);font-variant-numeric:tabular-nums;font-weight:400}
+.st-head span:first-child{display:flex;justify-content:space-between;text-align:left}
+.st-head span:first-child em{font-style:normal}
+.st-row:not(.st-u){grid-template-columns:minmax(220px,2.2fr) minmax(140px,2fr) 64px 56px 56px 56px}
+.st-card.nobar .st-row:not(.st-u){grid-template-columns:minmax(260px,380px) 56px 64px 64px 64px 64px}
+.st-kpis{grid-template-columns:repeat(5,minmax(0,1fr))}
+@media (max-width:899px){
+  .bar{border-bottom:1px solid #E5E5EA}
+  .bar .chips{gap:16px;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
+  .bar .chips::-webkit-scrollbar{display:none}
+  .bar .chip{flex:none;height:36px;font-size:13.5px}
+  .prow .chips{gap:5px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+  .prow .chips::-webkit-scrollbar{display:none}
+  .prow .chip{flex:none;height:28px;padding:0 9px;font-size:13px}
+  .prow .chip:has(.av){padding-left:3px}
+  .prow .chip .av{width:20px;height:20px;font-size:10.5px}
+  .stt .nm2.add{width:22px;height:22px;padding:0;font-size:14px}
+  /* 統計 KPI：四項一列 */
+  .st-kpis{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .st-kpi.k-prod{display:none}
+  .st-kpi{padding:10px 8px}
+  .st-kpi b{font-size:22px}
+  .st-kpi span{font-size:12px}
+  .st-kpi small{display:none}
+  /* 各商品：品名＋日期一列；完成／進行中／需注意／未開始一列 */
+  .st-row:not(.st-u),.st-card.nobar .st-row:not(.st-u){grid-template-columns:repeat(4,minmax(0,1fr));column-gap:6px;row-gap:6px}
+  .st-row:not(.st-u) .st-name{grid-column:1/4;grid-row:1}
+  .st-card.nobar .st-row:not(.st-u) .st-prog{grid-column:4/5;grid-row:1;justify-self:end}
+  .st-card:not(.nobar) .st-row:not(.st-u) .st-name{grid-column:1/-1}
+  .st-card:not(.nobar) .st-row:not(.st-u) .st-prog{grid-column:1/-1;grid-row:2}
+  .st-row:not(.st-u) .n{grid-column:auto!important;grid-row:auto;white-space:nowrap;font-size:12px;text-align:left}
+  .st-row .n[data-l]::before{content:attr(data-l) " ";color:var(--label-3);font-weight:400}
+  .st-row:not(.st-u) .st-last{display:none!important}
+}
 </style>
 </head>
 <body>
@@ -2301,8 +2364,13 @@ async function prefetchLogs() {
 const flowBusy = () => { const a = document.activeElement; return !!(a && a.closest && a.closest('.ft-wrap, .fl-side')); };
 async function loadAll(fresh) {
   const r = await api('bootstrap', fresh ? { fresh: 1 } : {});
+  /* 資料沒變就不重畫（自動更新時畫面完全不動） */
+  const sig = JSON.stringify([r.cells, r.products, r.categories, r.users, r.recent, r.logCount]);
+  if (sig === S.bootSig) return false;
+  S.bootSig = sig;
   try { localStorage.setItem('ptk_boot', JSON.stringify(r)); } catch (e) {}
   applyBoot(r);
+  return true;
 }
 /* 上次的資料先存在這台電腦，下次打開立刻顯示，再在背景更新 */
 function applyBoot(r) {
@@ -2789,17 +2857,16 @@ function statsView() {
   const users = [...S.users, ...Object.keys(byU).filter(n => !S.users.includes(n))].filter(n => byU[n]);
   const kpi = (label, val, sub, cls) => `<div class="st-kpi${cls ? ' ' + cls : ''}"><span>${label}</span><b>${val}</b><small>${sub}</small></div>`;
   return `<div class="st-kpis">
-      ${kpi('進行中的商品', prods.length, '不含已結案')}
+      ${kpi('進行中的商品', prods.length, '不含已結案', 'k-prod')}
       ${kpi('工作項目', tot.total, '所有需製作的步驟')}
       ${kpi('已完成', tot.done, '完成率 ' + pct(tot) + '%', 's-green')}
       ${kpi('進行中', tot.doing, '正在處理', 's-blue')}
       ${kpi('需注意', need(tot), `待討論 ${tot.talk}・等待／暫停 ${tot.attn}`, 's-wine')}
-      ${kpi('逾期', lateN, '已超過預計完成日', 's-wine')}
     </div>
     <div class="st-card st-all">${sbar(tot)}<div class="st-key">${GROUPS.map(g => `<span class="${g[2]}"><i></i>${g[1]} <b>${tot[g[0]]}</b></span>`).join('')}</div></div>
     <h2 class="st-h st-hr">各商品進度<button class="opt" role="checkbox" aria-checked="${S.showBar}" data-act="opt" data-v="showBar">${cb(S.showBar)}顯示進度條</button></h2>
-    <div class="st-card${S.showBar ? '' : ' nobar'}"><div class="st-row st-head" aria-hidden="true"><span>商品</span><span>進度</span><span>完成</span><span>進行中</span><span>需注意</span><span>未開始</span><span>最近更新</span></div>
-      ${byP.map(({ p, c, last }) => `<button class="st-row" data-act="goto" data-pid="${esc(p.id)}"><span class="st-name">${esc(p.name)}</span><span class="st-prog">${sbar(c)}<b>${pct(c)}%</b></span><span class="n"><b>${c.done}</b>/${c.total}</span><span class="n" data-l="進行中">${c.doing}</span><span class="n${need(c) ? ' warn' : ''}" data-l="需注意">${need(c)}</span><span class="n" data-l="未開始">${c.todo}</span><span class="st-last">${last ? fmtFull(last) : '—'}</span></button>`).join('')}</div>
+    <div class="st-card${S.showBar ? '' : ' nobar'}"><div class="st-row st-head" aria-hidden="true"><span>商品<em>最近更新</em></span><span>進度</span><span>完成</span><span>進行中</span><span>需注意</span><span>未開始</span></div>
+      ${byP.map(({ p, c, last }) => `<button class="st-row" data-act="goto" data-pid="${esc(p.id)}"><span class="st-name st-pn"><span>${esc(p.name)}</span><time>${last ? fmtFull(last) : ''}</time></span><span class="st-prog">${sbar(c)}<b>${pct(c)}%</b></span><span class="n" data-l="完成"><b>${c.done}</b>/${c.total}</span><span class="n" data-l="進行中">${c.doing}</span><span class="n${need(c) ? ' warn' : ''}" data-l="需注意">${need(c)}</span><span class="n" data-l="未開始">${c.todo}</span></button>`).join('')}</div>
     <h2 class="st-h">負責人</h2>
     <div class="st-card">${users.map(n => {
       const u = byU[n], row = (label, c, sub, act) => { const open = c.doing + need(c) + c.todo; return `<${act ? 'button' : 'div'} class="st-row st-u${sub ? ' st-sub2' : ''}"${act ? ` data-act="person-go" data-v="${esc(n)}"` : ''}><span class="st-name">${label}</span><span class="st-prog">${sbar(c, ['doing', 'talk', 'attn', 'todo'])}<b>${open}</b></span><span class="st-sub">進行中 ${c.doing}・待討論 ${c.talk}・等待／暫停 ${c.attn}・未開始 ${c.todo}・已完成 ${c.done}</span></${act ? 'button' : 'div'}>`; };
@@ -3523,14 +3590,20 @@ function toast(msg, bad, ms) {
 }
 async function refresh(show, force) {
   if (!S.token) return;
-  try { await loadAll(!!show || !!force); if (!show && !force && !idle()) return; S.hist = {}; S.logs = null; Object.keys(S.plogs).forEach(p => { S.plogsStale[p] = true; }); if (S.zone) S.zoneStale = true; render(); prefetchLogs(); if (show) toast('已更新為最新資料'); }
+  try {
+    const changed = await loadAll(!!show || !!force);
+    if (!show && !force && (!changed || !idle())) return;   // 自動更新：資料沒變就什麼都不做
+    S.hist = {}; Object.keys(S.plogs).forEach(p => { S.plogsStale[p] = true; }); if (S.zone) S.zoneStale = true;
+    if (S.view === 'log') loadLogs(true); else S.logs = null;
+    const y = window.scrollY; render(); window.scrollTo(0, y); prefetchLogs(); if (show) toast('已更新為最新資料');
+  }
   catch (e) { if (show) toast(e.message, true); }
 }
 /* 自動更新只在「沒有在打字、沒有開視窗」時進行，打到一半不會被打斷 */
 const typing = () => { const a = document.activeElement; return !!(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)); };
 const idle = () => !S.writing && S.token && !$('#app').hidden && $('#sheet').hidden && $('#lb').hidden && $('#pop').hidden && $('#dlg').hidden && !document.hidden && !typing();
 document.addEventListener('visibilitychange', () => { if (idle()) refresh(false); });
-setInterval(() => { if (idle()) refresh(false); }, 120000);
+setInterval(() => { if (idle()) refresh(false); }, 180000);
 narrow.addEventListener('change', () => { if (!$('#app').hidden) render(); });
 
 /* ---------------- 啟動 ---------------- */
@@ -3547,7 +3620,7 @@ narrow.addEventListener('change', () => { if (!$('#app').hidden) render(); });
     S.token = saved;
     let boot = null; try { boot = JSON.parse(localStorage.getItem('ptk_boot') || 'null'); } catch (e) {}
     if (boot && boot.cells) {   // 先用上次的資料立刻顯示，背景更新
-      try { applyBoot(boot); enterApp(); loadAll().then(() => { if (idle()) render(); }).catch(() => {}); return; } catch (e) {}
+      try { applyBoot(boot); S.bootSig = JSON.stringify([boot.cells, boot.products, boot.categories, boot.users, boot.recent, boot.logCount]); enterApp(); loadAll().then(ch => { if (ch && idle()) render(); }).catch(() => {}); return; } catch (e) {}
     }
     try { await loadAll(); enterApp(); return; } catch (e) { S.token = null; store.del('ptk_token'); }
   }
