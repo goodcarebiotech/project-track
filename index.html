@@ -1492,6 +1492,38 @@ input[type=date].empty::-webkit-datetime-edit,input[type=date][value=""]:not(:fo
   .st-card.nobar .st-row{grid-template-columns:repeat(4,auto) 1fr;justify-content:stretch}
   .st-card.nobar .st-prog{grid-column:auto}
 }
+/* 依商品：最新進度（淺藍）與備註（白框）分開 */
+.prow2 .c6{grid-column:1/-1;margin-top:5px;padding:5px 9px;border-radius:6px;background:#EEF3FA;color:#062F66;font-size:12.5px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.prow2 .c6 em{display:block;font-style:normal;font-size:10.5px;font-weight:600;opacity:.7}
+.prow2 .c5{background:var(--card);border:1px solid var(--sep-strong);border-left:1px solid var(--sep-strong);color:var(--label)}
+.prow2 .c6+.c5{margin-top:4px}
+/* Google 登入 */
+.gbtn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;height:54px;margin-top:22px;border:1px solid var(--sep-strong);border-radius:14px;background:var(--card);color:var(--label);font-size:17px;font-weight:600;box-shadow:0 1px 2px rgba(0,0,0,.06);cursor:pointer}
+.gbtn svg{width:22px;height:22px;flex:none}
+.gbtn:hover{background:var(--hover)}
+.gbtn:disabled{opacity:.6;cursor:default}
+#loginErr{margin-top:14px}
+.inapp{margin-top:20px;padding:14px 16px;border-radius:14px;background:#FFF4E5;color:#7A4A00;font-size:14.5px;line-height:1.55;text-align:left}
+.inapp .btn{margin-top:10px;width:100%}
+/* 未儲存提示：彈出視窗 */
+.cfm{position:fixed;inset:0;z-index:300;display:grid;place-items:center;padding:16px;background:rgba(0,0,0,.36);animation:cfmIn .15s ease-out}
+.cfm-box{width:min(340px,100%);padding:22px 22px 18px;border-radius:18px;background:var(--card);box-shadow:0 20px 50px rgba(0,0,0,.28);text-align:center}
+.cfm-box b{display:block;font-size:17px;font-weight:650}
+.cfm-box p{margin:6px 0 18px;color:var(--label-2);font-size:14.5px}
+.cfm-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cfm-btns .btn{width:100%;justify-content:center}
+@keyframes cfmIn{from{opacity:0}to{opacity:1}}
+/* 日期：可打字＋日曆 */
+.dt{padding:0 2px 0 8px;gap:2px;cursor:text}
+.dt input.dtx{position:static;opacity:1;flex:1;min-width:0;width:auto;height:100%;padding:0;border:0;background:transparent;font:inherit;color:var(--label);cursor:text;outline:none}
+.dt:focus-within{box-shadow:0 0 0 2px var(--accent) inset;background:var(--card)}
+.dtc{position:relative;flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:6px;color:var(--label-3)}
+.dtc .i{width:16px;height:16px}
+.dtc:hover{background:rgba(0,0,0,.06);color:var(--accent)}
+.dtc input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+/* 總覽：隱藏尚未開始的格子 */
+.c-blank{display:block;width:100%;height:100%;min-height:40px;border:0;background:none;cursor:pointer}
+.fl-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 </style>
 </head>
 <body>
@@ -1503,15 +1535,13 @@ input[type=date].empty::-webkit-datetime-edit,input[type=date][value=""]:not(:fo
     <div class="app-icon"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h10M4 12h10M4 17h6M16 15l2.5 2.5L22 13"/></svg></div>
     <div id="loginBody" style="width:100%">
       <h1>固德生技專案追蹤</h1>
-      <p class="sub">輸入你的員工密碼即可進入</p>
-      <form id="loginForm" autocomplete="on" novalidate>
-        <div class="pw">
-          <input id="pw" type="password" autocomplete="current-password" placeholder="員工密碼" aria-label="員工密碼" required>
-          <button type="button" data-act="toggle-pw">顯示</button>
-        </div>
-        <p id="loginErr" class="err" role="alert" hidden></p>
-        <button id="loginBtn" class="btn primary" type="submit">登入</button>
-      </form>
+      <p class="sub">請用公司 Google 帳號登入</p>
+      <button id="gBtn" class="gbtn" type="button" data-act="glogin"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.2l7.9 6.2C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.1 24.6c0-1.6-.1-3.1-.4-4.6H24v9.1h12.4c-.5 2.9-2.2 5.3-4.6 7l7.2 5.6c4.2-3.9 7.1-9.7 7.1-17.1z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.2C1 16.6 0 20.2 0 24s1 7.4 2.7 10.8l7.9-6.2z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.2-5.6c-2 1.4-4.8 2.4-8.7 2.4-6.2 0-11.5-4.1-13.4-9.9l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/></svg><span>使用 Google 帳號登入</span></button>
+      <p id="loginErr" class="err" role="alert" hidden></p>
+      <div id="inapp" class="inapp" hidden>
+        <p>這個 App 內建的瀏覽器無法使用 Google 登入。請點右上角「⋯」選擇「用瀏覽器開啟」，或複製網址到 Safari／Chrome 開啟。</p>
+        <button class="btn" type="button" data-act="copy-url">複製網址</button>
+      </div>
       <div id="demoBox" class="demo" hidden>
         <p>示範模式：使用 Excel 裡的資料試用，不會真的儲存。點名字直接登入</p>
         <div class="demo-users" id="demoUsers"></div>
@@ -1519,7 +1549,7 @@ input[type=date].empty::-webkit-datetime-edit,input[type=date][value=""]:not(:fo
     </div>
     <div id="welcome" class="welcome" hidden><span>歡迎回來</span><strong id="welcomeName"></strong></div>
   </div>
-  <p class="login-foot">僅限授權員工使用</p>
+  <p class="login-foot">僅限授權員工使用・帳號需由管理員加入名單</p>
 </main>
 
 <!-- ============ 主畫面 ============ -->
@@ -1580,6 +1610,106 @@ input[type=date].empty::-webkit-datetime-edit,input[type=date][value=""]:not(:fo
 <div id="toast" class="toast" role="status" hidden></div>
 
 
+<script type="module">
+// Firebase Google 登入 — 只負責「驗證身分」，實際角色（業務／行政／主管）由 ROSTERS 名冊
+// 依登入信箱自動判斷，詳見主程式區塊的 rolesForEmail() / handleAuthedUser()。
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence, indexedDBLocalPersistence }
+  from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAGxj07Uk6fYC1rTxeeOA8Eu0wuo2uLKWc",
+  authDomain: "goodcare-c4cd3.firebaseapp.com",
+  projectId: "goodcare-c4cd3",
+  storageBucket: "goodcare-c4cd3.firebasestorage.app",
+  messagingSenderId: "724074270065",
+  appId: "1:724074270065:web:c92ef0b92eb940cda2fad0",
+  measurementId: "G-VLFVY59B5M"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// ───────────────────────────────────────────────────────────────
+// 【手機「登出後再登入會跳 400 malformed」的修正】
+//
+// 原本這裡是在模組載入時建立「一個」GoogleAuthProvider，然後整個網頁生命週期重複使用它：
+//
+//     const provider = new GoogleAuthProvider();
+//     provider.setCustomParameters({ prompt: 'select_account' });
+//
+// 這個 provider 物件是有狀態的。第一次登入時 Firebase 會在它身上留下這次登入用的參數
+// （scope、customParameters、以及內部組 OAuth 請求用的欄位）。登出之後再按一次登入，
+// Firebase 會拿「同一個已經被用過的 provider」再組一次 OAuth 請求網址，
+// 於是 prompt / login_hint / state 這些參數有機會被重複附加、或帶著殘留的舊值，
+// 送到 Google 之後就是一個格式不合法的網址 —— Google 不會說明哪裡錯，只會回一頁
+// 「400. That's an error. The server cannot process the request because it is malformed.」
+// 正是手機上「選好帳號之後」看到的那一頁。
+//
+// 修法：不再共用單例，改成每次要登入時「現做一個全新的 provider」（makeProvider()），
+// 每次 OAuth 請求都從乾淨狀態組起來，不會累積上一次的殘留參數。
+//
+// 另外提供 clearAuthResidue()：登出時把 Firebase 留在瀏覽器裡的登入狀態
+// （IndexedDB 的 firebaseLocalStorageDb、以及 localStorage / sessionStorage 內
+// firebase:authUser 開頭的鍵）一併清乾淨。手機瀏覽器常見狀況是 signOut() 已經回來了、
+// 但底層 IndexedDB 還留著半份舊 session，下一次登入就會拿著這份殘骸去組請求。
+// ───────────────────────────────────────────────────────────────
+function makeProvider() {
+  const p = new GoogleAuthProvider();
+  // 每次都要求 Google 顯示帳號選擇畫面，避免手機上被靜默沿用舊帳號、想換帳號卻換不掉。
+  p.setCustomParameters({ prompt: 'select_account' });
+  return p;
+}
+
+// 【重要修正】這支函式原本會刪掉 IndexedDB 的 firebaseLocalStorageDb，
+// 以及 localStorage 裡 firebase:authUser 開頭的鍵。實測發現這是個錯誤的做法：
+// Firebase Auth 在執行期間一直握著那個資料庫的連線，從外面把它砍掉會讓 SDK 的
+// 內部狀態變成半毀，下一次 signInWithPopup 就會丟出
+//   "Unable to process request due to missing initial state..."
+// 也就是登出後再登入完全登不進去。
+//
+// 400 malformed 的真正解法是另外兩件事：每次登入都用全新的 provider（makeProvider），
+// 以及登出時確實 await signOut()。清資料庫原本只是多餘的保險，結果保險本身變成故障點。
+//
+// 現在這支函式只清除「redirect 流程留下來的孤兒鍵」——那是舊版用 signInWithRedirect
+// 時代的殘骸，現行的彈窗流程根本不會用到，刪掉不會影響任何進行中的登入狀態。
+// 登入狀態本身一律交給 signOut() 依 SDK 正規流程處理。
+async function clearAuthResidue() {
+  try {
+    [localStorage, sessionStorage].forEach(store => {
+      if (!store) return;
+      const kill = [];
+      for (let i = 0; i < store.length; i++) {
+        const k = store.key(i);
+        // 只動 redirect 的殘留，絕不碰 firebase:authUser 與 IndexedDB
+        if (k && (k.indexOf('firebase:redirectEvent') === 0 || k.indexOf('firebase:pendingRedirect') === 0)) kill.push(k);
+      }
+      kill.forEach(k => store.removeItem(k));
+    });
+  } catch (e) { /* 隱私模式下 storage 可能整個被停用，忽略即可 */ }
+}
+
+window.__fb = { auth, makeProvider, clearAuthResidue, signInWithPopup, signOut, onAuthStateChanged };
+
+// ───────────────────────────────────────────────────────────────
+// 【為什麼不用 signInWithRedirect】
+// redirect 流程會先把「登入中繼狀態」寫進 sessionStorage，整頁跳去 Google 再跳回來。
+// iOS Safari／Android 無痕模式會清掉或隔離 sessionStorage，現代瀏覽器的 storage
+// partitioning 也會讓跳轉回來後讀不到那份狀態，Firebase 就丟出
+// "Unable to process request due to missing initial state..."。
+// 彈窗登入全程都在同一個分頁、同一個 session 裡完成，不受這個限制影響，故一律使用彈窗。
+//
+// 登入狀態的保存優先用 indexedDB（手機瀏覽器上比 localStorage 穩定，
+// 在部分隱私設定下 localStorage 會被停用），失敗才退回 localStorage。
+// ───────────────────────────────────────────────────────────────
+window.__fb.persistenceReady = setPersistence(auth, indexedDBLocalPersistence)
+  .catch(() => setPersistence(auth, browserLocalPersistence))
+  .catch(() => {});
+
+window.__fb.persistenceReady.then(() => {
+  window.dispatchEvent(new Event('firebase-ready'));
+});
+</script>
 <script>
 /* =========================================================
    設定：把 Google Apps Script「網頁應用程式」部署網址貼在這裡。
@@ -1595,6 +1725,7 @@ const pad = n => String(n).padStart(2, '0');
 const clone = o => JSON.parse(JSON.stringify(o));
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const ICON = {
+  cal: '<svg class="i" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>',
   x: '<svg class="i" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   check: '<svg class="i" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
   up: '<svg class="i" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></svg>',
@@ -1636,6 +1767,21 @@ function fmtTime(iso) {
   if (t === '00:00' || diff > 1) return dayLabel(iso);
   return dayLabel(iso) + ' ' + t;
 }
+/* 手動輸入日期：接受 2026-11-04、2026/11/4、115/11/4（民國）、11/4、1104、20261104 */
+function parseYmd(raw) {
+  const s = String(raw || '').trim().replace(/[年月]/g, '/').replace(/日$/, '');
+  if (!s) return '';
+  let y, m, d, x;
+  const now = new Date().getFullYear();
+  if ((x = s.match(/^(\d{2,4})[-\/.](\d{1,2})[-\/.](\d{1,2})$/))) { y = +x[1]; m = +x[2]; d = +x[3]; if (y < 1000) y += 1911; }
+  else if ((x = s.match(/^(\d{1,2})[-\/.](\d{1,2})$/))) { y = now; m = +x[1]; d = +x[2]; }
+  else if ((x = s.match(/^(\d{4})(\d{2})(\d{2})$/))) { y = +x[1]; m = +x[2]; d = +x[3]; }
+  else if ((x = s.match(/^(\d{2})(\d{2})$/))) { y = now; m = +x[1]; d = +x[2]; }
+  else return null;
+  const dt = new Date(y, m - 1, d);
+  if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) return null;
+  return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+}
 const md = ymd => { const m = String(ymd || '').match(/^\d{4}-(\d{1,2})-(\d{1,2})/); return m ? (+m[1]) + '/' + (+m[2]) : ''; };
 const names = w => String(w || '').split(/[／\/、,，]/).map(s => s.trim()).filter(Boolean);
 /* 人員只用文字；自己的名字用強調色 */
@@ -1671,7 +1817,7 @@ const S = {
   token: null, user: null, products: [], categories: [], users: [], colors: {}, plogs: {}, flowP: '', flowMode: store.get('ptk_flowmode', true) === 'table' ? 'table' : 'timeline', zone: null, zoneClosed: false, statuses: [], tasks: {}, recent: {}, logCount: {}, hist: {}, logs: null,
   view: VIEWS.includes(store.get('ptk_view', true)) ? store.get('ptk_view', true) : 'table',
   mode: store.get('ptk_mode', true) === 'flow' ? 'flow' : 'detail', showClosed: false, filter: 'all', person: '',
-  attnSet: ['待討論', '等待原料', '暫停項目'], hideTodo: store.get('ptk_hideTodo', true) === '1', hidePeople: store.get('ptk_hidePeople', true) === '1', showNote: store.get('ptk_showNote', true) === '1', showBar: store.get('ptk_showBar', true) === '1',
+  attnSet: ['待討論', '等待原料', '暫停項目'], hideTodo: store.get('ptk_hideTodo', true) === '1', hidePeople: store.get('ptk_hidePeople', true) === '1', showNote: store.get('ptk_showNote', true) === '1', showBar: store.get('ptk_showBar', true) === '1', showMemo: store.get('ptk_showMemo', true) !== '0', flowHideTodo: store.get('ptk_flowHideTodo', true) === '1',
   open: null, draft: null, orig: null, base: '', editSteps: false, confirmClose: false, saving: false, histAll: false, dlg: null, whoAdd: -1
 };
 const key = (p, c) => p + '|' + c;
@@ -1764,28 +1910,75 @@ async function api(action, data = {}) {
   catch (e) { const err = new Error('連線失敗，請確認網路後再試一次'); err.code = 'NET'; throw err; }
   const j = await res.json().catch(() => ({ ok: false, code: 'NET', error: '伺服器回應格式錯誤' }));
   if (!j.ok) {
+    if (j.code === 'AUTH' && action !== 'glogin' && !data._re && await silentLogin()) return api(action, { ...data, _re: 1 });
     if (j.code === 'AUTH') logoutLocal(j.error);
     const err = new Error(j.error || '發生錯誤'); err.code = j.code; err.data = j; throw err;
   }
   return j;
 }
-const toStep = s => ({ n: s.n, w: s.w || '', v: s.v || '', s: s.s || TODO, m: s.m || '', d: s.d || '', at: s.at || '', by: s.by || '' });
+const toStep = s => ({ n: s.n, w: s.w || '', v: s.v || '', s: s.s || TODO, m: s.m || '', d: s.d || '', at: s.at || '', by: s.by || '', ln: s.lastNote || '' });
 const toTask = c => ({ productId: c.product, categoryId: c.category, na: !!c.na, memo: c.memo || '', images: c.images || [], lastNote: c.lastNote || '', updatedAt: c.updatedAt || '', updatedBy: c.updatedBy || '', steps: (c.steps || []).map(toStep) });
 const toLog = l => ({ ...l, productId: l.product, categoryId: l.category });
 
-/* ---------------- 登入 ---------------- */
-async function doLogin(pw) {
-  const btn = $('#loginBtn'), err = $('#loginErr');
-  err.hidden = true; btn.disabled = true; btn.textContent = '登入中…';
+/* ---------------- 登入（Google 帳號，經 Firebase） ---------------- */
+/* Firebase 只負責確認「是哪個 Google 帳號」；能不能進來、角色是什麼，由後端比對「設定」表員工區塊的 Gmail 決定 */
+const fbReady = () => new Promise(res => {
+  const fb = window.__fb;
+  if (fb && fb.persistenceReady) return fb.persistenceReady.then(() => res(fb));
+  window.addEventListener('firebase-ready', () => res(window.__fb), { once: true });
+  setTimeout(() => res(window.__fb || null), 8000);
+});
+const fbUser = fb => new Promise(res => { const off = fb.onAuthStateChanged(fb.auth, u => { off(); res(u); }); });
+function setLoginBusy(on, text) { const b = $('#gBtn'); if (!b) return; b.disabled = on; b.querySelector('span').textContent = on ? (text || '登入中…') : '使用 Google 帳號登入'; }
+function loginErr(msg) { const e = $('#loginErr'); e.textContent = msg || ''; e.hidden = !msg; }
+async function finishLogin(r) {
+  S.token = r.token; S.user = r.user; store.set('ptk_token', r.token);
+  $('#welcomeName').textContent = r.user.name;
+  $('#loginBody').hidden = true; $('#welcome').hidden = false;
+  await loadAll();
+  setTimeout(enterApp, 600);
+}
+const exchange = async u => api('glogin', { idToken: await u.getIdToken(true) });
+async function googleLogin() {
+  loginErr('');
+  setLoginBusy(true);
+  const fb = await fbReady();
+  if (!fb) { setLoginBusy(false); loginErr('登入元件載入失敗，請重新整理頁面'); return; }
   try {
-    const r = await api('login', { password: pw });
-    S.token = r.token; S.user = r.user; store.set('ptk_token', r.token);
-    $('#welcomeName').textContent = r.user.name;
-    $('#loginBody').hidden = true; $('#welcome').hidden = false;
-    await loadAll();
-    setTimeout(enterApp, 600);
-  } catch (e) { err.textContent = e.message; err.hidden = false; $('#pw').select(); }
-  finally { btn.disabled = false; btn.textContent = '登入'; }
+    const cred = await fb.signInWithPopup(fb.auth, fb.makeProvider());
+    await finishLogin(await exchange(cred.user));
+  } catch (e) {
+    const c = (e && e.code) || '';
+    if (c === 'auth/popup-closed-by-user' || c === 'auth/cancelled-popup-request') { /* 使用者自己關掉視窗 */ }
+    else if (c === 'auth/popup-blocked') loginErr('瀏覽器擋住了登入視窗，請允許彈出式視窗後再按一次');
+    else if (c === 'auth/unauthorized-domain') loginErr('這個網址尚未加入 Firebase 授權網域，請聯絡管理員');
+    else if (c === 'auth/network-request-failed') loginErr('連線失敗，請確認網路後再試一次');
+    else { loginErr(e.message || '登入失敗，請再試一次'); try { await fb.signOut(fb.auth); } catch (_) {} }
+    $('#loginBody').hidden = false; $('#welcome').hidden = true;
+  } finally { setLoginBusy(false); }
+}
+/* 系統權杖過期（6 小時沒動作）時，用 Firebase 保存的 Google 登入狀態自動換新，不用重新選帳號 */
+let reauthing = null;
+function silentLogin() {
+  if (!API_URL) return Promise.resolve(false);
+  if (!reauthing) reauthing = (async () => {
+    const fb = await fbReady(); if (!fb) return false;
+    const u = fb.auth.currentUser || await fbUser(fb); if (!u) return false;
+    try { const r = await exchange(u); S.token = r.token; S.user = r.user; store.set('ptk_token', r.token); return true; }
+    catch (e) { return false; }
+  })().finally(() => setTimeout(() => { reauthing = null; }, 0));
+  return reauthing;
+}
+async function fbSignOut() {
+  const fb = API_URL && window.__fb; if (!fb) return;
+  try { await fb.signOut(fb.auth); await fb.clearAuthResidue(); } catch (e) {}
+}
+/* 示範模式：點名字登入 */
+async function doLogin(pw) {
+  loginErr(''); setLoginBusy(true);
+  try { await finishLogin(await api('login', { password: pw })); }
+  catch (e) { loginErr(e.message); $('#loginBody').hidden = false; $('#welcome').hidden = true; }
+  finally { setLoginBusy(false); }
 }
 function enterApp() {
   $('#login').hidden = true; $('#app').hidden = false;
@@ -1798,8 +1991,7 @@ function logoutLocal(msg) {
   closeLb(); closePop(); closeDlg(); $('#sheet').hidden = true; document.body.classList.remove('lock');
   const fl = document.getElementById('mxFloat'); if (fl) fl.hidden = true;
   $('#app').hidden = true; $('#login').hidden = false; $('#loginBody').hidden = false; $('#welcome').hidden = true;
-  $('#pw').value = '';
-  if (msg) { $('#loginErr').textContent = msg; $('#loginErr').hidden = false; }
+  loginErr(msg || '');
 }
 async function loadAll() {
   const r = await api('bootstrap');
@@ -1837,20 +2029,23 @@ function cellHTML(p, c) {
     const lab = list.length ? list.map(s => s.n).join('・') : (t.steps.length ? '全部完成' : '尚未設定步驟');
     return `<div class="cell flow${dim}">${head(lab, st, true)}<button class="flowline" data-act="open" ${at} aria-label="編輯 ${label}">${dots}</button></div>`;
   }
+  /* 勾「不顯示尚未開始」：目前步驟全是尚未開始的格子留白（點了一樣可以編輯） */
+  if (S.hideTodo && list.length && list.every(s => s.s === TODO)) return `<div class="cell${dim} todo-hid"><button class="c-blank" data-act="open" ${at} aria-label="${label}：尚未開始"></button></div>`;
+  const shown = S.hideTodo ? list.filter(s => s.s !== TODO) : list;
   let body;
   if (!t.steps.length) body = `<div class="c-act s-gray">${head('尚未設定步驟', TODO, true)}</div>`;
-  else if (!list.length) { const last = t.steps[t.steps.length - 1]; const lastAt = t.steps.map(x => x.at).filter(isYmd).sort().pop(); body = `<button class="c-done" data-act="open" ${at} title="全部完成" aria-label="${label}：全部完成">${ICON.check}</button>`; }
-  else body = list.map((s, i) => `<div class="c-act ${sc(s.s)}">${head(s.n, s.s, i === 0)}
-      ${s.m ? `<button class="c-sm" data-act="open" ${at}>${esc(s.m)}</button>` : ''}</div>`).join('');
+  else if (!shown.length) { const last = t.steps[t.steps.length - 1]; const lastAt = t.steps.map(x => x.at).filter(isYmd).sort().pop(); body = `<button class="c-done" data-act="open" ${at} title="全部完成" aria-label="${label}：全部完成">${ICON.check}</button>`; }
+  else body = shown.map((s, i) => `<div class="c-act ${sc(s.s)}">${head(s.n, s.s, i === 0)}
+      ${S.showMemo && s.m ? `<button class="c-sm" data-act="open" ${at}>${esc(s.m)}</button>` : ''}</div>`).join('');
   /* 製作廠商與負責人固定在格子右下角 */
-  const who = [...new Set(list.flatMap(s => names(s.w)))], vens = [...new Set(list.map(s => (s.v || '').trim()).filter(Boolean))];
-  const dueS = list.map(s => s.d).filter(isYmd).sort()[0];
-  const foot = (dueS ? dueLabel(dueS) + '<span class="grow"></span>' : '') + vens.map(v => `<span class="tag">${esc(v)}</span>`).join('') + (S.hidePeople || !list.length ? '' : stack(who));
+  const who = [...new Set(shown.flatMap(s => names(s.w)))], vens = [...new Set(shown.map(s => (s.v || '').trim()).filter(Boolean))];
+  const dueS = shown.map(s => s.d).filter(isYmd).sort()[0];
+  const foot = (dueS ? dueLabel(dueS) + '<span class="grow"></span>' : '') + vens.map(v => `<span class="tag">${esc(v)}</span>`).join('') + (S.hidePeople || !shown.length ? '' : stack(who));
   const imgs = t.images.slice(0, 3).map((u, i) => `<button data-act="imgs" data-i="${i}" ${at} aria-label="看圖片 ${i + 1}"><img src="${esc(imgSrc(u, 160))}" alt="" loading="lazy" referrerpolicy="no-referrer"></button>`).join('')
     + (t.images.length > 3 ? `<button class="more" data-act="imgs" data-i="3" ${at} aria-label="看全部圖片">+${t.images.length - 3}</button>` : '');
-  return `<div class="cell${dim}${t.steps.length && !list.length ? ' alldone' : ''}">${body}
+  return `<div class="cell${dim}${t.steps.length && !shown.length ? ' alldone' : ''}">${body}
     ${imgs ? `<div class="c-imgs">${imgs}</div>` : ''}
-    ${t.memo ? `<button class="c-memo" data-act="open" ${at}>${esc(t.memo)}</button>` : ''}
+    ${S.showMemo && t.memo ? `<button class="c-memo" data-act="open" ${at}>${esc(t.memo)}</button>` : ''}
     ${S.showNote && t.lastNote ? `<button class="c-note" data-act="open" ${at}><em>最新進度</em>${esc(t.lastNote)}</button>` : ''}
     ${foot ? `<button class="c-foot" data-act="open" ${at} aria-label="負責：${esc(who.join('、') || '未指派')}${vens.length ? '，製作：' + esc(vens.join('、')) : ''}">${foot}</button>` : ''}
   </div>`;
@@ -1887,7 +2082,7 @@ function render() {
   let chips = FILTERS.map(([id, name]) => `<button class="chip${S.filter === id ? ' on' : ''}" data-act="filter" data-v="${id}" aria-pressed="${S.filter === id}">${name}<i>${all.filter(t => cellMatch(t, id)).length}</i></button>`).join('');
   const attnN = st => all.reduce((a, t) => a + (live(t) ? t.steps.filter(s => s.s === st && personOK(s)).length : 0), 0);
   const subs = S.filter === 'attn' ? `<div class="subs" role="group" aria-label="要顯示的狀態">${ATTN.map(st => `<button class="sub" role="checkbox" aria-checked="${S.attnSet.includes(st)}" data-act="attn" data-v="${st}">${cb(S.attnSet.includes(st))}${st}<i>${attnN(st)}</i></button>`).join('')}</div>` : '';
-  const opts = S.view === 'product' ? [['hideTodo', '不顯示尚未開始', S.hideTodo]] : [['showNote', '顯示最新進度說明', S.showNote], ['hidePeople', '不顯示負責人', S.hidePeople]];
+  const opts = [['hideTodo', '不顯示尚未開始', S.hideTodo], ['showNote', '顯示最新進度說明', S.showNote], ['showMemo', '顯示備註', S.showMemo], ['hidePeople', '不顯示負責人', S.hidePeople]];
   const openCount = n => all.reduce((a, t) => a + (live(t) ? t.steps.filter(s => s.s !== DONE && names(s.w).includes(n)).length : 0), 0);
   const others = S.users.filter(n => n !== S.user.name);
   const pchip = (v, label, n) => `<button class="chip${S.person === v ? ' on' : ''}" data-act="person" data-v="${esc(v)}" aria-pressed="${S.person === v}">${label}${n !== undefined ? `<i>${n}</i>` : ''}</button>`;
@@ -1966,9 +2161,10 @@ function productView(rows) {
             <span class="c1">${esc(s.n)}</span>
             <span class="c1b">${done ? (isYmd(s.at) ? `<span class="due ok" title="完成 ${md(s.at)}">${md(s.at)}</span>` : '') : shortDue(s.d)}</span>
             <span class="c2">${s.v ? `<span class="tag">${esc(s.v)}</span>` : ''}</span>
-            <span class="c3" title="${esc(w.join('、'))}">${w.slice(0, 2).map(n => `<i class="bav" title="${esc(n)}">${esc(n.slice(0, 1))}</i>`).join('')}${w.length > 2 ? `<i class="bav more">+${w.length - 2}</i>` : ''}</span>
+            <span class="c3" title="${esc(w.join('、'))}">${S.hidePeople ? '' : w.slice(0, 2).map(n => `<i class="bav" title="${esc(n)}">${esc(n.slice(0, 1))}</i>`).join('')}${!S.hidePeople && w.length > 2 ? `<i class="bav more">+${w.length - 2}</i>` : ''}</span>
             <span class="c4">${done ? `<span class="okc" title="${s.at ? md(s.at) + ' 完成' : '已完成'}">${ICON.check}</span>` : `<span class="spill ${sc(s.s)}">${esc(SHORT[s.s] || s.s)}</span>`}</span>
-            ${s.m ? `<span class="c5">${esc(s.m)}</span>` : ''}
+            ${S.showNote && s.ln ? `<span class="c6"><em>最新進度</em>${esc(s.ln)}</span>` : ''}
+            ${S.showMemo && s.m ? `<span class="c5">${esc(s.m)}</span>` : ''}
           </li>`;
         }).join('')}</ul>${extra}</div>`;
       }).join('') : '<div class="loading">沒有符合的項目</div>'}
@@ -2007,16 +2203,19 @@ function stepOfLog(l) {
   const c = (l.changes || '').split('；')[0].trim();
   return c ? st.find(s => s.n.includes(c) || c.includes(s.n)) || null : null;
 }
+/* 流程頁「不顯示尚未開始」：這一列的狀態（沒填就看該步驟目前狀態）是尚未開始的就隱藏；匯出也照這個設定 */
+const rowTodo = l => { const r = l.raw || {}; let st = r.s; if (!st) { const x = stepOfLog(l); st = x ? x.s : ''; } return st === TODO; };
+const flowKeep = l => !S.flowHideTodo || !rowTodo(l);
 function flowView() {
   const prods = visibleProducts();
   if (!prods.length) return '<div class="empty">還沒有商品</div>';
   if (!prods.some(p => p.id === S.flowP)) S.flowP = prods[0].id;
-  const pid = S.flowP, all = S.plogs[pid], logs = all && all.filter(l => !l.conv);
+  const pid = S.flowP, all = S.plogs[pid], logs = all && all.filter(l => !l.conv && flowKeep(l)), tblN = all ? all.filter(flowKeep).length : 0;
   if (!all) loadPlogs(pid);
   const chips = `<div class="chips fl-prods" role="tablist" aria-label="選擇商品">${prods.map(p => `<button class="chip${p.id === pid ? ' on' : ''}" role="tab" aria-selected="${p.id === pid}" data-act="flowp" data-v="${esc(p.id)}">${esc(flowName(p.name))}</button>`).join('')}</div>`;
   const tbl = S.flowMode === 'table';
-  const head = `<div class="fl-head"><div><h2>${esc(prod(pid).name)}</h2><p>${all ? (tbl ? all.length + ' 列・和試算表「進度紀錄」相同，可直接在表格裡修改' : logs.length + ' 筆紀錄') : '讀取中…'}</p></div>
-    <div class="fl-tools"><div class="seg sm" role="group" aria-label="顯示方式"><button class="${tbl ? '' : 'on'}" data-act="flowmode" data-v="timeline" aria-pressed="${!tbl}">時間軸</button><button class="${tbl ? 'on' : ''}" data-act="flowmode" data-v="table" aria-pressed="${tbl}">表格</button></div>
+  const head = `<div class="fl-head"><div><h2>${esc(prod(pid).name)}</h2><p>${all ? (tbl ? tblN + ' 列・和試算表「進度紀錄」相同，可直接在表格裡修改' : logs.length + ' 筆紀錄') : '讀取中…'}</p></div>
+    <div class="fl-tools"><button class="opt" role="checkbox" aria-checked="${S.flowHideTodo}" data-act="opt" data-v="flowHideTodo">${cb(S.flowHideTodo)}不顯示尚未開始</button><div class="seg sm" role="group" aria-label="顯示方式"><button class="${tbl ? '' : 'on'}" data-act="flowmode" data-v="timeline" aria-pressed="${!tbl}">時間軸</button><button class="${tbl ? 'on' : ''}" data-act="flowmode" data-v="table" aria-pressed="${tbl}">表格</button></div>
     ${all && all.length ? `<button class="btn" data-act="flow-xlsx">${ICON.dl}匯出 Excel</button>` : ''}</div></div>`;
   if (all && tbl) return chips + head + flowTable(pid, all);
   if (!all) return chips + head + '<div class="empty">讀取中…</div>';
@@ -2079,7 +2278,7 @@ function flowTable(pid, all) {
   const W = [130, 110, 120, 120, 100, 112, 135, 135, 260, 220, 110, 220, 200, 90];
   return `<div class="ft-wrap"><table class="ft" style="width:${W.reduce((x, y) => x + y, 0)}px"><colgroup>${W.map(w => `<col style="width:${w}px">`).join('')}</colgroup>
     <thead><tr><th>日期</th><th>欄位</th><th>步驟</th><th>負責人</th><th>製作方</th><th>狀態</th><th>預計完成日</th><th>實際完成日</th><th>進度說明</th><th>待辦&下一步</th><th>追蹤狀態</th><th>備註</th><th>圖片網址</th><th>更新人</th></tr></thead>
-    <tbody>${all.map(row).join('')}</tbody>
+    <tbody>${all.map((l, i) => flowKeep(l) ? row(l, i) : '').join('')}</tbody>
     <tfoot><tr class="ft-new">
       <td class="c-date">${date('date', localDate())}</td><td><select data-nf="category">${catOpts(lastCat)}</select></td>
       <td><input data-nf="step" list="ftSteps"></td><td><input data-nf="people" list="ftPeople"></td><td><input data-nf="vendor" list="vendorList"></td>
@@ -2121,7 +2320,7 @@ async function addFlowRow() {
   catch (err) { toast(err.message, true, 5000); }
 }
 async function exportFlow() {
-  const pid = S.flowP, logs = S.plogs[pid] || [];   // 包含起始資料，和試算表一致
+  const pid = S.flowP, logs = (S.plogs[pid] || []).filter(flowKeep);   // 包含起始資料，和試算表一致；勾「不顯示尚未開始」時照樣排除
   // 匯出格式＝試算表「進度紀錄」主表的欄位，匯出後也可以直接貼回主表
   const rows = [['日期', '商品', '欄位', '步驟', '負責人', '製作方', '狀態', '預計完成日', '實際完成日', '進度說明', '待辦&下一步', '追蹤狀態', '備註', '圖片網址', '更新人']].concat(logs.map(l => {
     const d = new Date(l.time), t = hm(d), r = l.raw || {};
@@ -2311,7 +2510,7 @@ async function loadHist(pid, cid, force) {
 }
 const isOpen = (pid, cid) => S.open && S.open.pid === pid && S.open.cid === cid && !$('#sheet').hidden;
 function closeSheet(force) {
-  if (!force && dirty()) { S.confirmClose = true; renderSheet(); $('#shBody').scrollTop = 0; return; }
+  if (!force && dirty()) { S.confirmClose = true; renderSheet(); const k = document.querySelector('.cfm [data-act="keep"]'); if (k) k.focus(); return; }
   $('#sheet').hidden = true; document.body.classList.remove('lock'); S.draft = null; S.open = null;
 }
 const setHtml = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
@@ -2342,7 +2541,7 @@ function renderSheet() {
   const owners = [...new Set(S.orig.steps.flatMap(s => names(s.w)))];
   $('#saveBtn').hidden = ro;
   $('#shBody').innerHTML = `
-    ${S.confirmClose ? `<div class="confirm"><p>有變更還沒儲存，要放棄嗎？</p><div><button class="btn" data-act="keep">繼續編輯</button><button class="btn danger" data-act="discard">放棄變更</button></div></div>` : ''}
+    ${S.confirmClose ? `<div class="cfm" role="alertdialog" aria-modal="true" aria-labelledby="cfmT"><div class="cfm-box"><b id="cfmT">有變更還沒儲存</b><p>要放棄這次的修改嗎？</p><div class="cfm-btns"><button class="btn" data-act="keep">繼續編輯</button><button class="btn danger" data-act="discard">放棄變更</button></div></div></div>` : ''}
     ${ro ? `<div class="ro-note">${ICON.lock}<span>這一格由 ${esc(owners.join('、'))} 負責，你可以查看；只有負責人或管理員可以修改。</span></div>` : ''}
     <div class="sh-sum" id="secState">${sheetSummary()}</div>
     <section class="sec">
@@ -2358,7 +2557,8 @@ function renderSheet() {
 }
 function stepsHTML() {
   const d = S.draft, on = d.na ? new Set() : new Set(actives(d).map(s => s.n)), roCell = !canCell();
-  const date = (k, i, v, dis) => `<label class="dt${v ? '' : ' none'}"><span>${v ? md(v) : ''}</span><input type="date" data-${k}="${i}" value="${esc(v || '')}"${dis}></label>`;
+  /* 日期：可以直接打字（例如 11/4），也可以按右邊的日曆圖示點選 */
+  const date = (k, i, v, dis) => `<span class="dt"><input class="dtx" data-${k}t="${i}" value="${esc(v ? md(v) : '')}" inputmode="numeric" autocomplete="off" maxlength="10" aria-label="${k === 'due' ? '預計完成日' : '實際完成日'}"${dis}><span class="dtc">${ICON.cal}<input type="date" tabindex="-1" data-${k}="${i}" value="${esc(v || '')}" aria-label="選擇日期"${dis}></span></span>`;
   const rows = d.steps.map((s, i) => {
     const done = s.s === DONE, ro = !canStep(s), dis = ro ? ' disabled' : '', bl = !done && blocker(d, s), open = !!S.upd[s.n] && !S.editSteps, w = names(s.w);
     const whoCell = `<div class="who2">${w.map(n => `<span class="nm2">${esc(n)}</span>`).join('')}${ro ? '' : `<button type="button" class="nm2 add" data-act="who-pop" data-i="${i}" aria-label="選擇負責人">＋</button>`}</div>
@@ -2568,12 +2768,22 @@ $('#shBody').addEventListener('change', e => {
   const t = e.target, d = S.draft; if (!d) return;
   if (t.dataset.st !== undefined) { const st = d.steps[+t.dataset.st]; st.s = t.value; if (t.value === DONE && !st.at) st.at = localDate(); stepsChanged(); }
   else if (t.dataset.done !== undefined) { const s = d.steps[+t.dataset.done]; s.s = t.checked ? DONE : (S.orig.steps.find(x => x.n === s.n && x.s !== DONE) || {}).s || DOING; if (t.checked && !s.at) s.at = localDate(); if (!t.checked) s.at = ''; stepsChanged(); }
-  else if (t.dataset.due !== undefined) { d.steps[+t.dataset.due].d = t.value; stepsChanged(); }
-  else if (t.dataset.at !== undefined) { d.steps[+t.dataset.at].at = t.value; updateSave(); }
+  else if (t.dataset.due !== undefined || t.dataset.at !== undefined) {   // 從日曆選
+    const k = t.dataset.due !== undefined ? 'd' : 'at', i = +(t.dataset.due !== undefined ? t.dataset.due : t.dataset.at);
+    d.steps[i][k] = t.value; const tx = t.closest('.dt').querySelector('.dtx'); if (tx) tx.value = md(t.value);
+    if (k === 'd') stepsChanged(); else updateSave();
+  }
+  else if (t.dataset.duet !== undefined || t.dataset.att !== undefined) {   // 手動輸入
+    const k = t.dataset.duet !== undefined ? 'd' : 'at', i = +(t.dataset.duet !== undefined ? t.dataset.duet : t.dataset.att), v = parseYmd(t.value);
+    if (v === null) { toast('日期格式看不懂，請輸入例如 11/4 或 2026/11/04', true); t.value = md(d.steps[i][k]); return; }
+    d.steps[i][k] = v; t.value = md(v); const p = t.closest('.dt').querySelector('input[type=date]'); if (p) p.value = v;
+    if (k === 'd') stepsChanged(); else updateSave();
+  }
 });
 $('#shBody').addEventListener('keydown', e => {
   const t = e.target;
   if (e.key === 'Enter' && t.id === 'stepIn') { e.preventDefault(); addStep(); }
+  if (e.key === 'Enter' && t.classList.contains('dtx')) { e.preventDefault(); t.blur(); }
   if (e.key === 'Enter' && t.id === 'fUrl') { e.preventDefault(); addUrl(); }
   if (e.key === 'Enter' && t.classList.contains('who-in')) { e.preventDefault(); addOther(S.draft.steps[+t.dataset.i], t); S.whoAdd = -1; stepsChanged(); }
   if (e.key === 'Escape' && t.classList.contains('who-in')) { e.stopPropagation(); S.whoAdd = -1; setHtml('secSteps', stepsHTML()); }
@@ -2764,8 +2974,9 @@ document.addEventListener('click', e => {
   if (!a || a.disabled) return;
   const d = a.dataset;
   switch (d.act) {
-    case 'toggle-pw': { const i = $('#pw'); i.type = i.type === 'password' ? 'text' : 'password'; a.textContent = i.type === 'password' ? '顯示' : '隱藏'; break; }
-    case 'quick': $('#pw').value = d.pw; doLogin(d.pw); break;
+    case 'glogin': if (!API_URL) loginErr('示範模式請點下方的名字登入'); else googleLogin(); break;
+    case 'copy-url': { const u = location.href.replace(/([?&])openExternalBrowser=1&?/, '$1').replace(/[?&]$/, ''); (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => toast('已複製網址')).catch(() => window.prompt('請複製這個網址', u)); break; }
+    case 'quick': doLogin(d.pw); break;
     case 'view': goView(d.v); render(); window.scrollTo(0, 0); break;
     case 'mode': S.mode = d.v; store.set('ptk_mode', d.v, true); render(); break;
     case 'closed': S.showClosed = !S.showClosed; render(); break;
@@ -2796,7 +3007,7 @@ document.addEventListener('click', e => {
       render(); window.scrollTo(0, 0); break;
     case 'goto': goView('product'); render(); requestAnimationFrame(() => { const el = document.getElementById('pc-' + d.pid); if (el) el.scrollIntoView({ block: 'start' }); }); break;
     case 'refresh': refresh(true); break;
-    case 'logout': api('logout').catch(() => {}); logoutLocal(); break;
+    case 'logout': api('logout').catch(() => {}); fbSignOut(); logoutLocal(); break;
     case 'open': openSheet(d.pid, d.cid); break;
     case 'hist': if (POP.anchor === a && POP.pinned) closePop(); else { clearTimeout(POP.t); openPop(a, true); } break;
     case 'open-hist': openSheet(d.pid, d.cid, true); break;
@@ -2850,8 +3061,7 @@ document.addEventListener('keydown', e => {
   if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && (e.target.classList.contains('srow') || e.target.classList.contains('prow2'))) { e.preventDefault(); e.target.click(); }
 });
 /* 日期格只顯示「11/20」，點一下開啟日曆 */
-$('#shBody').addEventListener('click', e => { const t = e.target; if (t.matches && t.matches('.dt input') && !t.disabled && t.showPicker) { try { t.showPicker(); } catch (err) {} } });
-$('#loginForm').addEventListener('submit', e => { e.preventDefault(); const v = $('#pw').value.trim(); if (!v) { $('#loginErr').textContent = '請輸入密碼'; $('#loginErr').hidden = false; return; } doLogin(v); });
+$('#shBody').addEventListener('click', e => { const t = e.target; if (t.matches && t.matches('.dtc input') && !t.disabled && t.showPicker) { try { t.showPicker(); } catch (err) {} } });
 
 let toastT;
 function toast(msg, bad, ms) {
@@ -2872,12 +3082,22 @@ narrow.addEventListener('change', () => { if (!$('#app').hidden) render(); });
 
 /* ---------------- 啟動 ---------------- */
 (async function init() {
+  /* LINE 內建瀏覽器不能用 Google 登入：自動改用手機預設瀏覽器開啟 */
+  const ua = navigator.userAgent;
+  if (API_URL && /\bLine\//i.test(ua) && !/[?&]openExternalBrowser=1/.test(location.search)) {
+    location.replace(location.origin + location.pathname + (location.search ? location.search + '&' : '?') + 'openExternalBrowser=1' + location.hash); return;
+  }
+  const inApp = /\bLine\/|FBAN|FBAV|FB_IAB|Instagram|MicroMessenger|; wv\)/i.test(ua);
+  if (API_URL && inApp) { $('#gBtn').hidden = true; $('#inapp').hidden = false; }
   const saved = store.get('ptk_token');
   if (saved) {
     S.token = saved;
     try { await loadAll(); enterApp(); return; } catch (e) { S.token = null; store.del('ptk_token'); }
   }
-  $('#pw').focus({ preventScroll: true });
+  if (API_URL && !inApp) {
+    setLoginBusy(true, '確認登入狀態…');
+    try { if (await silentLogin()) { await loadAll(); enterApp(); return; } } catch (e) {} finally { setLoginBusy(false); }
+  }
 })();
 </script>
 
