@@ -1583,6 +1583,20 @@ body.resizing{cursor:col-resize;user-select:none}
 .ft tfoot td.ft-addc{position:sticky;right:0;z-index:3;background:#EAF1FB;box-shadow:-8px 0 12px -8px rgba(0,0,0,.25)}
 .ft tfoot .ft-addc .btn{width:100%;justify-content:center;gap:4px;height:38px;font-size:15px}
 .ft tfoot .ft-addc .btn .i{width:16px;height:16px}
+/* 流程表格：滿版、不留左右空白、欄寬自動符合螢幕 */
+.ft-wrap{position:relative;left:50%;transform:translateX(-50%);width:calc(100vw - 24px);max-width:none;border-radius:12px}
+.ft{table-layout:fixed;width:100%;min-width:1080px}
+.ft td.w,.ft td.c-date,.ft td.by{min-width:0}
+.ft td.by{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ft tfoot td.ft-addc{overflow:visible;padding:6px}
+.ft tfoot .ft-addc .btn{padding:0 8px}
+.ft thead th{padding:9px 6px;font-size:12.5px;overflow:hidden;text-overflow:ellipsis}
+.ft input,.ft select,.ft textarea{padding:7px 6px;font-size:13px}
+.ft input[type=date]{padding-right:2px}
+@media (max-width:899px){.ft-wrap{width:calc(100vw - 16px)}}
+.ft input[type=date]{font-size:12.5px;letter-spacing:-.01em}
+.ft input[type=date]::-webkit-calendar-picker-indicator{margin:0;padding:0;width:13px;height:13px;opacity:.55}
+.ft select{padding-right:2px}
 </style>
 </head>
 <body>
@@ -2139,6 +2153,13 @@ function ring(pct) {
 }
 
 /* ---------------- 畫面 ---------------- */
+/* 流程表格高度：剛好放進畫面，不用捲動整頁就看得到最下面的新增列和左右捲軸 */
+function fitFlowTable() {
+  const w = document.querySelector('.ft-wrap'); if (!w) return;
+  const top = w.getBoundingClientRect().top + window.scrollY;
+  w.style.maxHeight = Math.max(320, window.innerHeight - top - 14) + 'px';
+}
+window.addEventListener('resize', () => { if (S.view === 'flow') fitFlowTable(); });
 function render() {
   closePop();
   const prods = visibleProducts(), all = [];
@@ -2154,7 +2175,7 @@ function render() {
     <div class="seg" role="tablist" aria-label="檢視">${tabs.map(([v, n]) => `<button role="tab" class="${S.view === v ? 'on' : ''}" aria-selected="${S.view === v}" data-act="view" data-v="${v}">${n}</button>`).join('')}</div></div>`;
   if (S.view === 'log') { $('#main').innerHTML = html + logView(); if (!S.logs) loadLogs(); return; }
   if (S.view === 'stats') { $('#main').innerHTML = html + statsView(); setHH(); return; }
-  if (S.view === 'flow') { $('#main').innerHTML = html + flowView(); setHH(); return; }
+  if (S.view === 'flow') { $('#main').innerHTML = html + flowView(); setHH(); fitFlowTable(); return; }
   if (S.view === 'zone') { $('#main').innerHTML = html + zoneView(); setHH(); return; }
   let chips = FILTERS.map(([id, name]) => `<button class="chip${S.filter === id ? ' on' : ''}" data-act="filter" data-v="${id}" aria-pressed="${S.filter === id}">${name}<i>${all.filter(t => cellMatch(t, id)).length}</i></button>`).join('');
   const attnN = st => all.reduce((a, t) => a + (live(t) ? t.steps.filter(s => s.s === st && personOK(s)).length : 0), 0);
@@ -2336,8 +2357,9 @@ document.addEventListener('change', async e => {
 });
 /* ---------- 流程表格：欄位和試算表「進度紀錄」完全相同，直接在格子裡修改 ---------- */
 /* 流程表格欄寬：預設精簡，可拖曳表頭右緣調整，會記住 */
-const FT_W0 = [112, 84, 100, 100, 84, 96, 118, 118, 240, 200, 96, 200, 180, 88];
-function ftWidths() { const w = store.get('ptk_ftw', true); try { const a = JSON.parse(w || 'null'); if (Array.isArray(a) && a.length === FT_W0.length) return a; } catch (e) {} return FT_W0.slice(); }
+/* 欄寬是比例：表格永遠滿版，螢幕夠寬就不用左右捲動 */
+const FT_W0 = [120, 104, 90, 84, 72, 88, 112, 112, 176, 136, 74, 136, 112, 96];
+function ftWidths() { const w = store.get('ptk_ftw2', true); try { const a = JSON.parse(w || 'null'); if (Array.isArray(a) && a.length === FT_W0.length) return a; } catch (e) {} return FT_W0.slice(); }
 const ROW_STATUS_UI = ['尚未開始', '進行中', '待討論', '等待原料', '暫停項目', '已完成', '不需要', '不需製作', '需要製作'];
 function flowTable(pid, all) {
   const ymdOf = iso => { const d = new Date(iso); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
@@ -2358,7 +2380,8 @@ function flowTable(pid, all) {
   const steps = [...new Set(S.categories.flatMap(c => getTask(pid, c.id).steps.map(s => s.n)))];
   const lastCat = all.length ? all[all.length - 1].categoryId : (S.categories[0] || {}).id;
   const W = ftWidths();
-  return `<div class="ft-wrap"><table class="ft" style="width:${W.reduce((x, y) => x + y, 0)}px"><colgroup>${W.map(w => `<col style="width:${w}px">`).join('')}</colgroup>
+  const sumW = W.reduce((x, y) => x + y, 0);
+  return `<div class="ft-wrap"><table class="ft"><colgroup>${W.map(w => `<col style="width:${(w / sumW * 100).toFixed(3)}%">`).join('')}</colgroup>
     <thead><tr>${['日期', '欄位', '步驟', '負責人', '製作方', '狀態', '預計完成日', '實際完成日', '進度說明', '待辦&下一步', '追蹤狀態', '備註', '圖片網址', '更新人'].map((h, i) => `<th>${h}<span class="ft-rs" data-c="${i}" title="拖曳調整欄寬"></span></th>`).join('')}</tr></thead>
     <tbody>${all.map((l, i) => flowKeep(l) ? row(l, i) : '').join('')}</tbody>
     <tfoot><tr class="ft-new">
@@ -3170,9 +3193,10 @@ document.addEventListener('change', e => { const t = e.target; if (t.matches && 
 document.addEventListener('pointerdown', e => {
   const h = e.target.closest && e.target.closest('.ft-rs'); if (!h) return;
   e.preventDefault();
-  const i = +h.dataset.c, tbl = h.closest('table'), col = tbl.querySelectorAll('col')[i], W = ftWidths(), x0 = e.clientX, w0 = W[i];
-  const move = ev => { W[i] = Math.max(56, Math.min(600, w0 + ev.clientX - x0)); col.style.width = W[i] + 'px'; tbl.style.width = W.reduce((a, b) => a + b, 0) + 'px'; };
-  const up = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); store.set('ptk_ftw', JSON.stringify(W), true); document.body.classList.remove('resizing'); };
+  const i = +h.dataset.c, tbl = h.closest('table'), cols = tbl.querySelectorAll('col'), W = ftWidths(), x0 = e.clientX, w0 = W[i];
+  const k = W.reduce((a, b) => a + b, 0) / tbl.getBoundingClientRect().width;   // 螢幕像素 → 比例單位
+  const move = ev => { W[i] = Math.max(40, Math.min(600, w0 + (ev.clientX - x0) * k)); const s = W.reduce((a, b) => a + b, 0); cols.forEach((c, j) => { c.style.width = (W[j] / s * 100).toFixed(3) + '%'; }); };
+  const up = () => { document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', up); store.set('ptk_ftw2', JSON.stringify(W), true); document.body.classList.remove('resizing'); };
   document.body.classList.add('resizing');
   document.addEventListener('pointermove', move); document.addEventListener('pointerup', up);
 });
