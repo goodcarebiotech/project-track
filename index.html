@@ -1524,6 +1524,38 @@ input[type=date].empty::-webkit-datetime-edit,input[type=date][value=""]:not(:fo
 /* 總覽：隱藏尚未開始的格子 */
 .c-blank{display:block;width:100%;height:100%;min-height:40px;border:0;background:none;cursor:pointer}
 .fl-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* ===== 昶明區：固定寬度（一排四欄）、清單式閱讀 ===== */
+.z-board{grid-template-columns:repeat(4,minmax(0,1fr));overflow:visible;gap:16px}
+@media (max-width:1180px){.z-board{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:899px){.z-board{grid-template-columns:repeat(2,minmax(0,1fr));margin-right:0;padding-right:0;scroll-snap-type:none}}
+@media (max-width:600px){.z-board{grid-template-columns:1fr}}
+.z-col{box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.z-h{align-items:flex-start;padding:14px 10px 14px 16px}
+.z-h>div{flex:1;min-width:0}
+.z-bar2{display:block;height:4px;margin-top:8px;border-radius:2px;background:rgba(255,255,255,.25);overflow:hidden}
+.z-bar2>i{display:block;height:100%;background:#fff;border-radius:2px}
+.z-list{gap:0;padding:0}
+.z-row{position:relative;display:flex;flex-direction:column;gap:6px;width:100%;padding:12px 14px 12px 18px;border:0;border-top:1px solid var(--sep);background:var(--card);text-align:left;cursor:pointer;color:var(--label)}
+.z-row:first-child{border-top:0}
+.z-row:hover{background:var(--hover)}
+.z-row::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:0 3px 3px 0;background:var(--zc,var(--s-gray))}
+.z-row.s-blue{--zc:var(--s-blue)}.z-row.s-wine{--zc:var(--s-wine)}.z-row.s-orange{--zc:var(--s-orange)}.z-row.s-green{--zc:var(--s-green)}.z-row.s-gray{--zc:#C7C7CC}
+.z-top{display:flex;align-items:flex-start;gap:8px}
+.z-t{flex:1;min-width:0;font-size:15px;font-weight:600;line-height:1.4;overflow-wrap:anywhere}
+.z-st{flex:none;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;color:#fff;background:var(--zc,var(--s-gray));line-height:1.6}
+.z-row.s-gray .z-st{background:#E5E5EA;color:#3A3A3C}
+.z-ok{flex:none;display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:color-mix(in srgb,var(--s-green) 14%,transparent);color:var(--s-green)}
+.z-ok .i{width:14px;height:14px}
+.z-row.done .z-t{color:var(--label-2);font-weight:500}
+.z-m{font-size:13.5px;line-height:1.55;color:var(--label-2);white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.z-imgs{display:flex;gap:6px;flex-wrap:wrap}
+.z-img{width:56px;height:56px;border-radius:9px;overflow:hidden;background:var(--fill);border:1px solid var(--sep)}
+.z-img img{width:100%;height:100%;object-fit:cover;display:block}
+.z-img.more{display:grid;place-items:center;font-size:13px;font-weight:600;color:var(--label-2)}
+.z-meta{font-size:12.5px;color:var(--label-3);font-variant-numeric:tabular-nums}
+.z-meta .ok{color:var(--s-green);font-weight:600}
+.z-meta .late{color:var(--s-wine);font-weight:600}
+.z-empty{padding:18px 16px}
 </style>
 </head>
 <body>
@@ -1814,10 +1846,10 @@ function imgSrc(u, w = 1600) {
 /* ---------------- 狀態 ---------------- */
 const VIEWS = ['table', 'product', 'flow', 'zone', 'stats', 'log'];
 const S = {
-  token: null, user: null, products: [], categories: [], users: [], colors: {}, plogs: {}, flowP: '', flowMode: store.get('ptk_flowmode', true) === 'table' ? 'table' : 'timeline', zone: null, zoneClosed: false, statuses: [], tasks: {}, recent: {}, logCount: {}, hist: {}, logs: null,
+  token: null, user: null, products: [], categories: [], users: [], colors: {}, plogs: {}, plogsStale: {}, flowP: '', flowMode: store.get('ptk_flowmode', true) === 'table' ? 'table' : 'timeline', zone: null, zoneClosed: false, statuses: [], tasks: {}, recent: {}, logCount: {}, hist: {}, logs: null,
   view: VIEWS.includes(store.get('ptk_view', true)) ? store.get('ptk_view', true) : 'table',
   mode: store.get('ptk_mode', true) === 'flow' ? 'flow' : 'detail', showClosed: false, filter: 'all', person: '',
-  attnSet: ['待討論', '等待原料', '暫停項目'], hideTodo: store.get('ptk_hideTodo', true) === '1', hidePeople: store.get('ptk_hidePeople', true) === '1', showNote: store.get('ptk_showNote', true) === '1', showBar: store.get('ptk_showBar', true) === '1', showMemo: store.get('ptk_showMemo', true) !== '0', flowHideTodo: store.get('ptk_flowHideTodo', true) === '1',
+  attnSet: ['待討論', '等待原料', '暫停項目'], hideTodo: store.get('ptk_hideTodo', true) === '1', hidePeople: store.get('ptk_hidePeople', true) === '1', showNote: store.get('ptk_showNote', true) === '1', showBar: store.get('ptk_showBar', true) === '1', showMemo: store.get('ptk_showMemo', true) !== '0', showImgs: store.get('ptk_showImgs', true) !== '0', flowHideTodo: store.get('ptk_flowHideTodo', true) === '1',
   open: null, draft: null, orig: null, base: '', editSteps: false, confirmClose: false, saving: false, histAll: false, dlg: null, whoAdd: -1
 };
 const key = (p, c) => p + '|' + c;
@@ -1981,18 +2013,27 @@ async function doLogin(pw) {
   finally { setLoginBusy(false); }
 }
 function enterApp() {
+  setTimeout(prefetchLogs, 300);
   $('#login').hidden = true; $('#app').hidden = false;
   $('#meName').innerHTML = esc(S.user.name) + (S.user.role === 'admin' ? '<small>管理員</small>' : '');
   render();
 }
 function logoutLocal(msg) {
   store.del('ptk_token');
-  Object.assign(S, { token: null, user: null, hist: {}, logs: null, draft: null, open: null, person: '', filter: 'all', zone: null, plogs: {} });
+  Object.assign(S, { token: null, user: null, hist: {}, logs: null, draft: null, open: null, person: '', filter: 'all', zone: null, plogs: {}, plogsStale: {} });
   closeLb(); closePop(); closeDlg(); $('#sheet').hidden = true; document.body.classList.remove('lock');
   const fl = document.getElementById('mxFloat'); if (fl) fl.hidden = true;
   $('#app').hidden = true; $('#login').hidden = false; $('#loginBody').hidden = false; $('#welcome').hidden = true;
   loginErr(msg || '');
 }
+/* 登入後在背景一次載入所有商品的流程紀錄，切到流程頁不用等 */
+async function prefetchLogs() {
+  if (!S.token) return;
+  try { const r = await api('allLogs'); Object.keys(r.byProduct || {}).forEach(p => { if (!S.plogs[p] || S.plogsStale[p]) { S.plogs[p] = r.byProduct[p].map(toLog); delete S.plogsStale[p]; } }); S.products.forEach(p => { if (!S.plogs[p.id]) S.plogs[p.id] = []; }); if (S.view === 'flow' && !flowBusy()) render(); }
+  catch (e) {}
+}
+/* 使用者正在流程頁輸入時不要重畫，避免游標跳走 */
+const flowBusy = () => { const a = document.activeElement; return !!(a && a.closest && a.closest('.ft-wrap, .fl-side')); };
 async function loadAll() {
   const r = await api('bootstrap');
   S.user = r.user; S.statuses = r.statuses;
@@ -2041,7 +2082,7 @@ function cellHTML(p, c) {
   const who = [...new Set(shown.flatMap(s => names(s.w)))], vens = [...new Set(shown.map(s => (s.v || '').trim()).filter(Boolean))];
   const dueS = shown.map(s => s.d).filter(isYmd).sort()[0];
   const foot = (dueS ? dueLabel(dueS) + '<span class="grow"></span>' : '') + vens.map(v => `<span class="tag">${esc(v)}</span>`).join('') + (S.hidePeople || !shown.length ? '' : stack(who));
-  const imgs = t.images.slice(0, 3).map((u, i) => `<button data-act="imgs" data-i="${i}" ${at} aria-label="看圖片 ${i + 1}"><img src="${esc(imgSrc(u, 160))}" alt="" loading="lazy" referrerpolicy="no-referrer"></button>`).join('')
+  const imgs = !S.showImgs ? '' : t.images.slice(0, 3).map((u, i) => `<button data-act="imgs" data-i="${i}" ${at} aria-label="看圖片 ${i + 1}"><img src="${esc(imgSrc(u, 160))}" alt="" loading="lazy" referrerpolicy="no-referrer"></button>`).join('')
     + (t.images.length > 3 ? `<button class="more" data-act="imgs" data-i="3" ${at} aria-label="看全部圖片">+${t.images.length - 3}</button>` : '');
   return `<div class="cell${dim}${t.steps.length && !shown.length ? ' alldone' : ''}">${body}
     ${imgs ? `<div class="c-imgs">${imgs}</div>` : ''}
@@ -2082,7 +2123,7 @@ function render() {
   let chips = FILTERS.map(([id, name]) => `<button class="chip${S.filter === id ? ' on' : ''}" data-act="filter" data-v="${id}" aria-pressed="${S.filter === id}">${name}<i>${all.filter(t => cellMatch(t, id)).length}</i></button>`).join('');
   const attnN = st => all.reduce((a, t) => a + (live(t) ? t.steps.filter(s => s.s === st && personOK(s)).length : 0), 0);
   const subs = S.filter === 'attn' ? `<div class="subs" role="group" aria-label="要顯示的狀態">${ATTN.map(st => `<button class="sub" role="checkbox" aria-checked="${S.attnSet.includes(st)}" data-act="attn" data-v="${st}">${cb(S.attnSet.includes(st))}${st}<i>${attnN(st)}</i></button>`).join('')}</div>` : '';
-  const opts = [['hideTodo', '不顯示尚未開始', S.hideTodo], ['showNote', '顯示最新進度說明', S.showNote], ['showMemo', '顯示備註', S.showMemo], ['hidePeople', '不顯示負責人', S.hidePeople]];
+  const opts = [['hideTodo', '不顯示尚未開始', S.hideTodo], ['showNote', '顯示最新進度說明', S.showNote], ['showMemo', '顯示備註', S.showMemo], ['showImgs', '顯示圖片', S.showImgs], ['hidePeople', '不顯示負責人', S.hidePeople]];
   const openCount = n => all.reduce((a, t) => a + (live(t) ? t.steps.filter(s => s.s !== DONE && names(s.w).includes(n)).length : 0), 0);
   const others = S.users.filter(n => n !== S.user.name);
   const pchip = (v, label, n) => `<button class="chip${S.person === v ? ' on' : ''}" data-act="person" data-v="${esc(v)}" aria-pressed="${S.person === v}">${label}${n !== undefined ? `<i>${n}</i>` : ''}</button>`;
@@ -2154,7 +2195,7 @@ function productView(rows) {
       ${groups.length ? groups.map(g => {
         const at = `data-pid="${esc(p.id)}" data-cid="${esc(g.c.id)}"`;
         const thumb = g.t.images.length ? `<button class="s-thumb" data-act="imgs" data-i="0" ${at} aria-label="看圖片（${g.t.images.length} 張）"><img src="${esc(imgSrc(g.t.images[0], 200))}" alt="" loading="lazy" referrerpolicy="no-referrer">${g.t.images.length > 1 ? `<span class="n">${g.t.images.length}</span>` : ''}</button>` : '';
-        const extra = g.t.images.length ? `<div class="pg-extra"><em>${esc(g.c.name)}・圖片</em>${thumb}</div>` : '';
+        const extra = S.showImgs && g.t.images.length ? `<div class="pg-extra"><em>${esc(g.c.name)}・圖片</em>${thumb}</div>` : '';
         return `<div class="pg"><ul class="rows">${g.list.map(s => {
           const w = names(s.w), done = s.s === DONE;
           return `<li class="prow2${done ? ' done' : ''}" data-act="open" ${at} tabindex="0" role="button" aria-label="${esc(s.n)}：${esc(s.s)}，負責 ${esc(w.join('、') || '未指派')}${s.v ? '，製作 ' + esc(s.v) : ''}">
@@ -2192,7 +2233,7 @@ function miniMatrix(rows) {
 /* ---------------- 流程：依商品的時間軸 ---------------- */
 async function loadPlogs(pid, force) {
   if (S.plogs[pid] && !force) return;
-  try { const r = await api('productLogs', { product: pid }); S.plogs[pid] = r.logs.map(toLog); if (S.view === 'flow' && S.flowP === pid) render(); }
+  try { const r = await api('productLogs', { product: pid }); S.plogs[pid] = r.logs.map(toLog); delete S.plogsStale[pid]; if (S.view === 'flow' && S.flowP === pid && !flowBusy()) render(); }
   catch (e) { toast(e.message, true); }
 }
 /* 紀錄對應的步驟：先看「關聯步驟」，沒有就用名稱比對（例如 原料 → 原料採購） */
@@ -2212,6 +2253,7 @@ function flowView() {
   if (!prods.some(p => p.id === S.flowP)) S.flowP = prods[0].id;
   const pid = S.flowP, all = S.plogs[pid], logs = all && all.filter(l => !l.conv && flowKeep(l)), tblN = all ? all.filter(flowKeep).length : 0;
   if (!all) loadPlogs(pid);
+  else if (S.plogsStale[pid]) { delete S.plogsStale[pid]; loadPlogs(pid, true); }   // 先顯示手上的資料，背景更新
   const chips = `<div class="chips fl-prods" role="tablist" aria-label="選擇商品">${prods.map(p => `<button class="chip${p.id === pid ? ' on' : ''}" role="tab" aria-selected="${p.id === pid}" data-act="flowp" data-v="${esc(p.id)}">${esc(flowName(p.name))}</button>`).join('')}</div>`;
   const tbl = S.flowMode === 'table';
   const head = `<div class="fl-head"><div><h2>${esc(prod(pid).name)}</h2><p>${all ? (tbl ? tblN + ' 列・和試算表「進度紀錄」相同，可直接在表格裡修改' : logs.length + ' 筆紀錄') : '讀取中…'}</p></div>
@@ -2359,17 +2401,20 @@ function zoneView() {
     const items = z.items.filter(i => i.project === p.name);
     const done = items.filter(i => i.s === DONE).length;
     const tiles = items.map(it => {
-      const imgs = it.images.slice(0, 4).map((u, k) => `<span class="z-img" data-act="zimg" data-id="${esc(it.id)}" data-k="${k}"><img src="${esc(imgSrc(u, 160))}" alt="" loading="lazy" referrerpolicy="no-referrer"></span>`).join('');
-      if (it.s === DONE) return `<button class="z-item z-done" data-act="zitem" data-id="${esc(it.id)}"><span class="z-t">${esc(it.title)}</span><span class="okc">${ICON.check}</span>${isYmd(it.at) ? `<span class="due ok">完成 ${md(it.at)}</span>` : ''}</button>`;
-      return `<button class="z-item c-act ${sc(it.s)}" data-act="zitem" data-id="${esc(it.id)}">
-        <span class="c-r1"><span class="c-step">${esc(it.title)}</span><span class="pill ${sc(it.s)}">${esc(SHORT[it.s] || it.s)}</span></span>
-        ${it.m ? `<span class="c-sm">${esc(it.m)}</span>` : ''}
+      const done = it.s === DONE, late = !done && isYmd(it.d) && daysTo(it.d) < 0;
+      const imgs = it.images.slice(0, 4).map((u, k) => `<span class="z-img" data-act="zimg" data-id="${esc(it.id)}" data-k="${k}"><img src="${esc(imgSrc(u, 200))}" alt="" loading="lazy" referrerpolicy="no-referrer"></span>`).join('')
+        + (it.images.length > 4 ? `<span class="z-img more" data-act="zimg" data-id="${esc(it.id)}" data-k="4">+${it.images.length - 4}</span>` : '');
+      const meta = done ? (isYmd(it.at) ? `<span class="ok">完成 ${md(it.at)}</span>` : '') : (isYmd(it.d) ? `<span class="${late ? 'late' : ''}">預計 ${md(it.d)}${late ? `・逾期 ${-daysTo(it.d)} 天` : ''}</span>` : '');
+      return `<button class="z-row ${sc(it.s)}${done ? ' done' : ''}" data-act="zitem" data-id="${esc(it.id)}">
+        <span class="z-top"><span class="z-t">${esc(it.title)}</span>${done ? `<span class="z-ok" title="已完成">${ICON.check}</span>` : `<span class="z-st">${esc(it.s)}</span>`}</span>
+        ${it.m ? `<span class="z-m">${esc(it.m)}</span>` : ''}
         ${imgs ? `<span class="z-imgs">${imgs}</span>` : ''}
-        ${isYmd(it.d) ? `<span class="z-due">${dueLabel(it.d)}</span>` : ''}
+        ${meta ? `<span class="z-meta">${meta}</span>` : ''}
       </button>`;
     }).join('');
+    const pct = items.length ? Math.round(done / items.length * 100) : 0;
     return `<section class="z-col${p.closed ? ' closed' : ''}">
-      <header class="z-h"><div><b>${esc(p.name)}</b><small>${items.length ? done + '/' + items.length + ' 完成' : '尚無項目'}${p.closed ? '・已結案' : ''}</small></div>${ed ? `<button class="btn icon" data-act="zproj-menu" data-p="${esc(p.name)}" aria-label="${esc(p.name)} 設定">${ICON.more}</button>` : ''}</header>
+      <header class="z-h"><div><b>${esc(p.name)}</b><small>${items.length ? done + '/' + items.length + ' 完成' : '尚無項目'}${p.closed ? '・已結案' : ''}</small>${items.length ? `<i class="z-bar2"><i style="width:${pct}%"></i></i>` : ''}</div>${ed ? `<button class="btn icon" data-act="zproj-menu" data-p="${esc(p.name)}" aria-label="${esc(p.name)} 設定">${ICON.more}</button>` : ''}</header>
       <div class="z-list">${tiles || '<div class="z-empty">還沒有工作項目</div>'}</div>
       ${ed && !p.closed ? `<button class="z-add" data-act="zitem-add" data-p="${esc(p.name)}">${ICON.plus}新增工作項目</button>` : ''}
     </section>`;
@@ -2659,11 +2704,13 @@ const payload = d => ({ na: !!d.na, steps: d.steps.map(s => ({ n: s.n, s: s.s, w
 function applySaved(pid, cid, r) {
   const k = key(pid, cid);
   S.tasks[k] = toTask(r.cell);
-  delete S.plogs[pid];
+  S.plogsStale[pid] = true;
   const logs = (r.logs || (r.log ? [r.log] : [])).filter(l => !l.conv).map(toLog).reverse();   // 一次儲存可能新增多列，最新的在前
   if (!logs.length) return;
-  if (S.hist[k]) S.hist[k].unshift(...logs);
-  S.recent[k] = logs.concat(S.recent[k] || []).slice(0, 4); S.logCount[k] = (S.logCount[k] || 0) + logs.length;
+  const ids = new Set(logs.map(l => l.id)), fresh = a => (a || []).filter(l => !ids.has(l.id));   // 同一天合併的列：換成最新內容，不重複
+  const merged = S.hist[k] ? S.hist[k].length - fresh(S.hist[k]).length : (S.recent[k] || []).length - fresh(S.recent[k]).length;
+  if (S.hist[k]) { S.hist[k] = fresh(S.hist[k]); S.hist[k].unshift(...logs); }
+  S.recent[k] = logs.concat(fresh(S.recent[k])).slice(0, 4); S.logCount[k] = Math.max(0, (S.logCount[k] || 0) - Math.max(0, merged)); S.logCount[k] = (S.logCount[k] || 0) + logs.length;
   if (S.logs) S.logs.unshift(...logs);
 }
 async function saveTask(pid, cid, d, note, base) {
@@ -3061,7 +3108,12 @@ document.addEventListener('keydown', e => {
   if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && (e.target.classList.contains('srow') || e.target.classList.contains('prow2'))) { e.preventDefault(); e.target.click(); }
 });
 /* 日期格只顯示「11/20」，點一下開啟日曆 */
-$('#shBody').addEventListener('click', e => { const t = e.target; if (t.matches && t.matches('.dtc input') && !t.disabled && t.showPicker) { try { t.showPicker(); } catch (err) {} } });
+/* 日期：點日期框任何地方都會跳出日曆（也可以直接打字） */
+document.addEventListener('click', e => {
+  const t = e.target; if (!t.matches) return;
+  const pick = t.matches('input[type=date]') ? t : t.matches('.dtx') ? t.closest('.dt').querySelector('input[type=date]') : null;
+  if (pick && !pick.disabled && pick.showPicker) { try { pick.showPicker(); } catch (err) {} }
+});
 
 let toastT;
 function toast(msg, bad, ms) {
@@ -3072,7 +3124,7 @@ function toast(msg, bad, ms) {
 }
 async function refresh(show) {
   if (!S.token) return;
-  try { await loadAll(); S.hist = {}; S.logs = null; S.plogs = {}; S.zone = null; render(); if (show) toast('已更新為最新資料'); }
+  try { await loadAll(); S.hist = {}; S.logs = null; Object.keys(S.plogs).forEach(p => { S.plogsStale[p] = true; }); S.zone = null; render(); prefetchLogs(); if (show) toast('已更新為最新資料'); }
   catch (e) { if (show) toast(e.message, true); }
 }
 const idle = () => S.token && !$('#app').hidden && $('#sheet').hidden && $('#lb').hidden && $('#pop').hidden && $('#dlg').hidden && !document.hidden;
