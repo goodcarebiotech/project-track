@@ -1,8 +1,9 @@
 <!doctype html>
-<html lang="zh-Hant-TW">
+<html lang="zh-Hant-TW" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light">
 <title>固德生技專案追蹤</title>
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1459,22 +1460,17 @@ input[type=date].dempty::-webkit-datetime-edit,input[type=date][value=""]:not(:f
   .sh-h{padding:10px 12px}.sh-h h2{font-size:16px}
   .sh-sum{flex-direction:column;align-items:flex-start;padding:14px 16px}
   .sec{margin:0 12px 14px}
-  .stw{overflow:visible}
-  .stt colgroup,.stt thead{display:none}
-  .stt,.stt tbody,.stt tr,.stt td{display:block;width:100%}
-  .stt tr:not(.xrow){display:grid;grid-template-columns:34px minmax(0,1fr) 116px;gap:8px 8px;padding:12px;border-top:1px solid #F0F0F2}
-  .stt tr.cur{background:#F6F5FE;box-shadow:inset 4px 0 0 var(--s-blue)}
-  .stt tr.cur>td,.stt tr.cur>td:first-child{background:none;box-shadow:none}
-  .stt td{padding:0;border:0}
-  .stt td.t-w,.stt td.t-d,.stt td.t-v,.stt td.t-m,.stt td.t-u{grid-column:2/-1}
-  .stt td.t-d{display:inline-block}
-  .stt td[data-l]::before{content:attr(data-l);display:block;font-size:11.5px;color:var(--label-3);margin-bottom:3px}
-  .stt tr.xrow{display:block;padding:2px 12px 14px 54px;background:#F3F7FC}
-  .stt tr.xrow>td{padding:0;background:none}
-  .stt tr.xrow>td.t-ck{display:none}
-  .stt tr.xrow.cur{background:#F6F5FE;box-shadow:inset 4px 0 0 var(--s-blue)}
-  .stt tr.xrow.cur>td{background:none}
-  .subgrid{grid-template-columns:1fr}
+  .stw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .stt{min-width:760px}
+  .stt col:nth-child(2){width:112px!important}
+  .stt col:nth-child(4){width:132px!important}
+  .stt th:first-child,.stt td.t-ck{position:sticky;left:0;z-index:3}
+  .stt th:nth-child(2),.stt td.t-n{position:sticky;left:44px;z-index:3;box-shadow:6px 0 8px -6px rgba(0,0,0,.18)}
+  .stt td.t-ck,.stt td.t-n{background:var(--card)}
+  .stt tr.cur>td.t-ck,.stt tr.cur>td.t-n{background:#F6F5FE}
+  .stt th:first-child,.stt th:nth-child(2){background:#1D1D1F}
+  .stt tr.xrow>td:not(.t-ck){position:sticky;left:0}
+  .subgrid{grid-template-columns:repeat(2,minmax(0,1fr));width:calc(100vw - 48px);max-width:700px}
   .who-pop{left:0;width:min(320px,calc(100vw - 60px))}
   .hst colgroup{display:none}
 }
@@ -1661,6 +1657,50 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
 .st-tag.t{background:#1D1D1F;color:#fff;margin-left:0}
 .st-row.st-sub2{padding-top:8px;padding-bottom:8px}
 .st-row.st-sub2 .st-name{padding-left:18px}
+/* 昶明區：已完成標籤（含日期）、收合列在上方 */
+.z-donep{flex:none;display:inline-flex;align-items:center;gap:4px;padding:2px 9px 2px 7px;border-radius:999px;background:var(--s-green);color:#fff;font-size:12px;font-weight:600;line-height:1.6;white-space:nowrap}
+.z-donep .i{width:12px;height:12px;stroke-width:3}
+.z-list.clipped::after{display:none}
+.z-list.clipped::before{content:"";position:absolute;left:0;right:0;top:0;height:22px;background:linear-gradient(to top,transparent,rgba(120,120,128,.10));pointer-events:none;z-index:1}
+.z-moreall{border-top:0;border-bottom:1px solid var(--sep)}
+/* 流程表格：新增列做成獨立的輸入區 */
+.ft tfoot td{background:#EAF2FF;border-top:0;padding:6px 3px;box-shadow:0 -6px 12px -8px rgba(10,79,184,.35)}
+.ft tfoot tr.ft-new td:first-child{border-left:4px solid var(--accent);background:#EAF2FF}
+.ft tfoot input,.ft tfoot select,.ft tfoot textarea{background:#fff;border:1px solid #BCD0EE;border-radius:8px;min-height:34px;box-shadow:inset 0 1px 2px rgba(0,0,0,.05)}
+.ft tfoot input:focus,.ft tfoot select:focus,.ft tfoot textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+.ft tfoot td.ft-addc{background:#EAF2FF}
+.ft tfoot .ft-addc .btn{background:linear-gradient(180deg,#2F7BF6,#0A5BD8);color:#fff;border:0;box-shadow:0 2px 0 #0846A8,0 4px 10px rgba(10,91,216,.35);border-radius:10px}
+.ft tfoot .ft-addc .btn:active{transform:translateY(2px);box-shadow:0 0 0 #0846A8,0 2px 6px rgba(10,91,216,.3)}
+.ft tfoot tr.ft-new{position:relative}
+/* 負責人選單：由程式定位（fixed） */
+.who-pop{z-index:120}
+/* 手機：統計的百分比放右邊 */
+@media (max-width:899px){
+  .st-row:not(.st-u) .st-name{grid-column:1/-2;grid-row:1}
+  .st-card.nobar .st-row:not(.st-u) .st-prog{grid-column:-2/-1;grid-row:1;justify-self:end}
+  .st-card:not(.nobar) .st-row:not(.st-u) .st-prog{grid-column:1/-1}
+  .st-row:not(.st-u) .st-last{display:none}
+  .st-card.nobar .st-row{grid-template-columns:repeat(3,auto) 1fr}
+}
+/* 編輯視窗：急件鈕與步驟名稱同一行 */
+.stt td.t-n b{display:inline;vertical-align:middle}
+.stt td.t-n .ugt,.stt td.t-n .ugb{vertical-align:middle}
+.stt td.t-n small{display:block}
+/* 手機：編輯視窗不被表格撐寬，步驟表左右滑動 */
+.sh-body{overflow-x:hidden}
+.sec,#secSteps,#secHist{min-width:0;max-width:100%}
+.stw{max-width:100%}
+@media (max-width:899px){
+  .hst{table-layout:fixed;width:100%}
+  .sh-h{gap:8px}
+  .sh-h h2{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+@media (max-width:899px){
+  .prow{flex-wrap:wrap;row-gap:6px}
+  .opts{flex-wrap:wrap;width:100%;gap:2px 6px}
+  .opts .opt{font-size:13px;padding:4px 4px}
+}
+.addstep2{min-width:0}.addstep2 input{min-width:0;flex:1 1 auto;width:auto}
 </style>
 </head>
 <body>
@@ -1848,6 +1888,8 @@ window.__fb.persistenceReady.then(() => {
 });
 </script>
 <script>
+/* 一律使用白底（手機深色模式也不變黑） */
+document.documentElement.setAttribute('data-theme', 'light');
 /* =========================================================
    設定：把 Google Apps Script「網頁應用程式」部署網址貼在這裡。
    留空 = 示範模式（使用 Excel 的資料試用、不會儲存）。
@@ -2242,6 +2284,17 @@ function askConfirm(title, msg, okText) {
     document.body.appendChild(d); d.querySelector('[data-c="0"]').focus();
   });
 }
+/* 負責人選單：浮在畫面最上層，貼著＋按鈕，不會被表格或視窗邊緣擋住 */
+function placeWhoPop() {
+  const p = document.querySelector('.who-pop'), b = p && document.querySelector(`[data-act="who-pop"][data-i="${S.whoPop}"]`);
+  if (!p || !b) return;
+  const r = b.getBoundingClientRect(), w = Math.min(340, innerWidth - 24);
+  p.style.position = 'fixed'; p.style.width = w + 'px'; p.style.left = '0px'; p.style.top = '0px';
+  const o = p.getBoundingClientRect(), h = p.offsetHeight;   // 抵銷外層 transform 造成的位移
+  let x = Math.min(Math.max(12, r.left), innerWidth - w - 12), y = r.bottom + 6;
+  if (y + h > innerHeight - 12) y = Math.max(12, r.top - h - 6);
+  p.style.left = (x - o.left) + 'px'; p.style.top = (y - o.top) + 'px';
+}
 function render() {
   closePop();
   const prods = visibleProducts(), all = [];
@@ -2555,16 +2608,16 @@ function zoneView() {
   const bar = `<div class="z-bar">${ed ? `<button class="btn" data-act="zproj-add">${ICON.plus}新增專案</button>` : '<span class="z-ro">' + ICON.lock + '只能檢視</span>'}${closedN ? `<button class="switch" role="switch" aria-checked="${!!S.zoneClosed}" data-act="zclosed">顯示已結案 ${closedN}<i></i></button>` : ''}</div>`;
   if (!projs.length) return bar + `<div class="empty">${ed ? '還沒有專案。按「新增專案」開始記錄昶明的獨立專案。' : '目前還沒有專案。'}</div>`;
   const cols = projs.map(p => {
-    const items = z.items.filter(i => i.project === p.name).sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : a.updatedAt > b.updatedAt ? -1 : 0));   // 最新的在最上面
-    const open = S.zOpen.includes(p.name), LIM = 3, more = items.length > LIM;
+    const items = z.items.filter(i => i.project === p.name).sort((a, b) => (a.updatedAt < b.updatedAt ? -1 : a.updatedAt > b.updatedAt ? 1 : 0));   // 舊的在上、最新的在最下面
+    const open = S.zOpen.includes(p.name), LIM = 2, more = items.length > LIM;
     const done = items.filter(i => i.s === DONE).length;
-    const tiles = (more && !open ? items.slice(0, LIM) : items).map(it => {
+    const tiles = (more && !open ? items.slice(-LIM) : items).map(it => {
       const done = it.s === DONE, late = !done && isYmd(it.d) && daysTo(it.d) < 0;
       const imgs = it.images.slice(0, 4).map((u, k) => `<span class="z-img" data-act="zimg" data-id="${esc(it.id)}" data-k="${k}"><img src="${esc(imgSrc(u, 200))}" alt="" loading="lazy" referrerpolicy="no-referrer"></span>`).join('')
         + (it.images.length > 4 ? `<span class="z-img more" data-act="zimg" data-id="${esc(it.id)}" data-k="4">+${it.images.length - 4}</span>` : '');
-      const meta = done ? (isYmd(it.at) ? `<span class="ok">完成 ${md(it.at)}</span>` : '') : (isYmd(it.d) ? `<span class="${late ? 'late' : ''}">預計 ${md(it.d)}${late ? `・逾期 ${-daysTo(it.d)} 天` : ''}</span>` : '');
+      const meta = done ? '' : (isYmd(it.d) ? `<span class="${late ? 'late' : ''}">預計 ${md(it.d)}${late ? `・逾期 ${-daysTo(it.d)} 天` : ''}</span>` : '');
       return `<button class="z-row ${sc(it.s)}${done ? ' done' : ''}" data-act="zitem" data-id="${esc(it.id)}">
-        <span class="z-top"><span class="z-t">${it.u && !done ? '<i class="ugb" title="急件">急</i>' : ''}${esc(it.title)}</span>${done ? `<span class="z-ok" title="已完成">${ICON.check}</span>` : `<span class="z-st">${esc(it.s)}</span>`}</span>
+        <span class="z-top"><span class="z-t">${it.u && !done ? '<i class="ugb" title="急件">急</i>' : ''}${esc(it.title)}</span>${done ? `<span class="z-donep">${ICON.check}已完成${isYmd(it.at) ? ' ' + md(it.at) : ''}</span>` : `<span class="z-st">${esc(it.s)}</span>`}</span>
         ${it.m ? `<span class="z-m${S.zMemo.has(it.id) ? ' open' : ''}">${esc(it.m)}</span>${it.m.length > 70 || (it.m.match(/\n/g) || []).length > 2 ? `<span class="z-more" data-act="zmore" data-id="${esc(it.id)}">${S.zMemo.has(it.id) ? '收合' : '展開全文'}</span>` : ''}` : ''}
         ${imgs ? `<span class="z-imgs">${imgs}</span>` : ''}
         ${meta ? `<span class="z-meta">${meta}</span>` : ''}
@@ -2573,8 +2626,8 @@ function zoneView() {
     const pct = items.length ? Math.round(done / items.length * 100) : 0;
     return `<section class="z-col${p.closed ? ' closed' : ''}">
       <header class="z-h"><div><b>${esc(p.name)}</b><small>${items.length ? done + '/' + items.length + ' 完成' : '尚無項目'}${p.closed ? '・已結案' : ''}</small>${items.length ? `<i class="z-bar2"><i style="width:${pct}%"></i></i>` : ''}</div>${ed ? `<button class="btn icon" data-act="zproj-menu" data-p="${esc(p.name)}" aria-label="${esc(p.name)} 設定">${ICON.more}</button>` : ''}</header>
+      ${more ? `<button class="z-moreall" data-act="zopen" data-p="${esc(p.name)}" aria-expanded="${open}"><span class="pm">${open ? '−' : '+'}</span>${open ? '收合，只看最新 ' + LIM + ' 筆' : '展開前面 ' + (items.length - LIM) + ' 筆（共 ' + items.length + ' 筆）'}</button>` : ''}
       <div class="z-list${more && !open ? ' clipped' : ''}">${tiles || '<div class="z-empty">還沒有工作項目</div>'}</div>
-      ${more ? `<button class="z-moreall" data-act="zopen" data-p="${esc(p.name)}" aria-expanded="${open}"><span class="pm">${open ? '−' : '+'}</span>${open ? '收合' : '展開全部（共 ' + items.length + ' 筆）'}</button>` : ''}
       ${ed && !p.closed ? `<button class="z-add" data-act="zitem-add" data-p="${esc(p.name)}">${ICON.plus}新增工作項目</button>` : ''}
     </section>`;
   }).join('');
@@ -2785,7 +2838,7 @@ function stepsHTML() {
       ${S.whoPop === i && !ro ? `<div class="who-pop" role="dialog" aria-label="${esc(s.n)} 負責人"><div class="s-who">${whoChips(s.w, `data-act="who" data-i="${i}"`, false, S.whoAdd === i)}</div><button type="button" class="btn sm" data-act="who-pop" data-i="${i}">完成</button></div>` : ''}`;
     const row = `<tr class="${on.has(s.n) ? 'cur' : ''}${done ? ' done' : ''}${ro ? ' ro' : ''}${open ? ' open' : ''}">
       <td class="t-ck"><label class="ck"><input type="checkbox" data-done="${i}"${done ? ' checked' : ''}${dis} aria-label="${esc(s.n)} 完成"><span class="box">${ICON.check}</span></label></td>
-      <td class="t-n">${S.user.role === 'admin' ? `<button type="button" class="ugt${s.u ? ' on' : ''}" data-act="urg" data-i="${i}" aria-pressed="${!!s.u}" title="標示為急件">急</button>` : s.u ? '<i class="ugb" title="急件">急</i>' : ''}<b>${esc(s.n)}</b>${bl ? `<small>等${esc(bl.n)}完成</small>` : ro ? `<small>${ICON.lock}只能查看</small>` : ''}</td>
+      <td class="t-n">${isAdmin() ? `<button type="button" class="ugt${s.u ? ' on' : ''}" data-act="urg" data-i="${i}" aria-pressed="${!!s.u}" title="標示為急件">急</button>` : s.u ? '<i class="ugb" title="急件">急</i>' : ''}<b>${esc(s.n)}</b>${bl ? `<small>等${esc(bl.n)}完成</small>` : ro ? `<small>${ICON.lock}只能查看</small>` : ''}</td>
       <td class="t-s"><select class="stsel ${sc(s.s)}" data-st="${i}" aria-label="${esc(s.n)} 狀態"${dis}>${S.statuses.map(x => `<option${x === s.s ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></td>
       <td class="t-w" data-l="負責人">${whoCell}</td>
       <td class="t-d" data-l="預計">${date('due', i, s.d, dis)}</td>
@@ -3049,7 +3102,7 @@ function openDlg(type, pid) {
       <div class="f-row"><label for="dName">工作項目</label><input id="dName" maxlength="60" required value="${esc(v.title)}"${dis}></div>
       <div class="f-row"><label for="zSt">狀態</label><select id="zSt"${dis}>${S.statuses.map(x => `<option${x === v.s ? ' selected' : ''}>${esc(x)}</option>`).join('')}</select></div>
       <div class="f-row"><label for="zDue">預計完成</label><input id="zDue" type="date" value="${esc(v.d)}"${v.d ? '' : ' class="dempty"'}${dis}></div>
-      ${S.user.role === 'admin' ? `<div class="f-row"><label for="zU">急件</label><input id="zU" type="checkbox" class="ugck"${v.u ? ' checked' : ''}${dis}></div>` : ''}
+      ${isAdmin() ? `<div class="f-row"><label for="zU">急件</label><input id="zU" type="checkbox" class="ugck"${v.u ? ' checked' : ''}${dis}></div>` : ''}
       <div class="f-row"><label for="zAt">實際完成</label><input id="zAt" type="date" value="${esc(v.at)}"${v.at ? '' : ' class="dempty"'}${dis}></div></div>
       <div class="grp-t">備註</div><div class="grp"><textarea id="zMemo" class="ta z-memo" rows="6" maxlength="1000" aria-label="備註"${dis}>${esc(v.m)}</textarea></div>
       <div class="grp-t">圖片網址（一行一個）</div><div class="grp"><textarea id="zImgs" class="ta" rows="2" aria-label="圖片網址"${dis}>${esc(v.images.join('\n'))}</textarea></div>
@@ -3308,6 +3361,10 @@ document.addEventListener('keydown', e => {
 /* 日期欄：有值才顯示文字（沒填時不顯示 年/月/日 提示） */
 document.addEventListener('input', e => { const t = e.target; if (t.matches && t.matches('input[type=date]')) t.classList.toggle('dempty', !t.value); }, true);
 document.addEventListener('change', e => { const t = e.target; if (t.matches && t.matches('input[type=date]')) t.classList.toggle('dempty', !t.value); }, true);
+/* 編輯視窗內容變動或捲動時，重新擺放負責人選單 */
+new MutationObserver(() => placeWhoPop()).observe($('#shBody'), { childList: true, subtree: true });
+$('#shBody').addEventListener('scroll', () => placeWhoPop(), { passive: true });
+window.addEventListener('resize', () => placeWhoPop());
 /* 流程頁：切換商品（下拉選單） */
 document.addEventListener('change', e => { if (e.target.id === 'flowSel') { S.flowP = e.target.value; render(); } });
 /* 流程表格：Esc 取消正在輸入的內容 */
