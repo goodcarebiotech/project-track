@@ -1597,6 +1597,36 @@ body.resizing{cursor:col-resize;user-select:none}
 .ft input[type=date]{font-size:12.5px;letter-spacing:-.01em}
 .ft input[type=date]::-webkit-calendar-picker-indicator{margin:0;padding:0;width:13px;height:13px;opacity:.55}
 .ft select{padding-right:2px}
+/* 流程頁：精簡標題、商品改下拉選單，表格多放幾列 */
+.hero.compact{margin-top:14px;margin-bottom:10px;align-items:center}
+.hero.compact h1{font-size:26px;line-height:1.2}
+.fl-head{margin:4px 0 8px;align-items:center}
+.fl-hl{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
+.fl-hl p{margin:0;font-size:12.5px;color:var(--label-3)}
+.fl-psel{position:relative;display:inline-flex;align-items:center}
+.fl-psel select{appearance:none;-webkit-appearance:none;height:40px;padding:0 38px 0 14px;border:1px solid var(--sep-strong);border-radius:12px;background:var(--card);font-size:18px;font-weight:650;color:var(--label);cursor:pointer;max-width:70vw}
+.fl-psel select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 15%,transparent)}
+.fl-psel .i{position:absolute;right:12px;width:16px;height:16px;pointer-events:none;color:var(--label-2)}
+.ft-wrap{position:relative;left:50%;transform:translateX(-50%);border-radius:10px}
+.ft textarea.ft-ta{max-height:58px;overflow:hidden}
+.ft textarea.ft-ta:focus{max-height:220px;overflow:auto}
+.ft td{line-height:1.35}
+/* 更新紀錄：動作標籤、舊值→新值、還原 */
+.lrow{display:flex;gap:12px;align-items:flex-start}
+.lmain{flex:1;min-width:0}
+.lside{flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.lrow .who{display:flex;align-items:center;flex-wrap:wrap;gap:6px}
+.lrow .act{padding:1px 8px;border-radius:999px;background:var(--fill);font-size:12px;font-weight:600;color:var(--label-2)}
+.lrow .act.del{background:color-mix(in srgb,var(--s-wine) 12%,transparent);color:var(--s-wine)}
+.lrow .act.rs{background:color-mix(in srgb,var(--s-green) 14%,transparent);color:var(--s-green)}
+.lrow .who em{font-style:normal;color:var(--label-2);font-size:13px}
+.lrow .ov{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:4px;font-size:12.5px}
+.lrow .ov .o{color:var(--label-3);text-decoration:line-through;overflow-wrap:anywhere}
+.lrow .ov .n{color:var(--label);overflow-wrap:anywhere}
+.lrow .ov i{font-style:normal;color:var(--label-3)}
+.lrow .und{margin-top:4px;font-size:12px;color:var(--s-green)}
+.lrow.undone{opacity:.7}
+.rsbtn{color:var(--accent);border:1px solid color-mix(in srgb,var(--accent) 35%,transparent);background:var(--card)}
 </style>
 </head>
 <body>
@@ -1887,7 +1917,7 @@ function imgSrc(u, w = 1600) {
 /* ---------------- 狀態 ---------------- */
 const VIEWS = ['table', 'product', 'flow', 'zone', 'stats', 'log'];
 const S = {
-  token: null, user: null, products: [], categories: [], users: [], colors: {}, plogs: {}, plogsStale: {}, zMemo: new Set(), zFold: (() => { try { return JSON.parse(store.get('ptk_zfold', true) || '[]'); } catch (e) { return []; } })(), flowP: '', flowMode: store.get('ptk_flowmode', true) === 'table' ? 'table' : 'timeline', zone: null, zoneClosed: false, statuses: [], tasks: {}, recent: {}, logCount: {}, hist: {}, logs: null,
+  token: null, user: null, products: [], categories: [], users: [], colors: {}, writing: 0, plogs: {}, plogsStale: {}, zMemo: new Set(), zFold: (() => { try { return JSON.parse(store.get('ptk_zfold', true) || '[]'); } catch (e) { return []; } })(), flowP: '', flowMode: store.get('ptk_flowmode', true) === 'table' ? 'table' : 'timeline', zone: null, zoneClosed: false, statuses: [], tasks: {}, recent: {}, logCount: {}, hist: {}, logs: null,
   view: VIEWS.includes(store.get('ptk_view', true)) ? store.get('ptk_view', true) : 'table',
   mode: store.get('ptk_mode', true) === 'flow' ? 'flow' : 'detail', showClosed: false, filter: 'all', person: '',
   attnSet: ['待討論', '等待原料', '暫停項目'], hideTodo: store.get('ptk_hideTodo', true) === '1', hidePeople: store.get('ptk_hidePeople', true) === '1', showNote: store.get('ptk_showNote', true) === '1', showBar: store.get('ptk_showBar', true) === '1', showMemo: store.get('ptk_showMemo', true) !== '0', showImgs: store.get('ptk_showImgs', true) !== '0', flowHideTodo: store.get('ptk_flowHideTodo', true) === '1',
@@ -1981,11 +2011,13 @@ function myTodo() {
 }
 
 /* ---------------- API ---------------- */
+const READ_API = ['bootstrap', 'history', 'logs', 'productLogs', 'allLogs', 'cell', 'zoneLoad', 'audit', 'glogin', 'logout'];
 async function api(action, data = {}) {
   let res;
   try { res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, token: S.token, ...data }) }); }
   catch (e) { const err = new Error('連線失敗，請確認網路後再試一次'); err.code = 'NET'; throw err; }
   const j = await res.json().catch(() => ({ ok: false, code: 'NET', error: '伺服器回應格式錯誤' }));
+  if (j.ok && !READ_API.includes(action)) S.logs = null;   // 有寫入就讓更新紀錄重新讀取
   if (!j.ok) {
     if (j.code === 'AUTH' && action !== 'glogin' && !data._re && await silentLogin()) return api(action, { ...data, _re: 1 });
     if (j.code === 'AUTH') logoutLocal(j.error);
@@ -2156,10 +2188,22 @@ function ring(pct) {
 /* 流程表格高度：剛好放進畫面，不用捲動整頁就看得到最下面的新增列和左右捲軸 */
 function fitFlowTable() {
   const w = document.querySelector('.ft-wrap'); if (!w) return;
+  w.style.width = (document.documentElement.clientWidth - 8) + 'px';   // 幾乎貼齊網頁左右邊緣
   const top = w.getBoundingClientRect().top + window.scrollY;
-  w.style.maxHeight = Math.max(320, window.innerHeight - top - 14) + 'px';
+  w.style.maxHeight = Math.max(360, window.innerHeight - top - 6) + 'px';
 }
 window.addEventListener('resize', () => { if (S.view === 'flow') fitFlowTable(); });
+/* 通用確認視窗（取代瀏覽器的 confirm） */
+function askConfirm(title, msg, okText) {
+  return new Promise(res => {
+    const d = document.createElement('div'); d.className = 'cfm'; d.setAttribute('role', 'alertdialog'); d.setAttribute('aria-modal', 'true');
+    d.innerHTML = `<div class="cfm-box"><b>${esc(title)}</b><p>${esc(msg)}</p><div class="cfm-btns"><button type="button" class="btn" data-c="0">取消</button><button type="button" class="btn danger" data-c="1">${esc(okText || '確定')}</button></div></div>`;
+    const done = v => { d.remove(); res(v); };
+    d.addEventListener('click', e => { const b = e.target.closest('[data-c]'); if (b) done(b.dataset.c === '1'); else if (e.target === d) done(false); });
+    d.addEventListener('keydown', e => { if (e.key === 'Escape') { e.stopPropagation(); done(false); } });
+    document.body.appendChild(d); d.querySelector('[data-c="0"]').focus();
+  });
+}
 function render() {
   closePop();
   const prods = visibleProducts(), all = [];
@@ -2171,7 +2215,7 @@ function render() {
   if (S.view === 'zone' && !S.user.zone) S.view = 'table';
   const tabs = [['table', '總覽'], ['product', '依商品'], ['flow', '流程'], ...(S.user.zone ? [['zone', '昶明區']] : []), ['stats', '統計'], ['log', '更新紀錄']];
   const titles = { table: ['製作進度', `${prods.length} 個商品・<b>${openN}</b> 格未完成・<b>${doneN}</b> 格已完成`], product: ['製作進度', `${prods.length} 個商品・<b>${openN}</b> 格未完成・<b>${doneN}</b> 格已完成`], zone: ['昶明區', ''], flow: ['流程紀錄', ''], stats: ['進度統計', '依目前資料即時計算（不含已結案商品）'], log: ['更新紀錄', ''] };
-  let html = `<div class="hero"><div><h1>${titles[S.view][0]}</h1>${titles[S.view][1] ? `<p>${titles[S.view][1]}</p>` : ''}</div>
+  let html = `<div class="hero${S.view === 'flow' ? ' compact' : ''}"><div><h1>${titles[S.view][0]}</h1>${titles[S.view][1] ? `<p>${titles[S.view][1]}</p>` : ''}</div>
     <div class="seg" role="tablist" aria-label="檢視">${tabs.map(([v, n]) => `<button role="tab" class="${S.view === v ? 'on' : ''}" aria-selected="${S.view === v}" data-act="view" data-v="${v}">${n}</button>`).join('')}</div></div>`;
   if (S.view === 'log') { $('#main').innerHTML = html + logView(); if (!S.logs) loadLogs(); return; }
   if (S.view === 'stats') { $('#main').innerHTML = html + statsView(); setHH(); return; }
@@ -2312,9 +2356,10 @@ function flowView() {
   const pid = S.flowP, all = S.plogs[pid], logs = all && all.filter(l => !l.conv && flowKeep(l)), tblN = all ? all.filter(flowKeep).length : 0;
   if (!all) loadPlogs(pid);
   else if (S.plogsStale[pid]) { delete S.plogsStale[pid]; loadPlogs(pid, true); }   // 先顯示手上的資料，背景更新
-  const chips = `<div class="chips fl-prods" role="tablist" aria-label="選擇商品">${prods.map(p => `<button class="chip${p.id === pid ? ' on' : ''}" role="tab" aria-selected="${p.id === pid}" data-act="flowp" data-v="${esc(p.id)}">${esc(flowName(p.name))}</button>`).join('')}</div>`;
+  const chips = '';
+  const psel = `<label class="fl-psel"><select id="flowSel" aria-label="選擇商品">${prods.map(p => `<option value="${esc(p.id)}"${p.id === pid ? ' selected' : ''}>${esc(flowName(p.name))}</option>`).join('')}</select>${ICON.down}</label>`;
   const tbl = S.flowMode === 'table';
-  const head = `<div class="fl-head"><div><h2>${esc(prod(pid).name)}</h2><p>${all ? (tbl ? tblN + ' 列・和試算表「進度紀錄」相同，可直接在表格裡修改' : logs.length + ' 筆紀錄') : '讀取中…'}</p></div>
+  const head = `<div class="fl-head"><div class="fl-hl">${psel}<p>${all ? (tbl ? tblN + ' 列・可直接在表格裡修改，Esc 取消' : logs.length + ' 筆紀錄') : '讀取中…'}</p></div>
     <div class="fl-tools"><span class="opts-l">顯示</span><button class="opt" role="checkbox" aria-checked="${!S.flowHideTodo}" data-act="opt" data-v="flowHideTodo">${cb(!S.flowHideTodo)}尚未開始</button><div class="seg sm" role="group" aria-label="顯示方式"><button class="${tbl ? '' : 'on'}" data-act="flowmode" data-v="timeline" aria-pressed="${!tbl}">時間軸</button><button class="${tbl ? 'on' : ''}" data-act="flowmode" data-v="table" aria-pressed="${tbl}">表格</button></div>
     ${all && all.length ? `<button class="btn" data-act="flow-xlsx">${ICON.dl}匯出 Excel</button>` : ''}</div></div>`;
   if (all && tbl) return chips + head + flowTable(pid, all);
@@ -2348,12 +2393,16 @@ document.addEventListener('change', async e => {
   const t = e.target; if (!t.dataset || !t.dataset.lf) return;
   const box = t.closest('.fl-side'), l = (S.plogs[S.flowP] || [])[+box.dataset.i]; if (!l) return;
   const vals = { todo: box.querySelector('[data-lf="todo"]').value.trim(), track: box.querySelector('[data-lf="track"]').value.trim(), remark: box.querySelector('[data-lf="remark"]').value.trim() };
+  const old = t.defaultValue.trim();
+  if (old && !t.value.trim() && !(await askConfirm('要清空這一格嗎？', '原本的內容會被清除。之後可以在「更新紀錄」按還原找回來。', '清空'))) { t.value = old; return; }
+  S.writing++;
   const tip = box.querySelector('.fl-saved'); tip.textContent = '儲存中…'; tip.className = 'fl-saved';
   try {
     const r = await api('updateLog', { id: l.id, product: l.productId, step: l.step, ...vals });
-    Object.assign(l, vals); applyProduct(l.productId, r, false); tip.textContent = '已儲存'; tip.className = 'fl-saved ok';
+    Object.assign(l, vals); applyProduct(l.productId, r, false); S.logs = null; t.defaultValue = t.value; tip.textContent = '已儲存'; tip.className = 'fl-saved ok';
     setTimeout(() => { if (tip.textContent === '已儲存') tip.textContent = ''; }, 2000);
   } catch (err) { tip.textContent = err.message; tip.className = 'fl-saved bad'; }
+  finally { S.writing--; }
 });
 /* ---------- 流程表格：欄位和試算表「進度紀錄」完全相同，直接在格子裡修改 ---------- */
 /* 流程表格欄寬：預設精簡，可拖曳表頭右緣調整，會記住 */
@@ -2367,7 +2416,7 @@ function flowTable(pid, all) {
   const stOpts = v => `<option value=""></option>` + ROW_STATUS_UI.map(x => `<option${x === v ? ' selected' : ''}>${x}</option>`).join('');
   const date = (k, v) => `<input type="date" data-rf="${k}" value="${esc(v || '')}"${v ? '' : ' class="dempty"'}>`;
   const txt = (k, v, list) => `<input data-rf="${k}" value="${esc(v || '')}"${list ? ` list="${list}"` : ''}>`;
-  const area = (k, v) => `<textarea data-rf="${k}" rows="1">${esc(v || '')}</textarea>`;
+  const area = (k, v) => `<textarea data-rf="${k}" rows="1" class="ft-ta">${esc(v || '')}</textarea>`;
   const row = (l, i) => {
     const r = l.raw || {};
     return `<tr data-i="${i}"${l.conv ? ' class="conv"' : ''}>
@@ -2408,20 +2457,26 @@ document.addEventListener('change', async e => {
   const t = e.target; if (!t.dataset || !t.dataset.rf) return;
   const tr = t.closest('tr'), pid = S.flowP, l = (S.plogs[pid] || [])[+tr.dataset.i]; if (!l) return;
   const k = t.dataset.rf, v = t.value.trim();
+  const old = t.tagName === 'SELECT' ? ([...t.options].find(o => o.defaultSelected) || {}).value || '' : t.defaultValue.trim();
+  if (old && !v && !(await askConfirm('要清空這一格嗎？', '原本的內容會被清除。之後可以在「更新紀錄」按還原找回來。', '清空'))) { t.value = old; return; }
   if (t.type === 'date') t.classList.toggle('dempty', !v);
+  S.writing++;
   if (k === 'status') { t.className = 'ft-st ' + (v ? sc(v) : ''); }
   t.classList.add('saving');
   try {
     const r = await api('updateRow', { id: l.id, product: pid, step: l.step, fields: { [k]: v } });
-    applyProduct(pid, r, k === 'date');
+    applyProduct(pid, r, false); S.logs = null;
+    if (t.tagName === 'SELECT') [...t.options].forEach(o => { o.defaultSelected = o.value === v; }); else t.defaultValue = t.value;
     t.classList.remove('saving'); t.classList.add('saved'); setTimeout(() => t.classList.remove('saved'), 1200);
+    if (k === 'date' || !flowBusy()) render();
   } catch (err) { t.classList.remove('saving'); toast(err.message, true, 5000); render(); }
+  finally { S.writing--; }
 });
 async function addFlowRow() {
   const f = {}; document.querySelectorAll('[data-nf]').forEach(x => { if (x.value.trim()) f[x.dataset.nf] = x.value.trim(); });
   if (!f.category) { toast('請選擇欄位', true); return; }
   if (!f.step && !f.status) { toast('請填步驟', true); return; }
-  try { const r = await api('addRow', { product: S.flowP, fields: f }); applyProduct(S.flowP, r, true); toast('已新增一列'); requestAnimationFrame(() => { const w = $('.ft-wrap'); if (w) w.scrollTop = w.scrollHeight; }); }
+  try { const r = await api('addRow', { product: S.flowP, fields: f }); applyProduct(S.flowP, r, true); S.logs = null; toast('已新增一列'); requestAnimationFrame(() => { const w = $('.ft-wrap'); if (w) w.scrollTop = w.scrollHeight; }); }
   catch (err) { toast(err.message, true, 5000); }
 }
 async function exportFlow() {
@@ -2537,23 +2592,27 @@ function statsView() {
 /* ---------------- 更新紀錄 ---------------- */
 async function loadLogs(force) {
   if (S.logs && !force) return;
-  try { const r = await api('logs', { limit: 300 }); S.logs = r.logs.map(toLog); if (S.view === 'log') render(); }
+  try { const r = await api('audit', { limit: 300 }); S.logs = r.items; if (S.view === 'log') render(); }
   catch (e) { toast(e.message, true); }
 }
+/* 更新紀錄：每一個寫入動作都有一筆（誰、何時、做了什麼、舊值→新值）；刪除／清空的可以還原 */
 function logView() {
   if (!S.logs) return '<div class="empty">讀取中…</div>';
-  if (!S.logs.length) return '<div class="empty">還沒有任何更新紀錄。有人在格子裡儲存後，就會出現在這裡。</div>';
+  if (!S.logs.length) return '<div class="empty">還沒有任何更新紀錄。</div>';
   const groups = [];
   S.logs.forEach(l => {
     const label = dayLabel(l.time);
     let g = groups[groups.length - 1]; if (!g || g.label !== label) groups.push(g = { label, items: [] }); g.items.push(l);
   });
+  const del = a => /刪除|清空|清除/.test(a);
   return `<div class="logwrap">${groups.map(g => `<div class="lgrp"><h3>${esc(g.label)}</h3><div class="lcard">${g.items.map(l => {
-    const isCell = l.productId && l.categoryId && S.products.some(p => p.id === l.productId) && S.categories.some(c => c.id === l.categoryId);
-    const where = [l.productId ? short(l.productId) : '', l.categoryId || ''].filter(Boolean).join('・');
-    const tag = isCell ? 'button' : 'div', t = hm(new Date(l.time));
-    return `<${tag} class="lrow"${isCell ? ` data-act="open" data-pid="${esc(l.productId)}" data-cid="${esc(l.categoryId)}"` : ''}><div><div class="who"><b>${esc(l.name)}</b>${where ? ` <em>${isCell ? '更新了' : '・'}</em> ${esc(where)}` : ''}</div>
-      ${l.changes ? `<div class="ch">${esc(l.changes.split('；').join('・'))}</div>` : ''}${l.note ? `<div class="tx">${rich(l.note)}</div>` : ''}</div><time>${t === '00:00' ? '' : t}</time></${tag}>`;
+    const where = [l.product === '昶明區' ? '昶明區' : l.product ? short(l.product) : '', l.category, l.step].filter(Boolean).join('・');
+    const t = hm(new Date(l.time));
+    const ov = (l.old || l.val) ? `<div class="ov">${l.old ? `<span class="o">${esc(l.old)}</span>` : ''}${l.old && l.val ? '<i>→</i>' : ''}${l.val ? `<span class="n">${esc(l.val)}</span>` : ''}</div>` : '';
+    return `<div class="lrow${l.undone ? ' undone' : ''}"><div class="lmain"><div class="who"><b>${esc(l.name)}</b><span class="act${del(l.action) ? ' del' : l.action === '還原' ? ' rs' : ''}">${esc(l.action)}</span>${where ? `<em>${esc(where)}</em>` : ''}</div>
+      ${l.detail ? `<div class="ch">${esc(l.detail)}</div>` : ''}${ov}
+      ${l.undone ? `<div class="und">已於 ${esc(l.undone)} 還原</div>` : ''}</div>
+      <div class="lside"><time>${t === '00:00' ? '' : t}</time>${l.canUndo ? `<button class="btn sm rsbtn" data-act="restore" data-id="${esc(l.id)}">還原</button>` : ''}</div></div>`;
   }).join('')}</div></div>`).join('')}</div>`;
 }
 
@@ -2776,7 +2835,7 @@ function applySaved(pid, cid, r) {
   const merged = S.hist[k] ? S.hist[k].length - fresh(S.hist[k]).length : (S.recent[k] || []).length - fresh(S.recent[k]).length;
   if (S.hist[k]) { S.hist[k] = fresh(S.hist[k]); S.hist[k].unshift(...logs); }
   S.recent[k] = logs.concat(fresh(S.recent[k])).slice(0, 4); S.logCount[k] = Math.max(0, (S.logCount[k] || 0) - Math.max(0, merged)); S.logCount[k] = (S.logCount[k] || 0) + logs.length;
-  if (S.logs) S.logs.unshift(...logs);
+  S.logs = null;
 }
 async function saveTask(pid, cid, d, note, base) {
   const body = { product: pid, category: cid, ...payload(d), note: (note || '').trim(), todo: (d.todo || '').trim(), track: (d.track || '').trim(), base };
@@ -2994,10 +3053,10 @@ $('#dlgForm').addEventListener('submit', async e => {
   ok.disabled = true;
   try {
     if (D.type === 'product') {
-      const r = await api('addProduct', { name }); S.products.push({ id: r.product.name, name: r.product.name, closed: false }); if (S.logs) S.logs.unshift(toLog(r.log));
+      const r = await api('addProduct', { name }); S.products.push({ id: r.product.name, name: r.product.name, closed: false }); S.logs = null;
       toast('已新增商品：' + name);
     } else if (D.type === 'category') {
-      const r = await api('addCategory', { name, template: $('#dTpl').value }); S.categories.push({ id: r.category.name, name: r.category.name, template: r.category.template }); if (S.logs) S.logs.unshift(toLog(r.log));
+      const r = await api('addCategory', { name, template: $('#dTpl').value }); S.categories.push({ id: r.category.name, name: r.category.name, template: r.category.template }); S.logs = null;
       toast('已新增欄位：' + name);
     } else if (D.type === 'step') {
       dlgOther();
@@ -3027,7 +3086,7 @@ $('#dlgForm').addEventListener('submit', async e => {
       p.closed = r.project.closed; toast((p.closed ? '已結案：' : '已重新開啟：') + p.name);
     } else if (D.type === 'pmenu') {
       const p = prod(D.pid), r = await api('setProduct', { name: D.pid, closed: !p.closed });
-      p.closed = r.closed; if (S.logs) S.logs.unshift(toLog(r.log));
+      p.closed = r.closed; S.logs = null;
       toast((r.closed ? '已結案：' : '已重新開啟：') + p.name);
     }
     closeDlg(true); render();
@@ -3138,6 +3197,12 @@ document.addEventListener('click', e => {
     case 'add-step': openDlg('step', d.pid); break;
     case 'pmenu': openDlg('pmenu', d.pid); break;
     case 'dlg-close': closeDlg(); break;
+    case 'restore': (async () => {
+      if (!(await askConfirm('要還原這一筆嗎？', '會把刪除或清空的內容加回去，並記錄一筆「還原」。', '還原'))) return;
+      a.disabled = true;
+      try { await api('restore', { id: d.id }); toast('已還原'); S.logs = null; Object.keys(S.plogs).forEach(p => { S.plogsStale[p] = true; }); if (S.zone) S.zoneStale = true; await refresh(false, true); }
+      catch (err) { toast(err.message, true, 5000); a.disabled = false; }
+    })(); break;
     case 'dlg-keep': { const c = $('#dlgCfm'); if (c) c.remove(); break; }
     case 'dlg-discard': closeDlg(true); break;
     case 'zmore': { e.stopPropagation(); S.zMemo.has(d.id) ? S.zMemo.delete(d.id) : S.zMemo.add(d.id); render(); break; }
@@ -3189,6 +3254,13 @@ document.addEventListener('keydown', e => {
 /* 日期欄：有值才顯示文字（沒填時不顯示 年/月/日 提示） */
 document.addEventListener('input', e => { const t = e.target; if (t.matches && t.matches('input[type=date]')) t.classList.toggle('dempty', !t.value); }, true);
 document.addEventListener('change', e => { const t = e.target; if (t.matches && t.matches('input[type=date]')) t.classList.toggle('dempty', !t.value); }, true);
+/* 流程頁：切換商品（下拉選單） */
+document.addEventListener('change', e => { if (e.target.id === 'flowSel') { S.flowP = e.target.value; render(); } });
+/* 流程表格：Esc 取消正在輸入的內容 */
+document.addEventListener('keydown', e => {
+  const t = e.target; if (e.key !== 'Escape' || !t.dataset || !(t.dataset.rf || t.dataset.lf)) return;
+  e.stopPropagation(); if (t.tagName !== 'SELECT') t.value = t.defaultValue; t.blur();
+}, true);
 /* 流程表格：拖曳表頭右緣調整欄寬 */
 document.addEventListener('pointerdown', e => {
   const h = e.target.closest && e.target.closest('.ft-rs'); if (!h) return;
@@ -3214,14 +3286,14 @@ function toast(msg, bad, ms) {
   t.className = 'toast' + (bad ? ' bad' : ''); t.hidden = false;
   clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, ms || 2800);
 }
-async function refresh(show) {
+async function refresh(show, force) {
   if (!S.token) return;
-  try { await loadAll(!!show); if (!show && !idle()) return; S.hist = {}; S.logs = null; Object.keys(S.plogs).forEach(p => { S.plogsStale[p] = true; }); if (S.zone) S.zoneStale = true; render(); prefetchLogs(); if (show) toast('已更新為最新資料'); }
+  try { await loadAll(!!show || !!force); if (!show && !force && !idle()) return; S.hist = {}; S.logs = null; Object.keys(S.plogs).forEach(p => { S.plogsStale[p] = true; }); if (S.zone) S.zoneStale = true; render(); prefetchLogs(); if (show) toast('已更新為最新資料'); }
   catch (e) { if (show) toast(e.message, true); }
 }
 /* 自動更新只在「沒有在打字、沒有開視窗」時進行，打到一半不會被打斷 */
 const typing = () => { const a = document.activeElement; return !!(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)); };
-const idle = () => S.token && !$('#app').hidden && $('#sheet').hidden && $('#lb').hidden && $('#pop').hidden && $('#dlg').hidden && !document.hidden && !typing();
+const idle = () => !S.writing && S.token && !$('#app').hidden && $('#sheet').hidden && $('#lb').hidden && $('#pop').hidden && $('#dlg').hidden && !document.hidden && !typing();
 document.addEventListener('visibilitychange', () => { if (idle()) refresh(false); });
 setInterval(() => { if (idle()) refresh(false); }, 120000);
 narrow.addEventListener('change', () => { if (!$('#app').hidden) render(); });
