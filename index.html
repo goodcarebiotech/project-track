@@ -1701,6 +1701,53 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
   .opts .opt{font-size:13px;padding:4px 4px}
 }
 .addstep2{min-width:0}.addstep2 input{min-width:0;flex:1 1 auto;width:auto}
+/* 流程表格日期：電腦用原生欄位；手機只顯示「11/4」，點了跳日曆 */
+.ftd{display:block;position:relative}
+.ftd-t{display:none}
+.fl-xs{display:none}
+.swipe-hint{display:none}
+#whoPortal{position:fixed;z-index:500}
+@media (max-width:899px){
+  /* 流程：時間軸右側輸入欄隱藏，有資料就顯示在日期下面 */
+  .fl-side{display:none!important}
+  .fl-xs{display:flex;flex-direction:column;gap:4px;margin-top:6px;padding:8px 10px;border-radius:8px;background:#F4F6FA;font-size:13px;line-height:1.5}
+  .fl-xs em{display:inline-block;margin-right:6px;font-style:normal;font-size:11.5px;font-weight:600;color:var(--label-3)}
+  .fl-hl p{display:none}
+  .ftd-t{display:block;padding:8px 4px 8px 6px;font-size:13px;min-height:34px;white-space:nowrap}
+  .ftd input[type=date]{position:absolute;inset:0;width:100%;height:100%;opacity:0}
+  .ft td.c-date{min-width:0}
+  /* 編輯視窗：左側壓縮、提示可左右滑動 */
+  .swipe-hint{display:block;margin:0 0 6px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent);border-radius:8px}
+  .stt col:nth-child(1){width:30px!important}
+  .stt col:nth-child(2){width:92px!important}
+  .stt td.t-ck{padding-left:4px;padding-right:0}
+  .stt th:nth-child(2),.stt td.t-n{left:30px}
+  .stt td.t-n{font-size:13.5px;padding-left:4px;padding-right:4px}
+  .stt td.t-n small{font-size:10.5px}
+  .stt td.t-n .ugt,.stt td.t-n .ugb{width:18px;min-width:18px;height:18px;font-size:10px;margin-right:3px}
+  .stt .ck .box{width:20px;height:20px}
+  .sh-sum{padding:10px 12px;gap:8px;flex-direction:row;flex-wrap:wrap;align-items:center}
+  .sh-sum .pill.big{font-size:13px;padding:4px 10px}
+  .sh-sum b{font-size:15px}
+  .sec{margin:0 6px 12px}
+  .band{padding:10px 12px}
+  /* 依商品：開關不顯示「顯示」，五個同一列 */
+  .opts-l{display:none}
+  .opts{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;gap:0 2px}
+  .opts::-webkit-scrollbar{display:none}
+  .opts .opt{flex:none;font-size:12.5px;padding:4px 3px;gap:3px}
+  .opts .cb{width:16px;height:16px}
+}
+@media (max-width:899px){
+  /* 流程：商品按鈕自己一整列，工具在下一列 */
+  .fl-head{flex-wrap:wrap;align-items:center;row-gap:8px}
+  .fl-hl{flex:1 1 100%;width:100%}
+  .fl-chips{width:100%}
+  .fl-tools{flex:1 1 100%;justify-content:flex-start}
+  /* 統計：手機也看得到最近更新日期 */
+  .st-row:not(.st-u) .st-last{display:block;grid-column:1/-1;grid-row:3;font-size:12px;color:var(--label-3);text-align:left}
+  .st-row:not(.st-u) .st-last::before{content:"最近更新 "}
+}
 </style>
 </head>
 <body>
@@ -1939,6 +1986,8 @@ function dayLabel(iso) {
   return (d.getFullYear() === new Date().getFullYear() ? '' : d.getFullYear() + '年') + (d.getMonth() + 1) + '月' + d.getDate() + '日';
 }
 /* 補登的紀錄只有日期（時間 00:00），就只顯示日期 */
+/* 一律顯示日期＋時間，例如 11/4 15:25 */
+function fmtFull(iso) { const d = new Date(iso); if (isNaN(d)) return iso || ''; const t = hm(d); return (d.getMonth() + 1) + '/' + d.getDate() + (t === '00:00' ? '' : ' ' + t); }
 function fmtTime(iso) {
   if (!iso) return '';
   const d = new Date(iso); if (isNaN(d)) return iso;
@@ -2286,7 +2335,11 @@ function askConfirm(title, msg, okText) {
 }
 /* 負責人選單：浮在畫面最上層，貼著＋按鈕，不會被表格或視窗邊緣擋住 */
 function placeWhoPop() {
-  const p = document.querySelector('.who-pop'), b = p && document.querySelector(`[data-act="who-pop"][data-i="${S.whoPop}"]`);
+  const fresh = document.querySelector('#shBody .who-pop'), old = document.getElementById('whoPortal');
+  if (fresh) { if (old) old.remove(); fresh.id = 'whoPortal'; document.body.appendChild(fresh); }   // 移到最上層，不會被視窗或表格裁切
+  const p = document.getElementById('whoPortal');
+  if (p && (S.whoPop < 0 || $('#sheet').hidden || !S.draft)) { p.remove(); return; }
+  const b = p && document.querySelector(`#shBody [data-act="who-pop"][data-i="${S.whoPop}"]`);
   if (!p || !b) return;
   const r = b.getBoundingClientRect(), w = Math.min(340, innerWidth - 24);
   p.style.position = 'fixed'; p.style.width = w + 'px'; p.style.left = '0px'; p.style.top = '0px';
@@ -2450,7 +2503,7 @@ function flowView() {
   const chips = '';
   const psel = `<div class="fl-chips" role="tablist" aria-label="選擇商品">${prods.map(p => `<button class="chip${p.id === pid ? ' on' : ''}" role="tab" aria-selected="${p.id === pid}" data-act="flowp" data-v="${esc(p.id)}" title="${esc(p.name)}">${esc(chipName(p))}</button>`).join('')}</div>`;
   const tbl = S.flowMode === 'table';
-  const head = `<div class="fl-head"><div class="fl-hl">${psel}<p>${all ? (tbl ? tblN + ' 列・可直接在表格裡修改，Esc 取消' : logs.length + ' 筆紀錄') : '讀取中…'}</p></div>
+  const head = `<div class="fl-head"><div class="fl-hl">${psel}<p>${all ? (tbl ? tblN + ' 列' : logs.length + ' 筆紀錄') : '讀取中…'}</p></div>
     <div class="fl-tools"><span class="opts-l">顯示</span><button class="opt" role="checkbox" aria-checked="${!S.flowHideTodo}" data-act="opt" data-v="flowHideTodo">${cb(!S.flowHideTodo)}尚未開始</button><div class="seg sm" role="group" aria-label="顯示方式"><button class="${tbl ? '' : 'on'}" data-act="flowmode" data-v="timeline" aria-pressed="${!tbl}">時間軸</button><button class="${tbl ? 'on' : ''}" data-act="flowmode" data-v="table" aria-pressed="${tbl}">表格</button></div>
     ${all && all.length ? `<button class="btn" data-act="flow-xlsx">${ICON.dl}匯出 Excel</button>` : ''}</div></div>`;
   if (all && tbl) return chips + head + flowTable(pid, all);
@@ -2468,6 +2521,7 @@ function flowView() {
         <div class="fl-top">${l.categoryId ? `<span class="fl-cat">${esc(l.categoryId)}</span>` : ''}<span class="fl-item">${esc(item)}</span>${chg ? `<span class="fl-chg">${esc(chg)}</span>` : ''}<span class="fl-who">${names(l.name).map(av).join('')}<span>${esc(l.name)}</span></span></div>
         ${l.note ? `<div class="fl-note">${rich(l.note)}</div>` : ''}
         ${dates}
+        ${l.todo || l.track || l.remark ? `<div class="fl-xs">${l.todo ? `<div><em>待辦&下一步</em>${esc(l.todo)}</div>` : ''}${l.track ? `<div><em>追蹤狀態</em>${esc(l.track)}</div>` : ''}${l.remark ? `<div><em>備註</em>${esc(l.remark)}</div>` : ''}</div>` : ''}
         ${imgs ? `<div class="fl-imgs">${imgs}</div>` : ''}
       </div>
       <div class="fl-side" data-i="${i}">
@@ -2505,7 +2559,7 @@ function flowTable(pid, all) {
   const ymdOf = iso => { const d = new Date(iso); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
   const catOpts = v => `<option value=""></option>` + S.categories.map(c => `<option${c.id === v ? ' selected' : ''}>${esc(c.name)}</option>`).join('');
   const stOpts = v => `<option value=""></option>` + ROW_STATUS_UI.map(x => `<option${x === v ? ' selected' : ''}>${x}</option>`).join('');
-  const date = (k, v) => `<input type="date" data-rf="${k}" value="${esc(v || '')}"${v ? '' : ' class="dempty"'}>`;
+  const date = (k, v) => `<label class="ftd"><span class="ftd-t">${v ? md(v) : ''}</span><input type="date" data-rf="${k}" value="${esc(v || '')}"${v ? '' : ' class="dempty"'}></label>`;
   const txt = (k, v, list) => `<input data-rf="${k}" value="${esc(v || '')}"${list ? ` list="${list}"` : ''}>`;
   const area = (k, v) => `<textarea data-rf="${k}" rows="1" class="ft-ta">${esc(v || '')}</textarea>`;
   const row = (l, i) => {
@@ -2550,7 +2604,7 @@ document.addEventListener('change', async e => {
   const k = t.dataset.rf, v = t.value.trim();
   const old = t.tagName === 'SELECT' ? ([...t.options].find(o => o.defaultSelected) || {}).value || '' : t.defaultValue.trim();
   if (old && !v && !(await askConfirm('要清空這一格嗎？', '原本的內容會被清除。之後可以在「更新紀錄」按還原找回來。', '清空'))) { t.value = old; return; }
-  if (t.type === 'date') t.classList.toggle('dempty', !v);
+  if (t.type === 'date') { t.classList.toggle('dempty', !v); const sp = t.parentElement && t.parentElement.querySelector('.ftd-t'); if (sp) sp.textContent = v ? md(v) : ''; }
   S.writing++;
   if (k === 'status') { t.className = 'ft-st ' + (v ? sc(v) : ''); }
   t.classList.add('saving');
@@ -2676,7 +2730,7 @@ function statsView() {
     <div class="st-card st-all">${sbar(tot)}<div class="st-key">${GROUPS.map(g => `<span class="${g[2]}"><i></i>${g[1]} <b>${tot[g[0]]}</b></span>`).join('')}</div></div>
     <h2 class="st-h st-hr">各商品進度<button class="opt" role="checkbox" aria-checked="${S.showBar}" data-act="opt" data-v="showBar">${cb(S.showBar)}顯示進度條</button></h2>
     <div class="st-card${S.showBar ? '' : ' nobar'}"><div class="st-row st-head" aria-hidden="true"><span>商品</span><span>進度</span><span>完成</span><span>進行中</span><span>需注意</span><span>未開始</span><span>最近更新</span></div>
-      ${byP.map(({ p, c, last }) => `<button class="st-row" data-act="goto" data-pid="${esc(p.id)}"><span class="st-name">${esc(p.name)}</span><span class="st-prog">${sbar(c)}<b>${pct(c)}%</b></span><span class="n"><b>${c.done}</b>/${c.total}</span><span class="n" data-l="進行中">${c.doing}</span><span class="n${need(c) ? ' warn' : ''}" data-l="需注意">${need(c)}</span><span class="n" data-l="未開始">${c.todo}</span><span class="st-last">${last ? fmtTime(last) : '—'}</span></button>`).join('')}</div>
+      ${byP.map(({ p, c, last }) => `<button class="st-row" data-act="goto" data-pid="${esc(p.id)}"><span class="st-name">${esc(p.name)}</span><span class="st-prog">${sbar(c)}<b>${pct(c)}%</b></span><span class="n"><b>${c.done}</b>/${c.total}</span><span class="n" data-l="進行中">${c.doing}</span><span class="n${need(c) ? ' warn' : ''}" data-l="需注意">${need(c)}</span><span class="n" data-l="未開始">${c.todo}</span><span class="st-last">${last ? fmtFull(last) : '—'}</span></button>`).join('')}</div>
     <h2 class="st-h">負責人</h2>
     <div class="st-card">${users.map(n => {
       const u = byU[n], row = (label, c, sub, act) => { const open = c.doing + need(c) + c.todo; return `<${act ? 'button' : 'div'} class="st-row st-u${sub ? ' st-sub2' : ''}"${act ? ` data-act="person-go" data-v="${esc(n)}"` : ''}><span class="st-name">${label}</span><span class="st-prog">${sbar(c, ['doing', 'talk', 'attn', 'todo'])}<b>${open}</b></span><span class="st-sub">進行中 ${c.doing}・待討論 ${c.talk}・等待／暫停 ${c.attn}・未開始 ${c.todo}・已完成 ${c.done}</span></${act ? 'button' : 'div'}>`; };
@@ -2856,7 +2910,7 @@ function stepsHTML() {
       </div></td></tr>` : '';
     return row + sub;
   }).join('');
-  return `${d.steps.length ? `<div class="stw"><table class="stt"><colgroup><col style="width:44px"><col style="width:170px"><col style="width:118px"><col style="width:160px"><col style="width:84px"><col style="width:84px"><col style="width:100px"><col><col style="width:92px"></colgroup>
+  return `${d.steps.length ? `<div class="swipe-hint" aria-hidden="true">← 左右滑動可看狀態、負責人、日期、製作方 →</div><div class="stw"><table class="stt"><colgroup><col style="width:44px"><col style="width:170px"><col style="width:118px"><col style="width:160px"><col style="width:84px"><col style="width:84px"><col style="width:100px"><col><col style="width:92px"></colgroup>
       <thead><tr><th></th><th>步驟</th><th>狀態</th><th>負責人</th><th>預計</th><th>實際</th><th>製作方</th><th>備註</th><th></th></tr></thead>
       <tbody>${rows}</tbody></table></div>` : '<div class="na-hint">還沒有步驟，請在下方新增。</div>'}
     <datalist id="vendorList">${vendors().map(v => `<option value="${esc(v)}">`).join('')}</datalist>
@@ -3056,8 +3110,8 @@ $('#shBody').addEventListener('change', e => {
     if (k === 'd') stepsChanged(); else updateSave();
   }
 });
-$('#shBody').addEventListener('keydown', e => {
-  const t = e.target;
+document.addEventListener('keydown', e => {
+  const t = e.target; if (!t.closest || !t.closest('#shBody, #whoPortal')) return;
   if (e.key === 'Enter' && t.id === 'stepIn') { e.preventDefault(); addStep(); }
   if (e.key === 'Enter' && t.classList.contains('dtx')) { e.preventDefault(); t.blur(); }
   if (e.key === 'Enter' && t.id === 'fUrl') { e.preventDefault(); addUrl(); }
@@ -3065,8 +3119,8 @@ $('#shBody').addEventListener('keydown', e => {
   if (e.key === 'Escape' && t.classList.contains('who-in')) { e.stopPropagation(); S.whoAdd = -1; setHtml('secSteps', stepsHTML()); }
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); save(); }
 });
-$('#shBody').addEventListener('focusout', e => {
-  const t = e.target;
+document.addEventListener('focusout', e => {
+  const t = e.target; if (!t.closest || !t.closest('#shBody, #whoPortal')) return;
   if (t.classList && t.classList.contains('who-in') && S.draft) { setTimeout(() => { if (S.whoAdd < 0 || !S.draft) return; addOther(S.draft.steps[+t.dataset.i], t); S.whoAdd = -1; stepsChanged(); }, 120); }
 });
 /* ---------------- 對話框：新增商品／欄位／項目、商品設定 ---------------- */
@@ -3363,6 +3417,7 @@ document.addEventListener('input', e => { const t = e.target; if (t.matches && t
 document.addEventListener('change', e => { const t = e.target; if (t.matches && t.matches('input[type=date]')) t.classList.toggle('dempty', !t.value); }, true);
 /* 編輯視窗內容變動或捲動時，重新擺放負責人選單 */
 new MutationObserver(() => placeWhoPop()).observe($('#shBody'), { childList: true, subtree: true });
+new MutationObserver(() => placeWhoPop()).observe($('#sheet'), { attributes: true, attributeFilter: ['hidden'] });
 $('#shBody').addEventListener('scroll', () => placeWhoPop(), { passive: true });
 window.addEventListener('resize', () => placeWhoPop());
 /* 流程頁：切換商品（下拉選單） */
