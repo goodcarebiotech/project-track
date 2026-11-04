@@ -1748,6 +1748,22 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
   .st-row:not(.st-u) .st-last{display:block;grid-column:1/-1;grid-row:3;font-size:12px;color:var(--label-3);text-align:left}
   .st-row:not(.st-u) .st-last::before{content:"最近更新 "}
 }
+/* 急件鈕：字置中 */
+.ugt,.ugb{padding:0;line-height:1;text-align:center;font-family:inherit}
+@media (max-width:899px){.stt td.t-n .ugt,.stt td.t-n .ugb{display:inline-flex;align-items:center;justify-content:center;padding:0;line-height:1;font-size:10.5px}}
+/* 總覽商品欄：層次分明、較舒服 */
+.mx tbody th{background:linear-gradient(180deg,#0B4AA3,#083A82);vertical-align:top}
+.mx tbody th .pn{font-size:16.5px}
+.mx tbody th .ps{display:block;margin-top:2px;color:rgba(255,255,255,.62);font-size:12px;font-weight:400}
+.mx tbody th .pflag{margin-top:10px;padding:2px 9px;font-size:11.5px;font-weight:600;border:0}
+.mx tbody th .pflag.talk{background:#FCE4EA;color:#8E2442}
+.mx tbody th .pflag.wait{background:#FFEBD3;color:#8A4B00}
+.mx tbody th .pflag.ok{background:rgba(255,255,255,.14);color:rgba(255,255,255,.85)}
+.pfoot{display:block;margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,.14)}
+.pprog{display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;color:rgba(255,255,255,.6);font-variant-numeric:tabular-nums}
+.pprog b{font-size:13px;font-weight:650;color:#fff}
+.mx tbody th .pt2{height:4px;margin-top:6px;background:rgba(255,255,255,.16)}
+.mx tbody th .pt2 i{background:#7ED4A5}
 </style>
 </head>
 <body>
@@ -2417,12 +2433,12 @@ window.addEventListener('scroll', posFloat, { passive: true });
 function pFlag(pid) {
   let talk = 0, wait = 0;
   S.categories.forEach(c => { const t = getTask(pid, c.id); if (live(t)) t.steps.forEach(s => { if (s.s === '待討論') talk++; else if (s.s === '等待原料' || s.s === '暫停項目') wait++; }); });
-  return `<span class="pflag">${talk ? talk + ' 項待討論' : wait ? wait + ' 項等待中' : '進度正常'}</span>`;
+  return `<span class="pflag ${talk ? 'talk' : wait ? 'wait' : 'ok'}">${talk ? talk + ' 項待討論' : wait ? wait + ' 項等待中' : '進度正常'}</span>`;
 }
 function tableView(rows) {
   return `<div class="mx-wrap"><table class="mx" style="min-width:${150 + S.categories.length * 156}px"><colgroup><col class="pcol">${S.categories.map(() => '<col>').join('')}</colgroup>
     <thead><tr><th><span class="th-add">商品<button class="addbtn" data-act="add-cat" title="新增欄位" aria-label="新增欄位">${ICON.plus}</button></span></th>${S.categories.map(c => `<th>${esc(c.name)}</th>`).join('')}</tr></thead>
-    <tbody>${rows.map(p => { const st = productStats(p.id); return `<tr class="${p.closed ? 'closed' : ''}"><th scope="row"><button class="pname" data-act="pmenu" data-pid="${esc(p.id)}" title="商品設定（結案）">${pName(p)}</button>${pFlag(p.id)}<span class="pt2"><i style="width:${st.pct}%"></i></span><span class="pnum">${st.done}/${st.total} 完成・${st.pct}%</span>${p.closed ? '<span class="closed-b">已結案</span>' : ''}</th>${S.categories.map(c => `<td>${cellHTML(p, c)}</td>`).join('')}</tr>`; }).join('')}
+    <tbody>${rows.map(p => { const st = productStats(p.id); return `<tr class="${p.closed ? 'closed' : ''}"><th scope="row"><button class="pname" data-act="pmenu" data-pid="${esc(p.id)}" title="商品設定（結案）">${pName(p)}</button>${pFlag(p.id)}<span class="pfoot"><span class="pprog"><span>${st.done}/${st.total} 完成</span><b>${st.pct}%</b></span><span class="pt2"><i style="width:${st.pct}%"></i></span></span>${p.closed ? '<span class="closed-b">已結案</span>' : ''}</th>${S.categories.map(c => `<td>${cellHTML(p, c)}</td>`).join('')}</tr>`; }).join('')}
       <tr class="addrow"><td colspan="${S.categories.length + 1}"><button class="addline" data-act="add-prod">${ICON.plus}新增商品</button></td></tr></tbody></table></div>`;
 }
 /* 依商品：每個步驟一列（篩選時只列出符合的步驟） */
@@ -2662,7 +2678,7 @@ function zoneView() {
   const bar = `<div class="z-bar">${ed ? `<button class="btn" data-act="zproj-add">${ICON.plus}新增專案</button>` : '<span class="z-ro">' + ICON.lock + '只能檢視</span>'}${closedN ? `<button class="switch" role="switch" aria-checked="${!!S.zoneClosed}" data-act="zclosed">顯示已結案 ${closedN}<i></i></button>` : ''}</div>`;
   if (!projs.length) return bar + `<div class="empty">${ed ? '還沒有專案。按「新增專案」開始記錄昶明的獨立專案。' : '目前還沒有專案。'}</div>`;
   const cols = projs.map(p => {
-    const items = z.items.filter(i => i.project === p.name).sort((a, b) => (a.updatedAt < b.updatedAt ? -1 : a.updatedAt > b.updatedAt ? 1 : 0));   // 舊的在上、最新的在最下面
+    const items = z.items.filter(i => i.project === p.name);   // 依新增順序：最早的在上、最新加入的在最下面（改狀態不會改變位置）
     const open = S.zOpen.includes(p.name), LIM = 2, more = items.length > LIM;
     const done = items.filter(i => i.s === DONE).length;
     const tiles = (more && !open ? items.slice(-LIM) : items).map(it => {
