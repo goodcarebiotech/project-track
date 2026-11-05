@@ -2483,13 +2483,13 @@ function myTodo() {
 }
 
 /* ---------------- API ---------------- */
-const READ_API = ['bootstrap', 'history', 'logs', 'productLogs', 'allLogs', 'cell', 'zoneLoad', 'audit', 'glogin', 'logout'];
+const READ_API = ['bootstrap', 'history', 'logs', 'productLogs', 'allLogs', 'cell', 'zoneLoad', 'audit', 'report', 'glogin', 'logout'];
 async function api(action, data = {}) {
   let res;
   try { res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, token: S.token, ...data }) }); }
   catch (e) { const err = new Error('連線失敗，請確認網路後再試一次'); err.code = 'NET'; throw err; }
   const j = await res.json().catch(() => ({ ok: false, code: 'NET', error: '伺服器回應格式錯誤' }));
-  if (j.ok && !READ_API.includes(action)) S.logs = null;   // 有寫入就讓更新紀錄重新讀取
+  if (j.ok && !READ_API.includes(action)) { S.logs = null; if (typeof RP !== 'undefined') RP.cache = {}; }   // 有寫入就讓更新紀錄、日報重新讀取
   if (!j.ok) {
     if (j.code === 'AUTH' && action !== 'glogin' && !data._re && await silentLogin()) return api(action, { ...data, _re: 1 });
     if (j.code === 'AUTH') logoutLocal(j.error);
@@ -3357,6 +3357,7 @@ const payload = d => { const meta = d.newMeta || {}, byStep = {}, loose = []; (d
   note: (s.note || '').trim(), todo: (s.todo || '').trim(), track: (s.track || '').trim(), images: [...(byStep[s.n] || []), ...(s.imgsText || '').split(/\s+/).map(x => x.trim()).filter(Boolean)], ...(s.before ? { before: s.before } : {}), ...(s.when ? { when: s.when } : {}) })), images: loose }; };
 function applySaved(pid, cid, r) {
   const k = key(pid, cid);
+  if (typeof RP !== 'undefined') RP.cache = {};
   S.tasks[k] = toTask(r.cell);
   S.plogsStale[pid] = true;
   const logs = (r.logs || (r.log ? [r.log] : [])).filter(l => !l.conv).map(toLog).reverse();   // 一次儲存可能新增多列，最新的在前
@@ -3978,7 +3979,7 @@ document.addEventListener('click', e => {
     case 'glogin': if (!API_URL) loginErr('示範模式請點下方的名字登入'); else googleLogin(); break;
     case 'copy-url': { const u = location.href.replace(/([?&])openExternalBrowser=1&?/, '$1').replace(/[?&]$/, ''); (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => toast('已複製網址')).catch(() => window.prompt('請複製這個網址', u)); break; }
     case 'quick': doLogin(d.pw); break;
-    case 'view': goView(d.v); render(); window.scrollTo(0, 0); break;
+    case 'view': if (d.v === 'report' && typeof RP !== 'undefined') { RP.cache = {}; if (S.view !== 'report') RP.day = ''; } goView(d.v); render(); window.scrollTo(0, 0); break;
     case 'mode': S.mode = d.v; store.set('ptk_mode', d.v, true); render(); break;
     case 'closed': S.showClosed = !S.showClosed; render(); break;
     case 'gal': openGal(d.pid, d.cid); break;
@@ -4138,7 +4139,7 @@ async function refresh(show, force) {
   try {
     const changed = await loadAll(!!show || !!force);
     if (!show && !force && (!changed || !idle())) return;   // 自動更新：資料沒變就什麼都不做
-    S.hist = {}; Object.keys(S.plogs).forEach(p => { S.plogsStale[p] = true; }); if (S.zone) S.zoneStale = true;
+    S.hist = {}; Object.keys(S.plogs).forEach(p => { S.plogsStale[p] = true; }); if (S.zone) S.zoneStale = true; if (typeof RP !== 'undefined') RP.cache = {};
     if (S.view === 'log') loadLogs(true); else S.logs = null;
     const y = window.scrollY; render(); window.scrollTo(0, y); prefetchLogs(); if (show) toast('已更新為最新資料');
   }
