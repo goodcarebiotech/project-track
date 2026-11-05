@@ -1879,6 +1879,102 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
 .st-pn time:not(:empty){padding:2px 8px;border-radius:6px;background:#E8F0FC;color:#0B4AA3;font-weight:600;font-size:12px}
 @media (max-width:899px){.hero-cv{width:20px;height:20px}}
 .st-pn time:not(:empty){margin-right:10px}
+/* ===== v25：日報／週報 ===== */
+.hero.rp-hero>div:first-child{display:none}
+.hero.rp-hero{justify-content:flex-end}
+.rp{--deep:#051640;--mid:#0B4AA3;--bright:#2F86FF;--sky:#7CC4FF;--vio:#6C5CE7;--vio2:#A29BFE;--rl:#E6EBF3;--ri3:#8C98AE;font-family:inherit}
+.rp-band{position:relative;overflow:hidden;color:#fff;border-radius:22px;padding:26px 28px 84px;
+  background:linear-gradient(118deg,var(--deep) 0%,#0A3A8F 30%,var(--mid) 50%,var(--bright) 78%,var(--sky) 100%);box-shadow:0 18px 44px rgba(11,74,163,.22)}
+.rp-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.10) 1px,transparent 1px);background-size:40px 40px;-webkit-mask-image:linear-gradient(180deg,#000 40%,transparent 100%);mask-image:linear-gradient(180deg,#000 40%,transparent 100%)}
+.rp-grid2{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:8px 8px;-webkit-mask-image:radial-gradient(460px 240px at 82% 20%,#000,transparent 70%);mask-image:radial-gradient(460px 240px at 82% 20%,#000,transparent 70%)}
+.rp-orb{position:absolute;border-radius:50%;pointer-events:none}
+.rp-orb.o1{width:420px;height:420px;right:-120px;top:-220px;background:radial-gradient(circle,rgba(160,215,255,.6),transparent 65%)}
+.rp-orb.o2{width:340px;height:340px;left:-130px;bottom:-200px;background:radial-gradient(circle,rgba(108,92,231,.45),transparent 65%)}
+.rp-beam{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.rp-beam::before{content:"";position:absolute;top:0;bottom:0;width:150px;left:-200px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);transform:skewX(-18deg);animation:rpsweep 7s ease-in-out infinite}
+@keyframes rpsweep{0%,20%{left:-220px}75%,100%{left:110%}}
+.rp-in{position:relative;z-index:1}
+.rp-r1{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.rp-brand{font-size:11.5px;letter-spacing:.3em;color:rgba(255,255,255,.7)}
+.rp-tabs{display:inline-flex;padding:4px;border-radius:12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.rp-tabs button{border:0;background:none;color:rgba(255,255,255,.82);font-size:14px;font-weight:700;padding:7px 18px;border-radius:9px;cursor:pointer}
+.rp-tabs button.on{background:#fff;color:var(--mid);box-shadow:0 4px 14px rgba(5,22,64,.25)}
+.rp-r2{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-top:20px}
+.rp-r2 h2{margin:0;font-size:40px;font-weight:900;letter-spacing:.03em;line-height:1.1;color:#fff}
+.rp-nav{display:flex;align-items:center;gap:8px;padding:6px;border-radius:14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.24);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+.rp-nav button{width:36px;height:36px;border:0;border-radius:10px;background:rgba(255,255,255,.16);color:#fff;font-size:18px;cursor:pointer}
+.rp-nav button:disabled{opacity:.3;cursor:default}
+.rp-nav .d{min-width:150px;text-align:center;line-height:1.2}
+.rp-nav .d b{display:block;font-size:21px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.rp-nav .d span{font-size:12px;color:rgba(255,255,255,.8)}
+.rp-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:20px}
+.rp-st{padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.2);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.rp-st span{font-size:12.5px;color:rgba(255,255,255,.8)}
+.rp-st b{display:block;font-size:27px;font-weight:700;line-height:1.15;font-variant-numeric:tabular-nums;color:#fff}
+.rp-st.g b{color:#7CFFD6}
+.rp-body{position:relative;z-index:2;margin:-58px 16px 0;display:flex;flex-direction:column;gap:16px}
+.rp-tools{align-self:flex-end;display:flex;align-items:center;gap:8px;padding:6px 6px 6px 14px;border-radius:12px;background:#fff;box-shadow:0 6px 20px rgba(5,22,64,.10);font-size:13px;color:var(--label-2)}
+.rp-card{position:relative;background:#fff;border-radius:20px;box-shadow:0 1px 2px rgba(5,22,64,.05),0 12px 32px rgba(5,22,64,.08);overflow:hidden;
+  --g:linear-gradient(90deg,var(--deep),var(--mid) 35%,var(--bright) 70%,var(--sky));--gt:linear-gradient(90deg,var(--deep),var(--mid) 45%,var(--bright));--c:var(--mid);--soft:#EAF2FF;--bd:#D3E3FF}
+.rp-card.z{--g:linear-gradient(90deg,#1E1366,#3B2BA8 35%,var(--vio) 70%,var(--vio2));--gt:linear-gradient(90deg,#2A1B8C,#5B4BE0);--c:#4B3BC4;--soft:#F0EEFF;--bd:#DEDAFF}
+.rp-card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--g)}
+.rp-ch{display:flex;align-items:center;gap:12px;padding:20px 24px 14px;border-bottom:1px solid var(--rl);background:linear-gradient(180deg,var(--soft),#fff 70%)}
+.rp-kind{flex:none;font-size:12px;font-weight:700;color:var(--c);background:#fff;border:1px solid var(--bd);padding:3px 10px;border-radius:999px}
+.rp-pn{min-width:0;font-size:21px;font-weight:900;line-height:1.3;background:var(--gt);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
+.rp-cnt{margin-left:auto;flex:none;font-size:13px;color:var(--ri3);white-space:nowrap}
+.rp-cnt b{font-size:20px;color:var(--c);margin-right:2px}
+.rp-items,.rp-prog{list-style:none;margin:0;padding:6px 24px 14px}
+.rp-it{display:grid;grid-template-columns:50px auto minmax(0,1fr) auto;gap:6px 14px;align-items:baseline;padding:14px 0}
+.rp-it+.rp-it,.rp-prog li+li{border-top:1px dashed var(--rl)}
+.rp-tm{font-size:12.5px;color:var(--ri3);font-variant-numeric:tabular-nums}
+.rp-tag{font-size:13.5px;font-weight:700;color:var(--c);background:var(--soft);border:1px solid var(--bd);padding:3px 10px;border-radius:8px;white-space:nowrap;justify-self:start}
+.rp-what{min-width:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:14.5px;line-height:1.6}
+.rp-done{font-size:12px;font-weight:700;color:#fff;padding:2px 11px;border-radius:999px;background:linear-gradient(90deg,#12B886,#38D9A9);box-shadow:0 3px 10px rgba(18,184,134,.3);white-space:nowrap}
+.rp-imgs{grid-column:3/-1;display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
+.rp-th{padding:0;border:0;border-radius:12px;overflow:hidden;background:#EEF2F8;cursor:zoom-in;box-shadow:0 0 0 1px var(--rl);transition:transform .2s,box-shadow .2s;width:var(--tw,200px);max-width:100%}
+.rp-th:hover{transform:translateY(-2px);box-shadow:0 0 0 1px var(--bd),0 10px 22px rgba(5,22,64,.14)}
+.rp-th img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.rp[data-size="s"] .rp-th{--tw:112px}
+.rp[data-size="m"] .rp-th{--tw:200px}
+.rp[data-size="l"] .rp-th{--tw:340px}
+.rp[data-size="l"] .rp-th img{aspect-ratio:auto;max-height:420px;object-fit:contain;background:#F4F6FA}
+.rp-empty{padding:40px 20px;text-align:center;color:var(--ri3)}
+.rp-wk{padding:20px 24px 22px}
+.rp-wk h3{margin:0 0 14px;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px}
+.rp-wk h3 small{font-weight:400;color:var(--ri3);font-size:12.5px}
+.rp-days{display:grid;grid-template-columns:repeat(var(--n,5),minmax(0,1fr));gap:10px}
+.rp-day{display:flex;flex-direction:column;align-items:flex-start;border:1px solid var(--rl);background:#fff;border-radius:14px;padding:12px 12px 10px;text-align:left;cursor:pointer;transition:border-color .2s,box-shadow .2s;color:inherit}
+.rp-day:hover:not(:disabled){border-color:#BFD6FF;box-shadow:0 8px 18px rgba(47,134,255,.12)}
+.rp-day:disabled{cursor:default;opacity:.55}
+.rp-day.today{border-color:#9EC3FF}
+.rp-day .dw{font-size:12px;color:var(--ri3)}
+.rp-day .dd{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.rp-day .bars{height:56px;width:100%;display:flex;align-items:flex-end;margin:8px 0 6px}
+.rp-day .bars i{display:block;width:100%;border-radius:8px 8px 3px 3px;background:linear-gradient(180deg,var(--sky),var(--bright) 50%,var(--mid))}
+.rp-day .dn{font-size:12.5px;color:var(--label-2)} .rp-day .dn b{font-size:16px;color:var(--label);margin-right:2px}
+.rp-prog li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;padding:14px 0;align-items:start}
+.rp-prog li.rp-wimg{display:block}
+.rp-wimg .rp-imgs{margin:0}
+.rp-steps{display:flex;flex-direction:column;gap:6px;min-width:0}
+.rp-sp{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:10px;align-items:baseline}
+.rp-sp .sd{font-size:12.5px;color:var(--c);font-weight:700;font-variant-numeric:tabular-nums}
+@media (max-width:899px){
+  .hero.rp-hero{justify-content:stretch}
+  .rp-band{border-radius:18px;padding:20px 16px 76px}
+  .rp-r2 h2{font-size:30px}
+  .rp-nav{width:100%;justify-content:space-between}
+  .rp-stats{gap:6px} .rp-st{padding:10px 8px} .rp-st b{font-size:20px} .rp-st span{font-size:11px;white-space:nowrap}
+  .rp-body{margin:-56px 8px 0}
+  .rp-ch{padding:16px 16px 12px;flex-wrap:wrap;gap:8px 10px} .rp-pn{font-size:18px;flex:1 1 100%;order:3} .rp-cnt{order:2}
+  .rp-items,.rp-prog{padding-left:16px;padding-right:16px}
+  .rp-it{grid-template-columns:auto minmax(0,1fr) auto} .rp-tm{grid-column:1/-1} .rp-it .rp-what{grid-column:1/-1;order:5} .rp-it .rp-imgs{grid-column:1/-1;order:6}
+  .rp[data-size="s"] .rp-th{--tw:calc((100% - 20px) / 3)}
+  .rp[data-size="m"] .rp-th{--tw:calc((100% - 10px) / 2)}
+  .rp[data-size="l"] .rp-th{--tw:100%}
+  .rp-wk{padding:16px} .rp-days{gap:5px} .rp-day{padding:8px 6px} .rp-day .dd{font-size:14px} .rp-day .bars{height:40px} .rp-day .dw{font-size:11px}
+  .rp-prog li{grid-template-columns:1fr} .rp-sp{grid-template-columns:42px minmax(0,1fr) auto}
+}
+@media (prefers-reduced-motion:reduce){.rp-beam::before{animation:none}}
 </style>
 </head>
 <body>
@@ -2171,7 +2267,7 @@ function imgSrc(u, w = 1600) {
 }
 
 /* ---------------- 狀態 ---------------- */
-const VIEWS = ['table', 'product', 'flow', 'zone', 'stats', 'log'];
+const VIEWS = ['table', 'product', 'flow', 'zone', 'report', 'stats', 'log'];
 const S = {
   token: null, user: null, products: [], categories: [], users: [], colors: {}, writing: 0, plogs: {}, plogsStale: {}, zMemo: new Set(), zOpen: (() => { try { return JSON.parse(store.get('ptk_zopen', true) || '[]'); } catch (e) { return []; } })(), flowP: '', flowMode: store.get('ptk_flowmode', true) === 'table' ? 'table' : 'timeline', zone: null, zoneClosed: false, statuses: [], tasks: {}, recent: {}, logCount: {}, hist: {}, logs: null,
   view: VIEWS.includes(store.get('ptk_view', true)) ? store.get('ptk_view', true) : 'table',
@@ -2492,7 +2588,8 @@ const VIEW_ICON = {
   flow: VI('<circle cx="6" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><path d="M6 8v8M10 6h10M10 18h10M10 12h7"/><circle cx="6" cy="12" r="2"/>'),
   zone: VI('<path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>'),
   stats: VI('<path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/>'),
-  log: VI('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>')
+  log: VI('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'),
+  report: VI('<rect x="4.5" y="3.5" width="15" height="17" rx="2.5"/><path d="M8 8.5h8M8 12h8M8 15.5h5"/>')
 };
 function render() {
   closePop();
@@ -2503,12 +2600,14 @@ function render() {
   const todo = myTodo(), tb = $('#todoBtn');
   tb.hidden = false; tb.innerHTML = `<span class="tn">${esc(S.user.name)}</span><span><span class="tw">我的</span>待辦</span><b>${todo}</b>`; tb.title = '只看我負責、還沒完成的項目'; tb.classList.toggle('on', S.person === S.user.name && S.filter === 'open');
   if (S.view === 'zone' && !S.user.zone) S.view = 'table';
-  const tabs = [['table', '總覽'], ['product', '依商品'], ['flow', '流程'], ...(S.user.zone ? [['zone', '昶明區']] : []), ['stats', '統計'], ['log', '更新紀錄']];
-  const titles = { table: ['專案進度', `${prods.length} 個商品・<b>${openN}</b> 格未完成・<b>${doneN}</b> 格已完成`], product: ['專案進度', `${prods.length} 個商品・<b>${openN}</b> 格未完成・<b>${doneN}</b> 格已完成`], zone: ['昶明區', ''], flow: ['流程紀錄', ''], stats: ['進度統計', ''], log: ['更新紀錄', ''] };
-  let html = `<div class="hero${S.view === 'flow' ? ' compact' : ''}"><div>${S.view === 'table' || S.view === 'product' ? `<button class="hero-t" data-act="heromore" aria-expanded="${!!S.heroOpen}"><h1>${titles[S.view][0]}</h1><svg class="hero-cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>${S.heroOpen ? `<p>${titles[S.view][1]}</p>` : ''}` : `<h1>${titles[S.view][0]}</h1>${titles[S.view][1] ? `<p>${titles[S.view][1]}</p>` : ''}`}</div>
+  if (S.view === 'report' && !canReport()) S.view = 'table';
+  const tabs = [['table', '總覽'], ['product', '依商品'], ['flow', '流程'], ...(S.user.zone ? [['zone', '昶明區']] : []), ...(canReport() ? [['report', '日報']] : []), ['stats', '統計'], ['log', '更新紀錄']];
+  const titles = { table: ['專案進度', `${prods.length} 個商品・<b>${openN}</b> 格未完成・<b>${doneN}</b> 格已完成`], product: ['專案進度', `${prods.length} 個商品・<b>${openN}</b> 格未完成・<b>${doneN}</b> 格已完成`], zone: ['昶明區', ''], flow: ['流程紀錄', ''], stats: ['進度統計', ''], log: ['更新紀錄', ''], report: ['', ''] };
+  let html = `<div class="hero${S.view === 'flow' || S.view === 'report' ? ' compact' : ''}${S.view === 'report' ? ' rp-hero' : ''}"><div>${S.view === 'table' || S.view === 'product' ? `<button class="hero-t" data-act="heromore" aria-expanded="${!!S.heroOpen}"><h1>${titles[S.view][0]}</h1><svg class="hero-cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>${S.heroOpen ? `<p>${titles[S.view][1]}</p>` : ''}` : `<h1>${titles[S.view][0]}</h1>${titles[S.view][1] ? `<p>${titles[S.view][1]}</p>` : ''}`}</div>
     <div class="seg views" role="tablist" aria-label="檢視">${tabs.map(([v, n]) => `<button role="tab" class="${S.view === v ? 'on' : ''}" aria-selected="${S.view === v}" data-act="view" data-v="${v}">${VIEW_ICON[v] || ''}<span>${n}</span></button>`).join('')}</div></div>`;
   if (S.view === 'log') { $('#main').innerHTML = html + logView(); if (!S.logs) loadLogs(); return; }
   if (S.view === 'stats') { $('#main').innerHTML = html + statsView(); setHH(); return; }
+  if (S.view === 'report') { $('#main').innerHTML = html + reportView(); setHH(); return; }
   if (S.view === 'flow') { $('#main').innerHTML = html + flowView(); setHH(); fitFlowTable(); return; }
   if (S.view === 'zone') { $('#main').innerHTML = html + zoneView(); setHH(); return; }
   let chips = FILTERS.map(([id, name]) => `<button class="chip${S.filter === id ? ' on' : ''}" data-act="filter" data-v="${id}" aria-pressed="${S.filter === id}">${name}<i>${all.filter(t => cellMatch(t, id)).length}</i></button>`).join('');
@@ -3268,6 +3367,84 @@ document.addEventListener('focusout', e => {
   const t = e.target; if (!t.closest || !t.closest('#shBody, #whoPortal')) return;
   if (t.classList && t.classList.contains('who-in') && S.draft) { setTimeout(() => { if (S.whoAdd < 0 || !S.draft) return; addOther(S.draft.steps[+t.dataset.i], t); S.whoAdd = -1; stepsChanged(); }, 120); }
 });
+
+/* ---------------- 日報／週報（只有昶明看得到；內容是昶明自己在商品區與昶明區的更新） ---------------- */
+const REPORT_OWNER = '昶明';
+const canReport = () => !!(S.user && S.user.name === REPORT_OWNER);
+const RP = { mode: 'day', day: '', cache: {}, busy: false, size: (() => { const v = store.get('ptk_rimg', true); return ['s', 'm', 'l'].includes(v) ? v : 'm'; })() };
+const rpDate = k => new Date(+k.slice(0, 4), +k.slice(5, 7) - 1, +k.slice(8, 10));
+const ymdOf = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const WK = ['日', '一', '二', '三', '四', '五', '六'];
+function rpWeek(day) {   // 週一～週日
+  const d = rpDate(day), mon = new Date(d); mon.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return [...Array(7)].map((_, i) => { const x = new Date(mon); x.setDate(mon.getDate() + i); return ymdOf(x); });
+}
+async function rpLoad(force) {
+  const w = rpWeek(RP.day), key = w[0];
+  if (RP.cache[key] && !force) return;
+  RP.busy = true;
+  try { const r = await api('report', { from: w[0], to: w[6] }); RP.cache[key] = r.items || []; }
+  catch (e) { toast(e.message, true); RP.cache[key] = RP.cache[key] || []; }
+  finally { RP.busy = false; }
+  if (S.view === 'report') render();
+}
+const rpMD = k => +k.slice(5, 7) + '/' + +k.slice(8, 10);
+const rpWd = k => '星期' + WK[rpDate(k).getDay()];
+function rpGroup(items) {
+  const m = new Map();
+  items.forEach(it => { const key = it.kind + '|' + it.product; if (!m.has(key)) m.set(key, { kind: it.kind, product: it.product, items: [] }); m.get(key).items.push(it); });
+  return [...m.values()];
+}
+function rpThumbs(list, cls) {
+  if (!list.length) return '';
+  const w = { s: 240, m: 480, l: 1000 }[RP.size];
+  return `<div class="rp-imgs ${cls || ''}">${list.map((u, i) => `<button class="rp-th" data-act="rimg" data-k="${i}" data-urls="${esc(JSON.stringify(list))}"><img src="${esc(imgSrc(u, w))}" alt="" loading="lazy" referrerpolicy="no-referrer"></button>`).join('')}</div>`;
+}
+const rpKind = k => k === 'z' ? '昶明區專案' : '商品';
+function rpStat(label, n, g) { return `<div class="rp-st${g ? ' g' : ''}"><span>${label}</span><b>${n}</b></div>`; }
+function reportView() {
+  if (!RP.day) RP.day = ymdOf(new Date());
+  const week = rpWeek(RP.day), all = RP.cache[week[0]];
+  if (!all && !RP.busy) rpLoad();
+  const today = ymdOf(new Date());
+  const isDay = RP.mode === 'day';
+  const items = all ? (isDay ? all.filter(x => x.day === RP.day) : all) : [];
+  const groups = rpGroup(items), imgN = items.reduce((a, x) => a + x.images.length, 0);
+  const nextOff = isDay ? RP.day >= today : week[6] >= today;
+  const band = `<div class="rp-band"><div class="rp-grid"></div><div class="rp-grid2"></div><div class="rp-orb o1"></div><div class="rp-orb o2"></div><div class="rp-beam"></div>
+    <div class="rp-in">
+      <div class="rp-r1"><span class="rp-brand">GOODCARE・WORK REPORT</span>
+        <div class="rp-tabs" role="tablist" aria-label="日報或週報"><button role="tab" class="${isDay ? 'on' : ''}" aria-selected="${isDay}" data-act="rmode" data-v="day">日報</button><button role="tab" class="${isDay ? '' : 'on'}" aria-selected="${!isDay}" data-act="rmode" data-v="week">週報</button></div></div>
+      <div class="rp-r2"><h2>${esc(S.user.name)} ${isDay ? '日報' : '週報'}</h2>
+        <div class="rp-nav"><button data-act="rmv" data-v="-1" aria-label="${isDay ? '前一天' : '上一週'}">‹</button>
+          <div class="d"><b>${isDay ? rpMD(RP.day) : rpMD(week[0]) + ' – ' + rpMD(week[6])}</b><span>${isDay ? RP.day.slice(0, 4) + '・' + rpWd(RP.day) + (RP.day === today ? '・今天' : '') : RP.day.slice(0, 4) + '・週一至週日'}</span></div>
+          <button data-act="rmv" data-v="1" aria-label="${isDay ? '後一天' : '下一週'}"${nextOff ? ' disabled' : ''}>›</button></div></div>
+      <div class="rp-stats">${rpStat('產品／專案', all ? groups.length : '—')}${rpStat(isDay ? '工作項目' : '工作更新', all ? items.length : '—')}${rpStat('完成', all ? items.filter(x => x.done).length : '—', 1)}${rpStat('更新圖片', all ? imgN : '—')}</div>
+    </div></div>`;
+  const tools = `<div class="rp-tools"><span>圖片</span><div class="seg sm" role="group" aria-label="圖片大小">${[['s', '小'], ['m', '中'], ['l', '大']].map(([v, n]) => `<button class="${RP.size === v ? 'on' : ''}" aria-pressed="${RP.size === v}" data-act="rsize" data-v="${v}">${n}</button>`).join('')}</div></div>`;
+  let body;
+  if (!all) body = `<div class="rp-card"><div class="rp-empty">讀取中…</div></div>`;
+  else if (isDay) {
+    body = groups.length ? groups.map(g => `<section class="rp-card${g.kind === 'z' ? ' z' : ''}">
+        <div class="rp-ch"><span class="rp-kind">${rpKind(g.kind)}</span><span class="rp-pn">${esc(g.product)}</span><span class="rp-cnt"><b>${g.items.length}</b>項</span></div>
+        <ul class="rp-items">${g.items.map(it => `<li class="rp-it"><span class="rp-tm">${hm(new Date(it.time))}</span><span class="rp-tag">${esc(it.step)}</span><span class="rp-what">${rich(it.what)}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}${rpThumbs(it.images)}</li>`).join('')}</ul></section>`).join('')
+      : `<div class="rp-card"><div class="rp-empty">這天沒有更新</div></div>`;
+  } else {
+    const per = week.map(k => all.filter(x => x.day === k).length), max = Math.max(1, ...per);
+    const showDays = week.filter((k, i) => i < 5 || per[i]);
+    const days = `<section class="rp-card"><div class="rp-wk"><h3>每天做了多少<small>點一天看當天日報</small></h3><div class="rp-days" style="--n:${showDays.length}">${showDays.map(k => { const n = per[week.indexOf(k)]; return `<button class="rp-day${k === today ? ' today' : ''}" data-act="rday" data-v="${k}"${n ? '' : ' disabled'}><span class="dw">${rpWd(k)}</span><span class="dd">${rpMD(k)}</span><span class="bars"><i style="height:${n ? Math.max(8, n / max * 100) : 0}%"></i></span><span class="dn"><b>${n}</b>項</span></button>`; }).join('')}</div></div></section>`;
+    const prods = groups.map(g => {
+      const steps = new Map(); g.items.forEach(it => { if (!steps.has(it.step)) steps.set(it.step, []); steps.get(it.step).push(it); });
+      const imgs = g.items.flatMap(it => it.images);
+      return `<section class="rp-card${g.kind === 'z' ? ' z' : ''}">
+        <div class="rp-ch"><span class="rp-kind">${rpKind(g.kind)}</span><span class="rp-pn">${esc(g.product)}</span><span class="rp-cnt"><b>${steps.size}</b>個項目</span></div>
+        <ul class="rp-prog">${[...steps.entries()].map(([n, its]) => `<li><span class="rp-tag">${esc(n)}</span><div class="rp-steps">${its.map(it => `<div class="rp-sp"><span class="sd">${rpMD(it.day)}</span><span class="rp-what">${rich(it.what)}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}</div>`).join('')}</div></li>`).join('')}
+          ${imgs.length ? `<li class="rp-wimg">${rpThumbs(imgs)}</li>` : ''}</ul></section>`;
+    }).join('');
+    body = days + (prods || `<div class="rp-card"><div class="rp-empty">這週沒有更新</div></div>`);
+  }
+  return `<div class="rp" data-size="${RP.size}">${band}<div class="rp-body">${tools}${body}</div></div>`;
+}
 /* ---------------- 對話框：新增商品／欄位／項目、商品設定 ---------------- */
 function openDlg(type, pid) {
   closePop();
@@ -3466,6 +3643,11 @@ document.addEventListener('click', e => {
     case 'mode': S.mode = d.v; store.set('ptk_mode', d.v, true); render(); break;
     case 'closed': S.showClosed = !S.showClosed; render(); break;
     case 'heromore': S.heroOpen = !S.heroOpen; render(); break;
+    case 'rmode': RP.mode = d.v; render(); break;
+    case 'rmv': { const x = rpDate(RP.day); x.setDate(x.getDate() + (RP.mode === 'day' ? 1 : 7) * Number(d.v)); const t = ymdOf(new Date()); RP.day = ymdOf(x) > t ? t : ymdOf(x); render(); break; }
+    case 'rday': RP.day = d.v; RP.mode = 'day'; render(); window.scrollTo(0, 0); break;
+    case 'rsize': RP.size = d.v; store.set('ptk_rimg', d.v, true); render(); break;
+    case 'rimg': { let l = []; try { l = JSON.parse(d.urls); } catch (er) {} openLb(l, +d.k || 0, '日報圖片'); break; }
     case 'filter': S.filter = d.v; render(); break;
     case 'person': S.person = d.v; render(); break;
     case 'flowp': S.flowP = d.v; render(); break;
