@@ -2046,6 +2046,22 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
 .c-imgs .g-th img{object-fit:contain}
 .c-imgs .g-all{width:auto;flex:1 1 100%;height:28px;padding:0 8px;border:1px solid #C9D7EC;background:#F3F7FF;color:var(--navy);font-size:12px;font-weight:700;display:block}
 .subgrid label .cap-t{margin-top:6px}
+/* 圖片按鈕（取代「全部 N 張」） */
+.g-ic{width:34px;height:34px;flex:none;display:inline-grid;place-items:center;padding:0;border:1px solid #C9D7EC;border-radius:8px;background:#F3F7FF;color:var(--navy);cursor:pointer}
+.g-ic svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.g-ic:hover{background:#E3ECF8}
+.c-imgs .g-ic{width:30px;height:34px;border-radius:7px}
+.g-strip.big .g-ic{width:44px;height:72px;border-radius:10px}
+.sum-imgs .g-ic{height:40px}
+.gal-meta{display:flex;align-items:center;gap:6px}
+.gal-meta small{flex:1;min-width:0}
+.gal-sw{flex:none;width:28px;height:28px;margin:0 -3px 2px 0;display:grid;place-items:center;padding:0;border:1px solid #DCE6F4;border-radius:7px;background:#fff;color:var(--navy);cursor:pointer}
+.gal-sw svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.gal-sw:hover{background:#EAF2FF}
+.gal-cap{padding-bottom:7px}
+.z-all .i{width:16px;height:16px}
+.z-bar{justify-content:flex-start}.z-bar .z-all{margin-right:auto}.z-bar>.btn:first-child:not(.z-all)+.switch,.z-bar>.z-ro+.switch{margin-left:auto}
+.c-imgs{flex-wrap:nowrap}.c-imgs .g-th{width:34px;height:30px}.c-imgs .g-ic{width:26px;height:30px;border-radius:6px}.c-imgs .g-ic svg{width:15px;height:15px}
 </style>
 </head>
 <body>
@@ -2973,7 +2989,9 @@ function zoneView() {
   if (S.zoneStale) { S.zoneStale = false; loadZone(true); }
   const z = S.zone, ed = zoneEdit(), closedN = z.projects.filter(p => p.closed).length;
   const projs = z.projects.filter(p => S.zoneClosed || !p.closed);
-  const bar = `<div class="z-bar">${ed ? `<button class="btn" data-act="zproj-add">${ICON.plus}新增專案</button>` : '<span class="z-ro">' + ICON.lock + '只能檢視</span>'}${closedN ? `<button class="switch" role="switch" aria-checked="${!!S.zoneClosed}" data-act="zclosed">顯示已結案 ${closedN}<i></i></button>` : ''}</div>`;
+  const canMore = projs.some(p => z.items.filter(i => i.project === p.name).length > 2) || z.items.some(it => it.m && (it.m.length > 70 || (it.m.match(/\n/g) || []).length > 2));
+  const allOpen = projs.every(p => S.zOpen.includes(p.name)) && z.items.every(it => !it.m || S.zMemo.has(it.id) || !(it.m.length > 70 || (it.m.match(/\n/g) || []).length > 2));
+  const bar = `<div class="z-bar">${ed ? `<button class="btn" data-act="zproj-add">${ICON.plus}新增專案</button>` : '<span class="z-ro">' + ICON.lock + '只能檢視</span>'}${canMore ? `<button class="btn z-all" data-act="zall" data-v="${allOpen ? 0 : 1}">${allOpen ? ICON.up + '全部收合' : ICON.down + '全部展開'}</button>` : ''}${closedN ? `<button class="switch" role="switch" aria-checked="${!!S.zoneClosed}" data-act="zclosed">顯示已結案 ${closedN}<i></i></button>` : ''}</div>`;
   if (!projs.length) return bar + `<div class="empty">${ed ? '還沒有專案。按「新增專案」開始記錄昶明的獨立專案。' : '目前還沒有專案。'}</div>`;
   const cols = projs.map(p => {
     const items = z.items.filter(i => i.project === p.name);   // 依新增順序：最早的在上、最新加入的在最下面（改狀態不會改變位置）
@@ -3185,15 +3203,15 @@ function renderSheet() {
     ${ro ? `<div class="ro-note">${ICON.lock}<span>這一格由 ${esc(owners.join('、'))} 負責，你可以查看；只有負責人或管理員可以修改。</span></div>` : ''}
     <div class="sh-sum" id="secState">${sheetSummary()}</div>
     <section class="sec">
-      <div class="band"><i>1</i>步驟進度${ro || d.na ? '' : `<button type="button" class="band-r" data-act="edit-steps">${S.editSteps ? '完成' : '刪除步驟'}</button>`}</div>
+      <div class="band">流程${ro || d.na ? '' : `<button type="button" class="band-r" data-act="edit-steps">${S.editSteps ? '完成' : '刪除步驟'}</button>`}</div>
       <div id="secSteps">${d.na ? NA_HINT : stepsHTML()}</div>
     </section>
     ${galTotal(S.orig) ? `<section class="sec" id="secImgT">
-      <div class="band"><i>2</i>圖片<button type="button" class="band-r" data-act="gal" data-pid="${esc(S.orig.productId)}" data-cid="${esc(S.orig.categoryId)}">調整主要版本／留存紀錄</button></div>
+      <div class="band">圖片</div>
       <div id="secImgs" class="sec-imgs">${imgsHTML()}</div>
     </section>` : ''}
     <section class="sec" id="secHistT">
-      <div class="band"><i>${galTotal(S.orig) ? 3 : 2}</i>最近紀錄<span id="histMore" class="band-r-wrap">${histMoreBtn()}</span></div>
+      <div class="band">歷史紀錄<span id="histMore" class="band-r-wrap">${histMoreBtn()}</span></div>
       <div id="secHist">${histHTML()}</div>
     </section>
     <datalist id="trackList">${TRACKS.map(t => `<option value="${t}">`).join('')}</datalist>`;
@@ -3560,6 +3578,8 @@ function reportView() {
 
 /* ---------------- 圖片：主要版本（前 3 張顯示在總覽／依商品）＋留存紀錄，圖片視窗可拖曳調整 ---------------- */
 const GAL_N = 3;
+const GAL_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M4.5 17.5l4.5-4.5 3.5 3.5 2.5-2.5 4.5 4.5"/></svg>';
+const SWAP_IC = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4v15M4.5 7.5L8 4l3.5 3.5M16 20V5M12.5 16.5L16 20l3.5-3.5"/></svg>';
 const galOf = t => (t && t.gal) || { main: [], arc: [] };
 const galTotal = t => galOf(t).main.length + galOf(t).arc.length;
 /* 總覽格子、依商品、編輯視窗共用的縮圖列：主要版本前 3 張＋「全部 N 張」 */
@@ -3568,7 +3588,7 @@ function galStrip(t, at, size) {
   if (!n) return '';
   const w = size || 160;
   return g.main.slice(0, GAL_N).map((x, i) => `<button type="button" class="g-th" data-act="gimg" data-i="${i}" ${at} aria-label="看圖片：${esc(x.cap || x.step || '第 ' + (i + 1) + ' 張')}"><img src="${esc(imgSrc(x.u, w))}" alt="" loading="lazy" referrerpolicy="no-referrer"></button>`).join('')
-    + `<button type="button" class="g-all" data-act="gal" ${at}>全部 ${n} 張</button>`;
+    + `<button type="button" class="g-ic" data-act="gal" ${at} aria-label="打開圖片視窗（共 ${n} 張）" title="全部 ${n} 張">${GAL_IC}</button>`;
 }
 const GAL = { pid: '', cid: '', main: [], arc: [], caps: {}, sorts: [], busy: false };
 function galEl() {
@@ -3595,8 +3615,7 @@ function galCard(x, i, inMain) {
     ${inMain ? `<span class="gal-no">${i + 1}</span>` : ''}<span class="gal-grip" aria-hidden="true">⠿</span>
     <button type="button" class="gal-im" data-act="gal-zoom" data-id="${esc(x.id)}" aria-label="看大圖"><img src="${esc(imgSrc(x.u, 480))}" alt="" loading="lazy" referrerpolicy="no-referrer"></button>
     <div class="gal-cap">${x.step ? `<span class="gal-step">${esc(x.step)}</span>` : ''}<input data-cap="${esc(x.id)}" value="${esc(cap)}" maxlength="60" aria-label="圖片說明"${ro ? ' disabled' : ''}>
-      <small>${esc(when)}${x.by ? '・' + esc(x.by) : ''}</small></div>
-    <button type="button" class="gal-mv" data-act="gal-move" data-id="${esc(x.id)}">${inMain ? '移到留存紀錄' : '移到主要版本'}</button></div>`;
+      <div class="gal-meta"><small>${esc(when)}${x.by ? '・' + esc(x.by) : ''}</small><button type="button" class="gal-sw" data-act="gal-move" data-id="${esc(x.id)}" aria-label="${inMain ? '移到留存紀錄' : '移到主要版本'}" title="${inMain ? '移到留存紀錄' : '移到主要版本'}">${SWAP_IC}</button></div></div></div>`;
 }
 function galRead() {
   const all = {}; [...GAL.main, ...GAL.arc].forEach(x => { all[x.id] = x; });
@@ -3617,7 +3636,7 @@ function openGal(pid, cid) {
   galPaint(); el.hidden = false;
   GAL.sorts.forEach(s => s.destroy()); GAL.sorts = [];
   if (window.Sortable) {
-    const opt = { group: 'gal', animation: 160, ghostClass: 'gal-ghost', chosenClass: 'gal-chosen', delay: 160, delayOnTouchOnly: true, filter: 'input,.gal-mv', preventOnFilter: false, onEnd: () => { galRead(); galPaint(); } };
+    const opt = { group: 'gal', animation: 160, ghostClass: 'gal-ghost', chosenClass: 'gal-chosen', delay: 160, delayOnTouchOnly: true, filter: 'input,.gal-sw', preventOnFilter: false, onEnd: () => { galRead(); galPaint(); } };
     GAL.sorts = [Sortable.create($('#galMain'), opt), Sortable.create($('#galArc'), opt)];
   }
 }
@@ -3907,6 +3926,9 @@ document.addEventListener('click', e => {
     case 'dlg-keep': { const c = $('#dlgCfm'); if (c) c.remove(); break; }
     case 'dlg-discard': closeDlg(true); break;
     case 'zmore': { e.stopPropagation(); S.zMemo.has(d.id) ? S.zMemo.delete(d.id) : S.zMemo.add(d.id); render(); break; }
+    case 'zall': { const on = d.v === '1', projs = S.zone.projects.map(p => p.name);
+      S.zOpen = on ? projs : []; S.zMemo = on ? new Set(S.zone.items.filter(it => it.m).map(it => it.id)) : new Set();
+      store.set('ptk_zopen', JSON.stringify(S.zOpen), true); render(); break; }
     case 'zopen': { const i = S.zOpen.indexOf(d.p); if (i >= 0) S.zOpen.splice(i, 1); else S.zOpen.push(d.p); store.set('ptk_zopen', JSON.stringify(S.zOpen), true); render(); break; }
     case 'urg': { const st = S.draft && S.draft.steps[+d.i]; if (st) { st.u = !st.u; stepsChanged(); } break; }
     case 'dwho': { const w = S.dlg.who, i = w.indexOf(d.name); if (i >= 0) w.splice(i, 1); else w.push(d.name); setHtml('dWho', dlgWho()); break; }
