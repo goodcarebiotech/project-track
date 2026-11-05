@@ -1870,6 +1870,15 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
   .st-row .n[data-l]::before{content:attr(data-l) " ";color:var(--label-3);font-weight:400}
   .st-row:not(.st-u) .st-last{display:none!important}
 }
+/* 標題：點一下展開摘要 */
+.hero-t{display:inline-flex;align-items:center;gap:8px;padding:0;border:0;background:none;color:inherit;cursor:pointer;text-align:left}
+.hero-cv{width:22px;height:22px;flex:none;fill:none;stroke:#8E8E93;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .2s}
+.hero-t[aria-expanded="true"] .hero-cv{transform:rotate(180deg)}
+.hero-t:hover .hero-cv{stroke:#0B4AA3}
+/* 統計：最近更新日期＝藍字淡藍底 */
+.st-pn time:not(:empty){padding:2px 8px;border-radius:6px;background:#E8F0FC;color:#0B4AA3;font-weight:600;font-size:12px}
+@media (max-width:899px){.hero-cv{width:20px;height:20px}}
+.st-pn time:not(:empty){margin-right:10px}
 </style>
 </head>
 <body>
@@ -2495,8 +2504,8 @@ function render() {
   tb.hidden = false; tb.innerHTML = `<span class="tn">${esc(S.user.name)}</span><span><span class="tw">我的</span>待辦</span><b>${todo}</b>`; tb.title = '只看我負責、還沒完成的項目'; tb.classList.toggle('on', S.person === S.user.name && S.filter === 'open');
   if (S.view === 'zone' && !S.user.zone) S.view = 'table';
   const tabs = [['table', '總覽'], ['product', '依商品'], ['flow', '流程'], ...(S.user.zone ? [['zone', '昶明區']] : []), ['stats', '統計'], ['log', '更新紀錄']];
-  const titles = { table: ['製作進度', `${prods.length} 個商品・<b>${openN}</b> 格未完成・<b>${doneN}</b> 格已完成`], product: ['製作進度', `${prods.length} 個商品・<b>${openN}</b> 格未完成・<b>${doneN}</b> 格已完成`], zone: ['昶明區', ''], flow: ['流程紀錄', ''], stats: ['進度統計', '依目前資料即時計算（不含已結案商品）'], log: ['更新紀錄', ''] };
-  let html = `<div class="hero${S.view === 'flow' ? ' compact' : ''}"><div><h1>${titles[S.view][0]}</h1>${titles[S.view][1] ? `<p>${titles[S.view][1]}</p>` : ''}</div>
+  const titles = { table: ['專案進度', `${prods.length} 個商品・<b>${openN}</b> 格未完成・<b>${doneN}</b> 格已完成`], product: ['專案進度', `${prods.length} 個商品・<b>${openN}</b> 格未完成・<b>${doneN}</b> 格已完成`], zone: ['昶明區', ''], flow: ['流程紀錄', ''], stats: ['進度統計', ''], log: ['更新紀錄', ''] };
+  let html = `<div class="hero${S.view === 'flow' ? ' compact' : ''}"><div>${S.view === 'table' || S.view === 'product' ? `<button class="hero-t" data-act="heromore" aria-expanded="${!!S.heroOpen}"><h1>${titles[S.view][0]}</h1><svg class="hero-cv" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button>${S.heroOpen ? `<p>${titles[S.view][1]}</p>` : ''}` : `<h1>${titles[S.view][0]}</h1>${titles[S.view][1] ? `<p>${titles[S.view][1]}</p>` : ''}`}</div>
     <div class="seg views" role="tablist" aria-label="檢視">${tabs.map(([v, n]) => `<button role="tab" class="${S.view === v ? 'on' : ''}" aria-selected="${S.view === v}" data-act="view" data-v="${v}">${VIEW_ICON[v] || ''}<span>${n}</span></button>`).join('')}</div></div>`;
   if (S.view === 'log') { $('#main').innerHTML = html + logView(); if (!S.logs) loadLogs(); return; }
   if (S.view === 'stats') { $('#main').innerHTML = html + statsView(); setHH(); return; }
@@ -3456,6 +3465,7 @@ document.addEventListener('click', e => {
     case 'view': goView(d.v); render(); window.scrollTo(0, 0); break;
     case 'mode': S.mode = d.v; store.set('ptk_mode', d.v, true); render(); break;
     case 'closed': S.showClosed = !S.showClosed; render(); break;
+    case 'heromore': S.heroOpen = !S.heroOpen; render(); break;
     case 'filter': S.filter = d.v; render(); break;
     case 'person': S.person = d.v; render(); break;
     case 'flowp': S.flowP = d.v; render(); break;
