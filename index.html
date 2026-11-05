@@ -1983,6 +1983,14 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
 .rp-th{background:#fff;border:1px solid var(--rl);box-shadow:none}
 .rp-th img,.rp[data-size="l"] .rp-th img{object-fit:contain;background:#fff;aspect-ratio:4/3;max-height:none}
 .rp[data-size="l"] .rp-th img{aspect-ratio:auto;max-height:520px;width:100%}
+/* 新增步驟：插入位置＋補登日期 */
+.addstep2{flex-wrap:wrap;row-gap:8px}
+.as-f{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--label-2);white-space:nowrap}
+.as-f select,.as-f input{height:34px;padding:0 8px;border:1px solid var(--sep-strong);border-radius:8px;font-size:13.5px;background:var(--card);color:var(--label);max-width:180px}
+.as-f input[type=date].dempty{color:var(--label-3)}
+.fl-late{display:inline-block;margin-top:3px;padding:1px 7px;border-radius:6px;background:#FFF2E0;color:#9A5300;font-size:11.5px;font-weight:600}
+.rp-late{display:inline-block;margin-right:8px;padding:1px 8px;border-radius:6px;background:#FFF2E0;color:#9A5300;font-size:12px;font-weight:600;font-style:normal;vertical-align:1px}
+@media (max-width:899px){.addstep2 input#stepIn{flex:1 1 100%;max-width:none}.as-f{flex:1 1 45%}.as-f select,.as-f input{flex:1;max-width:none;min-width:0}}
 </style>
 </head>
 <body>
@@ -2768,7 +2776,7 @@ function flowView() {
     const dates = st ? `<div class="fl-dates"><span>預計完成 <b>${isYmd(st.d) ? md(st.d) : '—'}</b></span><span>實際完成 <b>${isYmd(st.at) && st.s === DONE ? md(st.at) : '—'}</b></span>${st.s !== DONE && isYmd(st.d) && daysTo(st.d) < 0 ? `<span class="due late">逾期 ${-daysTo(st.d)} 天</span>` : ''}<span class="fl-step">${esc(st.n)}</span></div>` : '';
     const imgs = (l.images || []).map((u, k) => `<button class="fl-img" data-act="flow-img" data-i="${i}" data-k="${k}" aria-label="看圖片 ${k + 1}"><img src="${esc(imgSrc(u, 200))}" alt="" loading="lazy" referrerpolicy="no-referrer"></button>`).join('');
     return `<li class="fl-row">
-      <div class="fl-date"><b>${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}</b>${t === '00:00' ? '' : `<small>${t}</small>`}</div>
+      <div class="fl-date"><b>${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}</b>${l.entered ? `<small class="fl-late" title="${esc(fmtFull(l.entered))} 補登">${esc(fmtFull(l.entered).split(' ')[0])} 補登</small>` : t === '00:00' || t === '12:00' && l.entered ? '' : `<small>${t}</small>`}</div>
       <div class="fl-dot" aria-hidden="true"></div>
       <div class="fl-body">
         <div class="fl-top">${l.categoryId ? `<span class="fl-cat">${esc(l.categoryId)}</span>` : ''}<span class="fl-item">${esc(item)}</span>${chg ? `<span class="fl-chg">${esc(chg)}</span>` : ''}<span class="fl-who">${names(l.name).map(av).join('')}<span>${esc(l.name)}</span></span></div>
@@ -3167,7 +3175,7 @@ function stepsHTML() {
       <tbody>${rows}</tbody></table></div>` : '<div class="na-hint">還沒有步驟，請在下方新增。</div>'}
     <datalist id="vendorList">${vendors().map(v => `<option value="${esc(v)}">`).join('')}</datalist>
     <datalist id="extList">${externals().map(n => `<option value="${esc(n)}">`).join('')}</datalist>
-    ${roCell || S.editSteps ? '' : `<div class="addstep2"><span>＋ 新增步驟</span><input id="stepIn" maxlength="30" aria-label="新增步驟名稱"><button type="button" class="btn sm" data-act="step-add">新增</button></div>`}`;
+    ${roCell || S.editSteps ? '' : `<div class="addstep2"><span>＋ 新增步驟</span><input id="stepIn" maxlength="30" aria-label="新增步驟名稱"><label class="as-f">排在<select id="stepPos" aria-label="新步驟放在哪裡"><option value="">最後面</option>${d.steps.map(s => `<option value="${esc(s.n)}">「${esc(s.n)}」之前</option>`).join('')}</select></label><label class="as-f">補登日期<input id="stepWhen" type="date" class="dempty" max="${localDate()}" aria-label="實際發生日期（補登才填）"></label><button type="button" class="btn sm" data-act="step-add">新增</button></div>`}`;
 }
 function histMoreBtn() {
   const k = S.open && key(S.open.pid, S.open.cid), n = S.logCount[k] || 0;
@@ -3205,7 +3213,12 @@ function addStep() {
   if (!n) { inp.focus(); return; }
   if (S.draft.steps.some(s => s.n === n)) { toast('已經有「' + n + '」這個步驟', true); return; }
   const st = blankStep(n); if (!isAdmin()) st.w = S.user.name;
-  S.draft.steps.push(st); S.expand = S.draft.steps.length - 1;
+  const pos = $('#stepPos') ? $('#stepPos').value : '', when = $('#stepWhen') ? $('#stepWhen').value : '';
+  if (when && when >= localDate()) { toast('補登日期要是今天以前', true); return; }
+  if (when) st.when = when;
+  const at = pos ? S.draft.steps.findIndex(s => s.n === pos) : -1;
+  if (at >= 0) { st.before = pos; S.draft.steps.splice(at, 0, st); S.expand = at; }
+  else { S.draft.steps.push(st); S.expand = S.draft.steps.length - 1; }
   stepsChanged(); const inp2 = $('#stepIn'); if (inp2) inp2.focus();
 }
 function addUrl() {
@@ -3234,7 +3247,7 @@ function addOther(step, inp) {
    2. 逐欄合併：只有雙方改到同一個欄位才算衝突，其餘自動合併後再送一次
    3. 伺服器忙碌時自動重試；網路中斷時先查詢伺服器確認是否已存入 */
 const payload = d => ({ na: !!d.na, steps: d.steps.map(s => ({ u: s.u ? '1' : '', n: s.n, s: s.s, w: names(s.w).join('／'), v: (s.v || '').trim(), m: (s.m || '').trim(), d: s.d || '', at: s.s === DONE ? s.at || '' : '',
-  note: (s.note || '').trim(), todo: (s.todo || '').trim(), track: (s.track || '').trim(), images: (s.imgsText || '').split(/\s+/).map(x => x.trim()).filter(Boolean) })), images: d.newImages || [] });
+  note: (s.note || '').trim(), todo: (s.todo || '').trim(), track: (s.track || '').trim(), images: (s.imgsText || '').split(/\s+/).map(x => x.trim()).filter(Boolean), ...(s.before ? { before: s.before } : {}), ...(s.when ? { when: s.when } : {}) })), images: d.newImages || [] });
 function applySaved(pid, cid, r) {
   const k = key(pid, cid);
   S.tasks[k] = toTask(r.cell);
@@ -3467,7 +3480,7 @@ function reportView() {
   else if (isDay) {
     body = groups.length ? groups.map(g => `<section class="rp-card${g.kind === 'z' ? ' z' : ''}">
         <div class="rp-ch"><span class="rp-kind">${rpKind(g.kind)}</span><span class="rp-pn">${esc(g.product)}</span><span class="rp-cnt"><b>${g.items.length}</b>項</span></div>
-        <ul class="rp-items">${g.items.map(it => `<li class="rp-it"><span class="rp-tm">${hm(new Date(it.time))}</span><span class="rp-tag">${esc(it.step)}</span><span class="rp-what">${rich(it.what)}${it.n > 1 ? `<small class="rp-more">已修正 ${it.n - 1} 次</small>` : ''}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}${rpThumbs(it.images)}</li>`).join('')}</ul></section>`).join('')
+        <ul class="rp-items">${g.items.map(it => `<li class="rp-it"><span class="rp-tm">${hm(new Date(it.time))}</span><span class="rp-tag">${esc(it.step)}</span><span class="rp-what">${it.late ? `<em class="rp-late">補登・實際 ${rpMD(it.late)}</em>` : ''}${rich(it.what)}${it.n > 1 ? `<small class="rp-more">已修正 ${it.n - 1} 次</small>` : ''}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}${rpThumbs(it.images)}</li>`).join('')}</ul></section>`).join('')
       : `<div class="rp-card"><div class="rp-empty">這天沒有更新</div></div>`;
   } else {
     const per = week.map(k => all.filter(x => x.day === k).length), max = Math.max(1, ...per);
@@ -3478,7 +3491,7 @@ function reportView() {
       const imgs = g.items.flatMap(it => it.images);
       return `<section class="rp-card${g.kind === 'z' ? ' z' : ''}">
         <div class="rp-ch"><span class="rp-kind">${rpKind(g.kind)}</span><span class="rp-pn">${esc(g.product)}</span><span class="rp-cnt"><b>${steps.size}</b>個項目</span></div>
-        <ul class="rp-prog">${[...steps.entries()].map(([n, its]) => `<li><span class="rp-tag">${esc(n)}</span><div class="rp-steps">${its.map(it => `<div class="rp-sp"><span class="sd">${rpMD(it.day)}</span><span class="rp-what">${rich(it.what)}${it.n > 1 ? `<small class="rp-more">已修正 ${it.n - 1} 次</small>` : ''}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}</div>`).join('')}</div></li>`).join('')}
+        <ul class="rp-prog">${[...steps.entries()].map(([n, its]) => `<li><span class="rp-tag">${esc(n)}</span><div class="rp-steps">${its.map(it => `<div class="rp-sp"><span class="sd">${rpMD(it.day)}</span><span class="rp-what">${it.late ? `<em class="rp-late">補登・實際 ${rpMD(it.late)}</em>` : ''}${rich(it.what)}${it.n > 1 ? `<small class="rp-more">已修正 ${it.n - 1} 次</small>` : ''}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}</div>`).join('')}</div></li>`).join('')}
           ${imgs.length ? `<li class="rp-wimg">${rpThumbs(imgs)}</li>` : ''}</ul></section>`;
     }).join('');
     body = days + (prods || `<div class="rp-card"><div class="rp-empty">這週沒有更新</div></div>`);
@@ -3504,11 +3517,15 @@ function openDlg(type, pid) {
     B.innerHTML = `<div class="grp">
       <div class="f-row"><label for="dCat">放在</label><select id="dCat">${S.categories.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('')}</select></div>
       <div class="f-row"><label for="dName">項目名稱</label><input id="dName" maxlength="30" required></div>
+      <div class="f-row"><label for="dPos">排在</label><select id="dPos"></select></div>
+      <div class="f-row"><label for="dWhen">補登日期</label><input id="dWhen" type="date" class="dempty" max="${localDate()}"></div>
       <div class="f-row"><label for="dVen">製作</label><input id="dVen" maxlength="30" list="dVendors"><datalist id="dVendors">${vendors().map(v => `<option value="${esc(v)}">`).join('')}</datalist></div>
       <div class="f-row"><label for="dDue">預計完成</label><input id="dDue" type="date" class="dempty"></div></div>
       <div class="grp-t">負責人（點名字選擇，可多選）</div>
       <div class="grp grp-pad"><div class="s-who" id="dWho">${dlgWho()}</div>
       <input id="dOther" class="who-in wide" maxlength="20" list="dExt"><datalist id="dExt">${externals().map(n => `<option value="${esc(n)}">`).join('')}</datalist></div>`;
+    const fillPos = () => { const t = getTask(pid, $('#dCat').value); $('#dPos').innerHTML = '<option value="">最後面</option>' + (t ? t.steps : []).map(s => `<option value="${esc(s.n)}">「${esc(s.n)}」之前</option>`).join(''); };
+    fillPos(); $('#dCat').addEventListener('change', fillPos);
   } else if (type === 'zitem') {
     const z = S.zone, it = pid.id ? z.items.find(x => x.id === pid.id) : null, ro = !zoneEdit(), dis = ro ? ' disabled' : '';
     S.dlg.item = it; S.dlg.project = it ? it.project : pid.project;
@@ -3584,7 +3601,11 @@ $('#dlgForm').addEventListener('submit', async e => {
       dlgOther();
       const cid = $('#dCat').value, t = clone(getTask(D.pid, cid));
       if (t.steps.some(s => s.n === name)) { toast('這個欄位已經有「' + name + '」', true); ok.disabled = false; return; }
-      t.steps.push({ ...blankStep(name), w: D.who.join('／'), v: $('#dVen').value.trim(), d: $('#dDue').value || '' });
+      const pos = $('#dPos').value, when = $('#dWhen').value;
+      if (when && when >= localDate()) { toast('補登日期要是今天以前', true); ok.disabled = false; return; }
+      const ns = { ...blankStep(name), w: D.who.join('／'), v: $('#dVen').value.trim(), d: $('#dDue').value || '', ...(when ? { when } : {}) };
+      const at = pos ? t.steps.findIndex(s => s.n === pos) : -1;
+      if (at >= 0) { ns.before = pos; t.steps.splice(at, 0, ns); } else t.steps.push(ns);
       t.na = false;
       await saveTask(D.pid, cid, t, '', t.updatedAt || '');
       toast('已新增項目：' + name);
