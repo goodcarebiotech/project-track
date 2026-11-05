@@ -1975,6 +1975,10 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
   .rp-prog li{grid-template-columns:1fr} .rp-sp{grid-template-columns:42px minmax(0,1fr) auto}
 }
 @media (prefers-reduced-motion:reduce){.rp-beam::before{animation:none}}
+.rp-tools{flex-wrap:wrap;justify-content:flex-end}
+.rp-sep{width:1px;height:20px;background:#E3E8F0;margin:0 4px}
+.rp-more{display:block;margin-top:2px;font-size:12px;color:var(--ri3)}
+@media (max-width:899px){.rp-tools{align-self:stretch;justify-content:space-between;padding:6px 8px}.rp-tools .seg button{padding:0 9px}}
 </style>
 </head>
 <body>
@@ -3371,7 +3375,7 @@ document.addEventListener('focusout', e => {
 /* ---------------- 日報／週報（只有昶明看得到；內容是昶明自己在商品區與昶明區的更新） ---------------- */
 const REPORT_OWNER = '昶明';
 const canReport = () => !!(S.user && S.user.name === REPORT_OWNER);
-const RP = { mode: 'day', day: '', cache: {}, busy: false, size: (() => { const v = store.get('ptk_rimg', true); return ['s', 'm', 'l'].includes(v) ? v : 'm'; })() };
+const RP = { mode: 'day', day: '', cache: {}, busy: false, full: store.get('ptk_rfull', true) !== '0', size: (() => { const v = store.get('ptk_rimg', true); return ['s', 'm', 'l'].includes(v) ? v : 'm'; })() };
 const rpDate = k => new Date(+k.slice(0, 4), +k.slice(5, 7) - 1, +k.slice(8, 10));
 const ymdOf = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 const WK = ['日', '一', '二', '三', '四', '五', '六'];
@@ -3390,6 +3394,15 @@ async function rpLoad(force) {
 }
 const rpMD = k => +k.slice(5, 7) + '/' + +k.slice(8, 10);
 const rpWd = k => '星期' + WK[rpDate(k).getDay()];
+/* 只顯示最新：同一個項目只留最後一筆（文字用最新的；這段期間上傳的圖片全部保留） */
+function rpLatest(items) {
+  const m = new Map();
+  items.forEach(it => {
+    const k = it.kind + '|' + it.product + '|' + it.step, o = m.get(k);
+    m.set(k, o ? { ...it, done: it.done || o.done, images: [...new Set([...o.images, ...it.images])], n: (o.n || 1) + 1 } : it);
+  });
+  return [...m.values()].sort((a, b) => (a.time < b.time ? -1 : 1));
+}
 function rpGroup(items) {
   const m = new Map();
   items.forEach(it => { const key = it.kind + '|' + it.product; if (!m.has(key)) m.set(key, { kind: it.kind, product: it.product, items: [] }); m.get(key).items.push(it); });
@@ -3408,7 +3421,8 @@ function reportView() {
   if (!all && !RP.busy) rpLoad();
   const today = ymdOf(new Date());
   const isDay = RP.mode === 'day';
-  const items = all ? (isDay ? all.filter(x => x.day === RP.day) : all) : [];
+  const raw = all ? (isDay ? all.filter(x => x.day === RP.day) : all) : [];
+  const items = RP.full ? raw : rpLatest(raw);
   const groups = rpGroup(items), imgN = items.reduce((a, x) => a + x.images.length, 0);
   const nextOff = isDay ? RP.day >= today : week[6] >= today;
   const band = `<div class="rp-band"><div class="rp-grid"></div><div class="rp-grid2"></div><div class="rp-orb o1"></div><div class="rp-orb o2"></div><div class="rp-beam"></div>
@@ -3421,13 +3435,13 @@ function reportView() {
           <button data-act="rmv" data-v="1" aria-label="${isDay ? '後一天' : '下一週'}"${nextOff ? ' disabled' : ''}>›</button></div></div>
       <div class="rp-stats">${rpStat('產品／專案', all ? groups.length : '—')}${rpStat(isDay ? '工作項目' : '工作更新', all ? items.length : '—')}${rpStat('完成', all ? items.filter(x => x.done).length : '—', 1)}${rpStat('更新圖片', all ? imgN : '—')}</div>
     </div></div>`;
-  const tools = `<div class="rp-tools"><span>圖片</span><div class="seg sm" role="group" aria-label="圖片大小">${[['s', '小'], ['m', '中'], ['l', '大']].map(([v, n]) => `<button class="${RP.size === v ? 'on' : ''}" aria-pressed="${RP.size === v}" data-act="rsize" data-v="${v}">${n}</button>`).join('')}</div></div>`;
+  const tools = `<div class="rp-tools"><div class="seg sm" role="group" aria-label="顯示方式"><button class="${RP.full ? 'on' : ''}" aria-pressed="${RP.full}" data-act="rfull" data-v="1">完整紀錄</button><button class="${RP.full ? '' : 'on'}" aria-pressed="${!RP.full}" data-act="rfull" data-v="0">只看最新</button></div><i class="rp-sep"></i><span>圖片</span><div class="seg sm" role="group" aria-label="圖片大小">${[['s', '小'], ['m', '中'], ['l', '大']].map(([v, n]) => `<button class="${RP.size === v ? 'on' : ''}" aria-pressed="${RP.size === v}" data-act="rsize" data-v="${v}">${n}</button>`).join('')}</div></div>`;
   let body;
   if (!all) body = `<div class="rp-card"><div class="rp-empty">讀取中…</div></div>`;
   else if (isDay) {
     body = groups.length ? groups.map(g => `<section class="rp-card${g.kind === 'z' ? ' z' : ''}">
         <div class="rp-ch"><span class="rp-kind">${rpKind(g.kind)}</span><span class="rp-pn">${esc(g.product)}</span><span class="rp-cnt"><b>${g.items.length}</b>項</span></div>
-        <ul class="rp-items">${g.items.map(it => `<li class="rp-it"><span class="rp-tm">${hm(new Date(it.time))}</span><span class="rp-tag">${esc(it.step)}</span><span class="rp-what">${rich(it.what)}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}${rpThumbs(it.images)}</li>`).join('')}</ul></section>`).join('')
+        <ul class="rp-items">${g.items.map(it => `<li class="rp-it"><span class="rp-tm">${hm(new Date(it.time))}</span><span class="rp-tag">${esc(it.step)}</span><span class="rp-what">${rich(it.what)}${it.n > 1 ? `<small class="rp-more">今天共更新 ${it.n} 次</small>` : ''}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}${rpThumbs(it.images)}</li>`).join('')}</ul></section>`).join('')
       : `<div class="rp-card"><div class="rp-empty">這天沒有更新</div></div>`;
   } else {
     const per = week.map(k => all.filter(x => x.day === k).length), max = Math.max(1, ...per);
@@ -3438,7 +3452,7 @@ function reportView() {
       const imgs = g.items.flatMap(it => it.images);
       return `<section class="rp-card${g.kind === 'z' ? ' z' : ''}">
         <div class="rp-ch"><span class="rp-kind">${rpKind(g.kind)}</span><span class="rp-pn">${esc(g.product)}</span><span class="rp-cnt"><b>${steps.size}</b>個項目</span></div>
-        <ul class="rp-prog">${[...steps.entries()].map(([n, its]) => `<li><span class="rp-tag">${esc(n)}</span><div class="rp-steps">${its.map(it => `<div class="rp-sp"><span class="sd">${rpMD(it.day)}</span><span class="rp-what">${rich(it.what)}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}</div>`).join('')}</div></li>`).join('')}
+        <ul class="rp-prog">${[...steps.entries()].map(([n, its]) => `<li><span class="rp-tag">${esc(n)}</span><div class="rp-steps">${its.map(it => `<div class="rp-sp"><span class="sd">${rpMD(it.day)}</span><span class="rp-what">${rich(it.what)}${it.n > 1 ? `<small class="rp-more">這週共更新 ${it.n} 次</small>` : ''}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}</div>`).join('')}</div></li>`).join('')}
           ${imgs.length ? `<li class="rp-wimg">${rpThumbs(imgs)}</li>` : ''}</ul></section>`;
     }).join('');
     body = days + (prods || `<div class="rp-card"><div class="rp-empty">這週沒有更新</div></div>`);
@@ -3646,6 +3660,7 @@ document.addEventListener('click', e => {
     case 'rmode': RP.mode = d.v; render(); break;
     case 'rmv': { const x = rpDate(RP.day); x.setDate(x.getDate() + (RP.mode === 'day' ? 1 : 7) * Number(d.v)); const t = ymdOf(new Date()); RP.day = ymdOf(x) > t ? t : ymdOf(x); render(); break; }
     case 'rday': RP.day = d.v; RP.mode = 'day'; render(); window.scrollTo(0, 0); break;
+    case 'rfull': RP.full = d.v === '1'; store.set('ptk_rfull', d.v, true); render(); break;
     case 'rsize': RP.size = d.v; store.set('ptk_rimg', d.v, true); render(); break;
     case 'rimg': { let l = []; try { l = JSON.parse(d.urls); } catch (er) {} openLb(l, +d.k || 0, '日報圖片'); break; }
     case 'filter': S.filter = d.v; render(); break;
