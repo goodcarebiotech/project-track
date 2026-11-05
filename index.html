@@ -1979,6 +1979,10 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
 .rp-sep{width:1px;height:20px;background:#E3E8F0;margin:0 4px}
 .rp-more{display:block;margin-top:2px;font-size:12px;color:var(--ri3)}
 @media (max-width:899px){.rp-tools{align-self:stretch;justify-content:space-between;padding:6px 8px}.rp-tools .seg button{padding:0 9px}}
+/* 圖片完整顯示，不裁切；直的照片兩邊留白 */
+.rp-th{background:#fff;border:1px solid var(--rl);box-shadow:none}
+.rp-th img,.rp[data-size="l"] .rp-th img{object-fit:contain;background:#fff;aspect-ratio:4/3;max-height:none}
+.rp[data-size="l"] .rp-th img{aspect-ratio:auto;max-height:520px;width:100%}
 </style>
 </head>
 <body>
@@ -3394,14 +3398,36 @@ async function rpLoad(force) {
 }
 const rpMD = k => +k.slice(5, 7) + '/' + +k.slice(8, 10);
 const rpWd = k => '星期' + WK[rpDate(k).getDay()];
-/* 只顯示最新：同一個項目只留最後一筆（文字用最新的；這段期間上傳的圖片全部保留） */
+/* 只看最新：同一個項目裡，被修正過的舊文字拿掉（相似的兩段只留後面那段），不同的進度全部保留 */
+function rpBigrams(t) { const x = String(t).replace(/\s+/g, ''), m = new Map(); for (let i = 0; i < x.length - 1; i++) { const g = x.slice(i, i + 2); m.set(g, (m.get(g) || 0) + 1); } return [m, Math.max(0, x.length - 1), x]; }
+function rpSimilar(a, b) {
+  const [ma, na, xa] = rpBigrams(a), [mb, nb, xb] = rpBigrams(b);
+  if (xa === xb) return true;
+  const short = xa.length <= xb.length ? xa : xb, long = short === xa ? xb : xa;
+  if (short.length < 4) return false;                       // 太短的句子只認完全相同
+  if (long.indexOf(short) >= 0) return true;                // 後來補了字
+  let inter = 0; ma.forEach((n, g) => { inter += Math.min(n, mb.get(g) || 0); });
+  return na + nb ? (2 * inter) / (na + nb) >= 0.6 : false;  // 大部分字一樣＝修正
+}
 function rpLatest(items) {
-  const m = new Map();
+  const byKey = new Map(), order = [];
   items.forEach(it => {
-    const k = it.kind + '|' + it.product + '|' + it.step, o = m.get(k);
-    m.set(k, o ? { ...it, done: it.done || o.done, images: [...new Set([...o.images, ...it.images])], n: (o.n || 1) + 1 } : it);
+    const k = it.kind + '|' + it.product + '|' + it.step;
+    if (!byKey.has(k)) { byKey.set(k, []); order.push(k); }
+    const segs = byKey.get(k);
+    const lines = String(it.what || '').split(/\n+/).map(x => x.trim()).filter(Boolean);
+    if (!lines.length) lines.push('');
+    lines.forEach((line, li) => {
+      const last = li === lines.length - 1;
+      const seg = { ...it, what: line, images: last ? it.images.slice() : [], done: last && it.done, n: 1 };
+      const j = line ? segs.findIndex(o => o.what && rpSimilar(o.what, line)) : -1;
+      if (j >= 0) { const o = segs.splice(j, 1)[0]; seg.images = [...new Set([...o.images, ...seg.images])]; seg.done = seg.done || o.done; seg.n = o.n + 1; }
+      segs.push(seg);
+    });
   });
-  return [...m.values()].sort((a, b) => (a.time < b.time ? -1 : 1));
+  const out = [];
+  order.forEach(k => byKey.get(k).forEach(x => { if (x.what || x.images.length) out.push(x); }));
+  return out.sort((a, b) => (a.time < b.time ? -1 : a.time > b.time ? 1 : 0));
 }
 function rpGroup(items) {
   const m = new Map();
@@ -3441,7 +3467,7 @@ function reportView() {
   else if (isDay) {
     body = groups.length ? groups.map(g => `<section class="rp-card${g.kind === 'z' ? ' z' : ''}">
         <div class="rp-ch"><span class="rp-kind">${rpKind(g.kind)}</span><span class="rp-pn">${esc(g.product)}</span><span class="rp-cnt"><b>${g.items.length}</b>項</span></div>
-        <ul class="rp-items">${g.items.map(it => `<li class="rp-it"><span class="rp-tm">${hm(new Date(it.time))}</span><span class="rp-tag">${esc(it.step)}</span><span class="rp-what">${rich(it.what)}${it.n > 1 ? `<small class="rp-more">今天共更新 ${it.n} 次</small>` : ''}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}${rpThumbs(it.images)}</li>`).join('')}</ul></section>`).join('')
+        <ul class="rp-items">${g.items.map(it => `<li class="rp-it"><span class="rp-tm">${hm(new Date(it.time))}</span><span class="rp-tag">${esc(it.step)}</span><span class="rp-what">${rich(it.what)}${it.n > 1 ? `<small class="rp-more">已修正 ${it.n - 1} 次</small>` : ''}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}${rpThumbs(it.images)}</li>`).join('')}</ul></section>`).join('')
       : `<div class="rp-card"><div class="rp-empty">這天沒有更新</div></div>`;
   } else {
     const per = week.map(k => all.filter(x => x.day === k).length), max = Math.max(1, ...per);
@@ -3452,7 +3478,7 @@ function reportView() {
       const imgs = g.items.flatMap(it => it.images);
       return `<section class="rp-card${g.kind === 'z' ? ' z' : ''}">
         <div class="rp-ch"><span class="rp-kind">${rpKind(g.kind)}</span><span class="rp-pn">${esc(g.product)}</span><span class="rp-cnt"><b>${steps.size}</b>個項目</span></div>
-        <ul class="rp-prog">${[...steps.entries()].map(([n, its]) => `<li><span class="rp-tag">${esc(n)}</span><div class="rp-steps">${its.map(it => `<div class="rp-sp"><span class="sd">${rpMD(it.day)}</span><span class="rp-what">${rich(it.what)}${it.n > 1 ? `<small class="rp-more">這週共更新 ${it.n} 次</small>` : ''}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}</div>`).join('')}</div></li>`).join('')}
+        <ul class="rp-prog">${[...steps.entries()].map(([n, its]) => `<li><span class="rp-tag">${esc(n)}</span><div class="rp-steps">${its.map(it => `<div class="rp-sp"><span class="sd">${rpMD(it.day)}</span><span class="rp-what">${rich(it.what)}${it.n > 1 ? `<small class="rp-more">已修正 ${it.n - 1} 次</small>` : ''}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}</div>`).join('')}</div></li>`).join('')}
           ${imgs.length ? `<li class="rp-wimg">${rpThumbs(imgs)}</li>` : ''}</ul></section>`;
     }).join('');
     body = days + (prods || `<div class="rp-card"><div class="rp-empty">這週沒有更新</div></div>`);
