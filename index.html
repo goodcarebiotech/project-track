@@ -2062,6 +2062,35 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
 .z-all .i{width:16px;height:16px}
 .z-bar{justify-content:flex-start}.z-bar .z-all{margin-right:auto}.z-bar>.btn:first-child:not(.z-all)+.switch,.z-bar>.z-ro+.switch{margin-left:auto}
 .c-imgs{flex-wrap:nowrap}.c-imgs .g-th{width:34px;height:30px}.c-imgs .g-ic{width:26px;height:30px;border-radius:6px}.c-imgs .g-ic svg{width:15px;height:15px}
+/* ===== 變更紀錄新寫法 ===== */
+.chgs{display:flex;flex-direction:column;gap:4px;margin-top:3px}
+.cst{font-size:12.5px;font-weight:700;color:var(--navy);margin-top:2px}
+.cl{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 6px;font-size:13.5px;line-height:1.5;color:var(--label)}
+.cl b{font-weight:650}
+.ck{flex:none;font-size:11px;font-weight:700;padding:0 7px;border-radius:5px;line-height:19px}
+.ck.del{background:#FCEBEE;color:#B4233C}.ck.add{background:#E6F6EF;color:#0E8A5F}.ck.mod{background:#EAF2FF;color:#0B4AA3}
+.cs{color:var(--label-3);text-decoration:line-through;text-decoration-color:#C9CDD4;overflow-wrap:anywhere}
+.cn{font-weight:650;overflow-wrap:anywhere}
+.cl.long .cs{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex-basis:100%}
+.cl.long.open .cs{display:block}
+.cm{border:0;background:none;padding:0;color:var(--navy);font-size:12px;font-weight:600;cursor:pointer}
+.cnote{margin-top:6px;padding:7px 10px;border-radius:8px;background:#EEF3FA;color:#062F66;font-size:13.5px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.cx{font-size:12.5px;color:var(--label-2)}
+.hnote{margin-top:3px}
+.fl-chgs{margin:4px 0 2px}
+.tl .chgs{margin:2px 0 4px}
+.tl .cl{font-size:12.5px}
+/* 新增步驟：收合 */
+.as-open{border:0;background:none;padding:2px 0;color:var(--navy);font-size:14px;font-weight:600;cursor:pointer}
+/* 手機：欄位大視窗 */
+.cp-ov{position:fixed;inset:0;z-index:600;display:flex;align-items:flex-end;justify-content:center;background:rgba(8,20,48,.45)}
+.cp-ov[hidden]{display:none}
+.cp-box{width:100%;max-width:560px;background:#fff;border-radius:18px 18px 0 0;padding:16px max(16px,env(safe-area-inset-left,0px)) calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:12px;box-shadow:0 -10px 30px rgba(0,0,0,.2)}
+.cp-h b{font-size:15px}
+.cp-box textarea{width:100%;min-height:140px;padding:10px 12px;border:1px solid var(--sep-strong);border-radius:12px;font-size:16px;line-height:1.5;resize:vertical;font-family:inherit}
+.cp-box textarea:focus{outline:none;border-color:var(--accent)}
+.cp-btns{display:flex;justify-content:flex-end;gap:8px}
+@media (max-width:899px){.stt td.t-m .cellin,.stt td.t-v .cellin{pointer-events:none;text-overflow:ellipsis}}
 </style>
 </head>
 <body>
@@ -2848,7 +2877,8 @@ function flowView() {
       <div class="fl-date"><b>${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}</b>${l.entered ? `<small class="fl-late" title="${esc(fmtFull(l.entered))} 補登">${esc(fmtFull(l.entered).split(' ')[0])} 補登</small>` : t === '00:00' || t === '12:00' && l.entered ? '' : `<small>${t}</small>`}</div>
       <div class="fl-dot" aria-hidden="true"></div>
       <div class="fl-body">
-        <div class="fl-top">${l.categoryId ? `<span class="fl-cat">${esc(l.categoryId)}</span>` : ''}<span class="fl-item">${esc(item)}</span>${chg ? `<span class="fl-chg">${esc(chg)}</span>` : ''}<span class="fl-who">${names(l.name).map(av).join('')}<span>${esc(l.name)}</span></span></div>
+        <div class="fl-top">${l.categoryId ? `<span class="fl-cat">${esc(l.categoryId)}</span>` : ''}<span class="fl-item">${esc(item)}</span><span class="fl-who">${names(l.name).map(av).join('')}<span>${esc(l.name)}</span></span></div>
+        ${l.changes ? `<div class="fl-chgs">${chgHTML(l.changes, l.step)}</div>` : ''}
         ${l.note ? `<div class="fl-note">${rich(l.note)}</div>` : ''}
         ${dates}
         ${l.todo || l.track || l.remark ? `<div class="fl-xs">${l.todo ? `<div><em>待辦&下一步</em>${esc(l.todo)}</div>` : ''}${l.track ? `<div><em>追蹤狀態</em>${esc(l.track)}</div>` : ''}${l.remark ? `<div><em>備註</em>${esc(l.remark)}</div>` : ''}</div>` : ''}
@@ -3099,7 +3129,7 @@ function logView() {
     const t = hm(new Date(l.time));
     const ov = (l.old || l.val) ? `<div class="ov">${l.old ? `<span class="o">${esc(l.old)}</span>` : ''}${l.old && l.val ? '<i>→</i>' : ''}${l.val ? `<span class="n">${esc(l.val)}</span>` : ''}</div>` : '';
     return `<div class="lrow${l.undone ? ' undone' : ''}"><div class="lmain"><div class="who"><b>${esc(l.name)}</b><span class="act${del(l.action) ? ' del' : l.action === '還原' ? ' rs' : ''}">${esc(l.action)}</span>${where ? `<em>${esc(where)}</em>` : ''}</div>
-      ${l.detail ? `<div class="ch">${esc(l.detail)}</div>` : ''}${ov}
+      ${(() => { const h = auditHTML(l); return h ? h : (l.detail ? `<div class="ch">${esc(l.detail)}</div>` : '') + ov; })()}
       ${l.undone ? `<div class="und">已於 ${esc(l.undone)} 還原</div>` : ''}</div>
       <div class="lside"><time>${t === '00:00' ? '' : t}</time>${l.canUndo ? `<button class="btn sm rsbtn" data-act="restore" data-id="${esc(l.id)}">還原</button>` : ''}</div></div>`;
   }).join('')}</div></div>`).join('')}</div>`;
@@ -3109,7 +3139,7 @@ function logView() {
 const POP = { anchor: null, pinned: false, t: null };
 function histList(logs) {
   return `<ol class="tl">${logs.map(l => `<li><div class="h"><b>${esc(l.name)}</b><time>${fmtTime(l.time)}</time></div>
-    ${l.changes ? `<div class="ch">${esc(l.changes.split('；').join('・'))}</div>` : ''}${l.note ? `<div class="tx">${rich(l.note)}</div>` : ''}</li>`).join('')}</ol>`;
+    ${l.changes ? chgHTML(l.changes, l.step) : ''}${l.note ? `<div class="tx">${rich(l.note)}</div>` : ''}</li>`).join('')}</ol>`;
 }
 function openPop(btn, pinned) {
   const pid = btn.dataset.pid, cid = btn.dataset.cid, k = key(pid, cid);
@@ -3151,7 +3181,7 @@ const canCell = () => isAdmin() || !S.orig.steps.length || S.orig.steps.some(min
 function openSheet(pid, cid, toHist) {
   closePop();
   const t = getTask(pid, cid);
-  S.open = { pid, cid }; S.orig = clone(t); S.draft = { ...clone(t), note: '', todo: '', track: '', newImages: [] }; S.base = t.updatedAt || '';
+  S.open = { pid, cid }; S.addOpen = false; S.orig = clone(t); S.draft = { ...clone(t), note: '', todo: '', track: '', newImages: [] }; S.base = t.updatedAt || '';
   S.editSteps = false; S.confirmClose = false; S.saving = false; S.histAll = false; S.whoAdd = -1; S.expand = null; S.more = false;
   $('#shTitle').innerHTML = esc(pid) + '<small>' + esc(cid) + '</small>';
   S.upd = {}; S.whoPop = -1;
@@ -3250,7 +3280,7 @@ function stepsHTML() {
       <tbody>${rows}</tbody></table></div>` : '<div class="na-hint">還沒有步驟，請在下方新增。</div>'}
     <datalist id="vendorList">${vendors().map(v => `<option value="${esc(v)}">`).join('')}</datalist>
     <datalist id="extList">${externals().map(n => `<option value="${esc(n)}">`).join('')}</datalist>
-    ${roCell || S.editSteps ? '' : `<div class="addstep2"><span>＋ 新增步驟</span><input id="stepIn" maxlength="30" aria-label="新增步驟名稱"><label class="as-f">排在<select id="stepPos" aria-label="新步驟放在哪裡"><option value="">最後面</option>${d.steps.map(s => `<option value="${esc(s.n)}">「${esc(s.n)}」之前</option>`).join('')}</select></label><label class="as-f">補登日期<input id="stepWhen" type="date" class="dempty" max="${localDate()}" aria-label="實際發生日期（補登才填）"></label><button type="button" class="btn sm" data-act="step-add">新增</button></div>`}`;
+    ${roCell || S.editSteps ? '' : !S.addOpen ? `<div class="addstep2"><button type="button" class="as-open" data-act="as-open">＋ 新增步驟</button></div>` : `<div class="addstep2"><span>＋ 新增步驟</span><input id="stepIn" maxlength="30" aria-label="新增步驟名稱"><label class="as-f">排在<select id="stepPos" aria-label="新步驟放在哪裡"><option value="">最後面</option>${d.steps.map(s => `<option value="${esc(s.n)}">「${esc(s.n)}」之前</option>`).join('')}</select></label><label class="as-f">補登日期<input id="stepWhen" type="date" class="dempty" max="${localDate()}" aria-label="實際發生日期（補登才填）"></label><button type="button" class="btn sm" data-act="step-add">新增</button></div>`}`;
 }
 function histMoreBtn() {
   const k = S.open && key(S.open.pid, S.open.cid), n = S.logCount[k] || 0;
@@ -3272,7 +3302,7 @@ function histHTML() {
   const ymd = iso => { const x = new Date(iso); return `${x.getFullYear()}-${pad(x.getMonth() + 1)}-${pad(x.getDate())}`; };
   return `<table class="hst"><colgroup><col style="width:116px"><col style="width:150px"><col><col style="width:110px"></colgroup>
     <thead><tr><th>日期</th><th>步驟</th><th>進度說明</th><th>更新人</th></tr></thead>
-    <tbody>${shown.map(l => `<tr><td class="d">${ymd(l.time)}</td><td>${esc(l.step || l.categoryId || '')}</td><td>${l.note ? rich(l.note) : `<span class="chg">${esc((l.changes || '').split('；').join('・'))}</span>`}${(l.todo || l.track) ? `<small class="tt">${[l.todo ? '待辦：' + esc(l.todo) : '', l.track ? '追蹤：' + esc(l.track) : ''].filter(Boolean).join('　')}</small>` : ''}</td><td>${esc(l.name || '')}</td></tr>`).join('')}</tbody></table>`;
+    <tbody>${shown.map(l => `<tr><td class="d">${ymd(l.time)}</td><td>${esc(l.step || l.categoryId || '')}</td><td>${l.changes ? chgHTML(l.changes, l.step) : ''}${l.note ? `<div class="hnote">${rich(l.note)}</div>` : ''}${(l.todo || l.track) ? `<small class="tt">${[l.todo ? '待辦：' + esc(l.todo) : '', l.track ? '追蹤：' + esc(l.track) : ''].filter(Boolean).join('　')}</small>` : ''}</td><td>${esc(l.name || '')}</td></tr>`).join('')}</tbody></table>`;
 }
 function updateSave() {
   const b = $('#saveBtn');
@@ -3465,6 +3495,90 @@ document.addEventListener('focusout', e => {
   const t = e.target; if (!t.closest || !t.closest('#shBody, #whoPortal')) return;
   if (t.classList && t.classList.contains('who-in') && S.draft) { setTimeout(() => { if (S.whoAdd < 0 || !S.draft) return; addOther(S.draft.steps[+t.dataset.i], t); S.whoAdd = -1; stepsChanged(); }, 120); }
 });
+
+/* ---------------- 變更紀錄的寫法：刪除／修改／新增分開標示，舊內容加刪除線 ---------------- */
+const CHG_LABELS = ['預計完成日', '實際完成日', '預計完成', '實際完成', '負責人', '製作方', '備註', '急件', '狀態'];
+function chgParse(text, step) {
+  const out = [];
+  String(text || '').split('；').map(x => x.trim()).filter(Boolean).forEach(seg => {
+    const m = seg.match(/^([\s\S]*?)：([\s\S]*) → ([\s\S]*)$/);
+    if (m) {
+      let head = m[1], label = '', st = step || '';
+      if (CHG_LABELS.includes(head)) label = head;
+      else { const L = CHG_LABELS.find(x => head.endsWith(' ' + x)); if (L) { label = L; st = head.slice(0, -L.length - 1); } else { label = '狀態'; st = head; } }
+      const a = m[2] === '—' ? '' : m[2], b = m[3] === '—' ? '' : m[3];
+      out.push({ st, label, a, b, kind: !a && b ? 'add' : a && !b ? 'del' : 'mod' });
+      return;
+    }
+    let k = 'mod';
+    if (/^(新增步驟|補登)/.test(seg)) k = 'add'; else if (/^(移除步驟|刪除步驟)/.test(seg)) k = 'del';
+    out.push({ st: step || '', plain: seg, kind: k });
+  });
+  return out;
+}
+const CHG_K = { add: '新增', del: '刪除', mod: '修改' };
+function chgLine(x) {
+  const v = s => esc(s);
+  const long = s => s.length > 40 ? ' long' : '';
+  if (x.plain) return `<div class="cl"><span class="ck ${x.kind}">${CHG_K[x.kind]}</span><span>${esc(x.plain.replace(/^(新增步驟|移除步驟|刪除步驟)：/, '步驟「').replace(/^步驟「(.*)$/, '步驟「$1」'))}</span></div>`;
+  if (x.label === '急件') return `<div class="cl"><span class="ck ${x.b ? 'add' : 'del'}">${x.b ? '標示' : '取消'}</span><span>「急件」</span></div>`;
+  const L = `「<b>${esc(x.label)}</b>」`;
+  if (x.kind === 'del') return `<div class="cl${long(x.a)}"><span class="ck del">刪除</span><span>${L}：</span><span class="cs">${v(x.a)}</span>${long(x.a) ? '<button type="button" class="cm" data-act="chg-more">展開</button>' : ''}</div>`;
+  if (x.kind === 'add') return `<div class="cl"><span class="ck add">新增</span><span>${L}：</span><span class="cn">${v(x.b)}</span></div>`;
+  return `<div class="cl${long(x.a)}"><span class="ck mod">修改</span><span>${L}由</span><span class="cs">${v(x.a)}</span><span>改為</span><span class="cn">${v(x.b)}</span>${long(x.a) ? '<button type="button" class="cm" data-act="chg-more">展開</button>' : ''}</div>`;
+}
+/* step：這筆紀錄所屬的步驟（同一步驟就不重複寫步驟名稱） */
+function chgHTML(text, step, items) {
+  const list = items || chgParse(text, step);
+  if (!list.length) return '';
+  const groups = [];
+  list.forEach(x => { let g = groups[groups.length - 1]; if (!g || g.st !== x.st) groups.push(g = { st: x.st, xs: [] }); g.xs.push(x); });
+  return `<div class="chgs">${groups.map(g => `${g.st && (groups.length > 1 || g.st !== step) ? `<div class="cst">${esc(g.st)}</div>` : ''}${g.xs.map(chgLine).join('')}`).join('')}</div>`;
+}
+/* 更新紀錄頁：把操作紀錄的內容轉成上面的寫法；轉不出來就照原文 */
+function auditHTML(l) {
+  if (l.action === '修改欄位' || l.action === '清空欄位') {
+    const label = String(l.detail || '').split('（')[0];
+    const a = l.old || '', b = l.val || '';
+    return chgHTML('', l.step, [{ st: l.step || '', label, a, b, kind: !a && b ? 'add' : a && !b ? 'del' : 'mod' }]);
+  }
+  const parts = String(l.detail || '').split('｜'), diff = parts[0].includes(' → ') ? parts.shift() : '';
+  const extra = parts.map(p => p.startsWith('進度說明：') ? `<div class="cnote">${rich(p.slice(5))}</div>` : `<div class="cx">${esc(p)}</div>`).join('');
+  if (!diff) return '';
+  return chgHTML(diff, l.step) + extra;
+}
+
+/* ---------------- 手機：編輯視窗的欄位太長看不到 → 點一下開大視窗看與修改 ---------------- */
+function cellPopEl() {
+  let el = document.getElementById('cellPop');
+  if (el) return el;
+  el = document.createElement('div'); el.id = 'cellPop'; el.className = 'cp-ov'; el.hidden = true;
+  el.innerHTML = `<div class="cp-box" role="dialog" aria-modal="true" aria-labelledby="cpT"><div class="cp-h"><b id="cpT"></b></div><textarea id="cpTa" rows="6"></textarea><div class="cp-btns"><button type="button" class="btn" data-cp="0">取消</button><button type="button" class="btn primary" data-cp="1">完成</button></div></div>`;
+  document.body.appendChild(el);
+  el.addEventListener('click', e => {
+    const b = e.target.closest('[data-cp]');
+    if (e.target === el || (b && b.dataset.cp === '0')) { el.hidden = true; return; }
+    if (b && b.dataset.cp === '1') {
+      const t = CP.target; if (t && !t.disabled) { t.value = $('#cpTa').value.replace(/\n+/g, ' ').trim(); t.dispatchEvent(new Event('input', { bubbles: true })); t.dispatchEvent(new Event('change', { bubbles: true })); }
+      el.hidden = true;
+    }
+  });
+  return el;
+}
+const CP = { target: null };
+function openCellPop(input) {
+  const el = cellPopEl(); CP.target = input;
+  $('#cpT').textContent = input.getAttribute('aria-label') || '';
+  const ta = $('#cpTa'); ta.value = input.value; ta.readOnly = !!input.disabled; ta.maxLength = input.maxLength > 0 ? input.maxLength : 500;
+  el.querySelector('[data-cp="1"]').hidden = !!input.disabled; el.querySelector('[data-cp="0"]').textContent = input.disabled ? '關閉' : '取消';
+  el.hidden = false; if (!input.disabled) setTimeout(() => { ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }, 30);
+}
+document.addEventListener('click', e => {
+  if (!narrow.matches) return;
+  const td = e.target.closest('.stt td.t-m, .stt td.t-v'); if (!td) return;
+  const inp = td.querySelector('.cellin'); if (!inp) return;
+  e.preventDefault(); inp.blur(); openCellPop(inp);
+}, true);
 
 /* ---------------- 日報／週報（只有昶明看得到；內容是昶明自己在商品區與昶明區的更新） ---------------- */
 const REPORT_OWNER = '昶明';
@@ -3873,6 +3987,8 @@ document.addEventListener('click', e => {
     case 'gal-save': saveGal(); break;
     case 'gal-move': galMove(d.id); break;
     case 'gal-zoom': { galRead(); const l = [...GAL.main, ...GAL.arc]; openLb(l.map(x => x.u), Math.max(0, l.findIndex(x => x.id === d.id)), short(GAL.pid) + '・' + GAL.cid); break; }
+    case 'chg-more': { const ln = a.closest('.cl'); if (ln) { ln.classList.toggle('open'); a.textContent = ln.classList.contains('open') ? '收起' : '展開'; } break; }
+    case 'as-open': S.addOpen = true; setHtml('secSteps', stepsHTML()); setTimeout(() => { const i = $('#stepIn'); if (i) i.focus(); }, 30); break;
     case 'heromore': S.heroOpen = !S.heroOpen; render(); break;
     case 'rmode': RP.mode = d.v; render(); break;
     case 'rmv': { const x = rpDate(RP.day); x.setDate(x.getDate() + (RP.mode === 'day' ? 1 : 7) * Number(d.v)); const t = ymdOf(new Date()); RP.day = ymdOf(x) > t ? t : ymdOf(x); render(); break; }
