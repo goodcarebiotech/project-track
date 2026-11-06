@@ -2149,6 +2149,20 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
 [data-tip-todo]{cursor:help}
 .c-note[data-tip-todo] em::after,.c6[data-tip-todo] em::after{content:" ⓘ";font-weight:400;opacity:.7}
 .subgrid label .ln-cap{margin-top:4px}
+/* 調整順序 */
+.band-r-wrap{display:inline-flex;align-items:center;gap:10px;margin-left:auto}
+.band-sep{width:1px;height:14px;background:#C9D7EC}
+.ro-wrap{padding:12px 16px 16px}
+.ro-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.ro-li{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--sep-strong);border-radius:12px;background:var(--card);cursor:grab;-webkit-user-select:none;user-select:none}
+.ro-li:active{cursor:grabbing}
+.ro-grip{color:var(--label-3);font-size:16px}
+.ro-no{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:999px;background:#EAF2FF;color:var(--navy);font-size:12px;font-weight:700}
+.ro-li b{flex:1;min-width:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ro-btns{display:flex;gap:4px}
+.ro-b{width:30px;height:30px;border:1px solid #DCE6F4;border-radius:8px;background:#fff;color:var(--navy);font-size:15px;cursor:pointer}
+.ro-b:disabled{opacity:.3;cursor:default}
+.ro-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
 </style>
 </head>
 <body>
@@ -3274,7 +3288,7 @@ const canCell = () => isAdmin() || !S.orig.steps.length || S.orig.steps.some(min
 function openSheet(pid, cid, toHist) {
   closePop();
   const t = getTask(pid, cid);
-  S.open = { pid, cid }; S.addOpen = false; S.orig = clone(t); S.draft = { ...clone(t), note: '', todo: '', track: '', newImages: [] }; S.base = t.updatedAt || '';
+  S.open = { pid, cid }; S.addOpen = false; S.reorder = false; S.orig = clone(t); S.draft = { ...clone(t), note: '', todo: '', track: '', newImages: [] }; S.base = t.updatedAt || '';
   S.editSteps = false; S.confirmClose = false; S.saving = false; S.histAll = false; S.whoAdd = -1; S.expand = null; S.more = false;
   $('#shTitle').innerHTML = esc(pid) + '<small>' + esc(cid) + '</small>';
   S.upd = {}; S.whoPop = -1;
@@ -3328,7 +3342,7 @@ function renderSheet() {
     ${ro ? `<div class="ro-note">${ICON.lock}<span>這一格由 ${esc(owners.join('、'))} 負責，你可以查看；只有負責人或管理員可以修改。</span></div>` : ''}
     <div class="sh-sum" id="secState">${sheetSummary()}</div>
     <section class="sec">
-      <div class="band">流程${ro || d.na ? '' : `<button type="button" class="band-r" data-act="edit-steps">${S.editSteps ? '完成' : '刪除步驟'}</button>`}</div>
+      <div class="band">流程${ro || d.na || S.reorder ? '' : `<span class="band-r-wrap">${d.steps.length > 1 && !S.editSteps ? '<button type="button" class="band-r" data-act="reorder">調整順序</button><i class="band-sep"></i>' : ''}<button type="button" class="band-r" data-act="edit-steps">${S.editSteps ? '完成' : '刪除步驟'}</button></span>`}</div>
       <div id="secSteps">${d.na ? NA_HINT : stepsHTML()}</div>
     </section>
     ${galTotal(S.orig) ? `<section class="sec" id="secImgT">
@@ -3343,6 +3357,7 @@ function renderSheet() {
   updateSave();
 }
 function stepsHTML() {
+  if (S.reorder) return reorderHTML();
   const d = S.draft, on = d.na ? new Set() : new Set(actives(d).map(s => s.n)), roCell = !canCell();
   /* 日期：可以直接打字（例如 11/4），也可以按右邊的日曆圖示點選 */
   const date = (k, i, v, dis) => `<span class="dt"><input class="dtx" data-${k}t="${i}" value="${esc(v ? md(v) : '')}" inputmode="numeric" autocomplete="off" maxlength="10" aria-label="${k === 'due' ? '預計完成日' : '實際完成日'}"${dis}><span class="dtc">${ICON.cal}<input type="date" tabindex="-1" data-${k}="${i}" value="${esc(v || '')}" aria-label="選擇日期"${dis}></span></span>`;
@@ -3722,6 +3737,42 @@ document.addEventListener('mouseover', e => {
   if (src) TIP.t = setTimeout(() => tipShow(src), 120); else tipHide();
 });
 window.addEventListener('scroll', tipHide, { passive: true, capture: true });
+
+/* ---------------- 調整步驟順序：拖曳（或上下箭頭）後按完成 ---------------- */
+const RO = { list: [], sort: null };
+function reorderHTML() {
+  const by = {}; S.draft.steps.forEach(s => { by[s.n] = s; });
+  return `<div class="ro-wrap"><ol class="ro-list" id="roList">${RO.list.map((n, i) => { const s = by[n] || { s: TODO }; return `<li class="ro-li" data-n="${esc(n)}"><span class="ro-grip" aria-hidden="true">⠿</span><span class="ro-no">${i + 1}</span><b>${esc(n)}</b><span class="pill ${sc(s.s)}">${esc(s.s)}</span>
+      <span class="ro-btns"><button type="button" class="ro-b" data-act="ro-mv" data-i="${i}" data-v="-1" aria-label="往上移"${i === 0 ? ' disabled' : ''}>↑</button><button type="button" class="ro-b" data-act="ro-mv" data-i="${i}" data-v="1" aria-label="往下移"${i === RO.list.length - 1 ? ' disabled' : ''}>↓</button></span></li>`; }).join('')}</ol>
+    <div class="ro-foot"><button type="button" class="btn" data-act="ro-cancel">取消</button><button type="button" class="btn primary" data-act="ro-done">完成</button></div></div>`;
+}
+function roPaint() {
+  setHtml('secSteps', stepsHTML());
+  if (RO.sort) { RO.sort.destroy(); RO.sort = null; }
+  const el = document.getElementById('roList');
+  if (el && window.Sortable) RO.sort = Sortable.create(el, { animation: 150, handle: '.ro-li', filter: '.ro-b', preventOnFilter: false, delay: 150, delayOnTouchOnly: true, ghostClass: 'gal-ghost', onEnd: () => { RO.list = [...el.querySelectorAll('.ro-li')].map(x => x.dataset.n); roPaint(); } });
+}
+function roStart() {
+  if (dirty()) { toast('請先儲存或取消目前的修改，再調整順序', true); return; }
+  S.reorder = true; S.editSteps = false; RO.list = S.orig.steps.map(s => s.n);
+  renderSheet(); roPaint();
+}
+function roStop() { S.reorder = false; if (RO.sort) { RO.sort.destroy(); RO.sort = null; } renderSheet(); }
+async function roDone(btn) {
+  const orig = S.orig.steps.map(s => s.n);
+  if (RO.list.join('｜') === orig.join('｜')) { roStop(); return; }
+  /* 同一系列被前後顛倒（例如印刷排到設計前面）先確認 */
+  const flip = [];
+  orig.forEach((a, i) => orig.slice(i + 1).forEach(b => { if (chainKey(a) === chainKey(b) && RO.list.indexOf(b) < RO.list.indexOf(a)) flip.push([b, a]); }));
+  if (flip.length && !(await askConfirm('確定要這樣排嗎？', flip.map(([b, a]) => `「${b}」排到「${a}」前面，系統會改成「${a}」要等「${b}」完成`).join('；'), '確定'))) return;
+  btn.disabled = true;
+  const { pid, cid } = S.open;
+  try {
+    const r = await api('reorderSteps', { product: pid, category: cid, order: RO.list });
+    S.tasks[key(pid, cid)] = toTask(r.cell); S.hist = {};
+    S.reorder = false; openSheet(pid, cid); render(); toast('已調整步驟順序');
+  } catch (e) { toast(e.message, true); btn.disabled = false; }
+}
 
 /* ---------------- 日報／週報（只有昶明看得到；內容是昶明自己在商品區與昶明區的更新） ---------------- */
 const REPORT_OWNER = '昶明';
@@ -4138,6 +4189,10 @@ document.addEventListener('click', e => {
         .then(r => { S.tasks[key(pid, cid)] = toTask(r.cell); S.hist = {}; openSheet(pid, cid); render(); toast('已加入「' + d.step + '」的負責人'); })
         .catch(er => { toast(er.message, true); a.disabled = false; });
       break; }
+    case 'reorder': roStart(); break;
+    case 'ro-cancel': roStop(); break;
+    case 'ro-done': roDone(a); break;
+    case 'ro-mv': { const i = +d.i, j = i + Number(d.v); if (j >= 0 && j < RO.list.length) { [RO.list[i], RO.list[j]] = [RO.list[j], RO.list[i]]; roPaint(); } break; }
     case 'chg-more': { const ln = a.closest('.cl'); if (ln) { ln.classList.toggle('open'); a.textContent = ln.classList.contains('open') ? '收起' : '展開'; } break; }
     case 'as-open': S.addOpen = true; setHtml('secSteps', stepsHTML()); setTimeout(() => { const i = $('#stepIn'); if (i) i.focus(); }, 30); break;
     case 'due-ok': case 'due-back': {
