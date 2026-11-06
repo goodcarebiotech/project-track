@@ -2142,6 +2142,13 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
 }
 .ln-cap{display:block;font-style:normal;font-size:11.5px;font-weight:500;color:var(--label-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ln-cap.me{color:#0E8A5F;font-weight:600}
+.ntip{position:fixed;z-index:700;padding:10px 12px;border-radius:12px;background:#fff;box-shadow:0 10px 30px rgba(6,26,68,.18),0 0 0 1px rgba(6,26,68,.06);font-size:13px;line-height:1.5;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.ntip[hidden]{display:none}
+.ntip em{display:block;font-style:normal;font-size:11px;font-weight:700;color:var(--navy)}
+.ntip span{display:block;color:var(--label);white-space:pre-wrap;overflow-wrap:anywhere}
+[data-tip-todo]{cursor:help}
+.c-note[data-tip-todo] em::after,.c6[data-tip-todo] em::after{content:" ⓘ";font-weight:400;opacity:.7}
+.subgrid label .ln-cap{margin-top:4px}
 </style>
 </head>
 <body>
@@ -2563,8 +2570,8 @@ async function api(action, data = {}) {
   }
   return j;
 }
-const toStep = s => ({ n: s.n, w: s.w || '', v: s.v || '', s: s.s || TODO, m: s.m || '', d: s.d || '', at: s.at || '', by: s.by || '', ln: s.lastNote || '', u: !!(s.u && s.u !== '0'), bd: s.bd || '', bdBy: s.bdBy || '', bdAt: s.bdAt || '', mv: s.mv || null, lnBy: s.lnBy || '', lnAt: s.lnAt || '' });
-const toTask = c => ({ productId: c.product, categoryId: c.category, na: !!c.na, memo: c.memo || '', images: c.images || [], gal: c.gal || { main: [], arc: [] }, lastNote: c.lastNote || '', updatedAt: c.updatedAt || '', updatedBy: c.updatedBy || '', steps: (c.steps || []).map(toStep) });
+const toStep = s => ({ n: s.n, w: s.w || '', v: s.v || '', s: s.s || TODO, m: s.m || '', d: s.d || '', at: s.at || '', by: s.by || '', ln: s.lastNote || '', u: !!(s.u && s.u !== '0'), bd: s.bd || '', bdBy: s.bdBy || '', bdAt: s.bdAt || '', mv: s.mv || null, lnBy: s.lnBy || '', lnAt: s.lnAt || '', lt: s.lt || '', lk: s.lk || '' });
+const toTask = c => ({ productId: c.product, categoryId: c.category, na: !!c.na, memo: c.memo || '', images: c.images || [], gal: c.gal || { main: [], arc: [] }, lastNote: c.lastNote || '', lastTodo: c.lastTodo || '', lastTrack: c.lastTrack || '', updatedAt: c.updatedAt || '', updatedBy: c.updatedBy || '', steps: (c.steps || []).map(toStep) });
 const toLog = l => ({ ...l, productId: l.product, categoryId: l.category });
 
 /* ---------------- 登入（Google 帳號，經 Firebase） ---------------- */
@@ -2711,7 +2718,7 @@ function cellHTML(p, c) {
   return `<div class="cell${dim}${t.steps.length && !shown.length ? ' alldone' : ''}">${body}
     ${imgs ? `<div class="c-imgs">${imgs}</div>` : ''}
     ${S.showMemo && t.memo ? `<button class="c-memo" data-act="open" ${at}>${esc(t.memo)}</button>` : ''}
-    ${S.showNote && t.lastNote ? `<button class="c-note" data-act="open" ${at}><em>最新進度</em>${esc(t.lastNote)}</button>` : ''}
+    ${S.showNote && t.lastNote ? `<button class="c-note" data-act="open" ${at}${tipAttr(t.lastTodo, t.lastTrack)}><em>最新進度</em>${esc(t.lastNote)}</button>` : ''}
     ${foot ? `<button class="c-foot" data-act="open" ${at} aria-label="負責：${esc(who.join('、') || '未指派')}${vens.length ? '，製作：' + esc(vens.join('、')) : ''}">${foot}</button>` : ''}
   </div>`;
 }
@@ -2875,7 +2882,7 @@ function productView(rows) {
             <span class="c2">${s.v ? `<span class="tag">${esc(s.v)}</span>` : ''}</span>
             <span class="c3" title="${esc(w.join('、'))}">${S.hidePeople ? '' : w.slice(0, 2).map(n => `<i class="bav" title="${esc(n)}">${esc(n.slice(0, 1))}</i>`).join('')}${!S.hidePeople && w.length > 2 ? `<i class="bav more">+${w.length - 2}</i>` : ''}</span>
             <span class="c4">${done ? `<span class="okc" title="${s.at ? md(s.at) + ' 完成' : '已完成'}">${ICON.check}</span>` : `<span class="spill ${sc(s.s)}">${esc(SHORT[s.s] || s.s)}</span>`}</span>
-            ${S.showNote && s.ln ? `<span class="c6"><em>最新進度</em>${esc(s.ln)}</span>` : ''}
+            ${S.showNote && s.ln ? `<span class="c6"${tipAttr(s.lt, s.lk)}><em>最新進度</em>${esc(s.ln)}</span>` : ''}
             ${S.showMemo && s.m ? `<span class="c5">${esc(s.m)}</span>` : ''}
           </li>`;
         }).join('')}</ul>${extra}</div>`;
@@ -3355,7 +3362,7 @@ function stepsHTML() {
         : ro ? '' : `<button type="button" class="upbtn${open ? ' on' : ''}${hasX(s) ? ' has' : ''}" data-act="upd" data-i="${i}">${open ? '收合' : '＋ 更新'}</button>`}</td>
     </tr>`;
     const sub = open ? `<tr class="xrow${on.has(s.n) ? ' cur' : ''}"><td class="t-ck"></td><td colspan="8"><div class="subgrid">
-        <label><span>進度說明</span>${s.noteToday !== undefined ? '<em class="ln-cap me">今天已寫，修改後會取代</em>' : s.ln ? `<em class="ln-cap" title="${esc(s.ln)}">上一筆・${esc(s.lnBy || '')} ${s.lnAt ? fmtFull(s.lnAt).split(' ')[0] : ''}：${esc(s.ln.length > 40 ? s.ln.slice(0, 40) + '…' : s.ln)}</em>` : ''}<textarea data-x="note" data-i="${i}" rows="2" maxlength="2000">${esc(s.note || '')}</textarea></label>
+        <label><span>進度說明</span><textarea data-x="note" data-i="${i}" rows="2" maxlength="2000">${esc(s.note || '')}</textarea>${s.noteToday !== undefined ? '<em class="ln-cap me">今天已寫，修改後會取代</em>' : s.ln ? `<em class="ln-cap" title="${esc(s.ln)}">上一筆・${esc(s.lnBy || '')} ${s.lnAt ? fmtFull(s.lnAt).split(' ')[0] : ''}：${esc(s.ln.length > 40 ? s.ln.slice(0, 40) + '…' : s.ln)}</em>` : ''}</label>
         <label><span>待辦&下一步</span><textarea data-x="todo" data-i="${i}" rows="2" maxlength="1000">${esc(s.todo || '')}</textarea></label>
         <label><span>追蹤狀態</span><textarea data-x="track" data-i="${i}" rows="2" maxlength="50">${esc(s.track || '')}</textarea></label>
         <label><span>圖片網址</span><textarea data-x="imgsText" data-i="${i}" rows="2">${esc(s.imgsText || '')}</textarea><span class="cap-t">圖片說明</span><input class="cap-in" data-x="imgCap" data-i="${i}" maxlength="60" value="${esc(s.imgCap || '')}" aria-label="圖片說明"></label>
@@ -3686,6 +3693,33 @@ document.addEventListener('click', e => {
   const inp = td.querySelector('.cellin'); if (!inp) return;
   e.preventDefault(); inp.blur(); openCellPop(inp);
 }, true);
+
+/* ---------------- 最新進度：滑鼠移過去顯示「待辦&下一步／追蹤狀態」 ---------------- */
+function tipAttr(todo, track) {
+  if (!todo && !track) return '';
+  return ` data-tip-todo="${esc(todo || '')}" data-tip-track="${esc(track || '')}"`;
+}
+const TIP = { el: null, t: null };
+function tipShow(src) {
+  if (!TIP.el) { TIP.el = document.createElement('div'); TIP.el.className = 'ntip'; TIP.el.setAttribute('role', 'tooltip'); document.body.appendChild(TIP.el); }
+  const todo = src.dataset.tipTodo, track = src.dataset.tipTrack;
+  TIP.el.innerHTML = `${todo ? `<div><em>待辦&amp;下一步</em><span>${esc(todo)}</span></div>` : ''}${track ? `<div><em>追蹤狀態</em><span>${esc(track)}</span></div>` : ''}`;
+  TIP.el.hidden = false;
+  const r = src.getBoundingClientRect(), w = Math.min(320, window.innerWidth - 24);
+  TIP.el.style.width = w + 'px';
+  let left = Math.min(Math.max(12, r.left), window.innerWidth - w - 12);
+  const h = TIP.el.offsetHeight;
+  let top = r.bottom + 6; if (top + h > window.innerHeight - 8) top = Math.max(8, r.top - h - 6);
+  TIP.el.style.left = left + 'px'; TIP.el.style.top = top + 'px';
+}
+function tipHide() { if (TIP.el) TIP.el.hidden = true; }
+document.addEventListener('mouseover', e => {
+  if (!canHover.matches) return;
+  const src = e.target.closest && e.target.closest('[data-tip-todo]');
+  clearTimeout(TIP.t);
+  if (src) TIP.t = setTimeout(() => tipShow(src), 120); else tipHide();
+});
+window.addEventListener('scroll', tipHide, { passive: true, capture: true });
 
 /* ---------------- 日報／週報（只有昶明看得到；內容是昶明自己在商品區與昶明區的更新） ---------------- */
 const REPORT_OWNER = '昶明';
