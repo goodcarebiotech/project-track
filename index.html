@@ -2124,6 +2124,22 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
 .cimgs{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 2px}
 .cimg{width:56px;height:44px;padding:0;border:1px solid var(--sep-strong);border-radius:8px;overflow:hidden;background:#fff;cursor:zoom-in}
 .cimg img{width:100%;height:100%;object-fit:contain;display:block}
+/* 加入我 */
+.nm2.join{border:1px solid #BFD6FF;background:#EAF2FF;color:var(--navy);font-weight:600;cursor:pointer}
+.nm2.join:hover{background:#DCE8FB}
+/* 手機：編輯視窗左邊（勾選、急、步驟名稱）留出空間 */
+@media (max-width:899px){
+  .stt col:nth-child(1){width:40px!important}
+  .stt col:nth-child(2){width:128px!important}
+  .stt th:first-child,.stt td.t-ck{padding-left:10px!important;padding-right:4px!important}
+  .stt th:nth-child(2),.stt td.t-n{left:40px}
+  .stt td.t-n{padding-left:6px!important;padding-right:10px!important}
+  .stt td.t-n .ugt,.stt td.t-n .ugb{margin-right:7px;vertical-align:1px;flex:none}
+  .stt td.t-n b{display:inline;font-size:14px;letter-spacing:0}
+  .stt td.t-n small{margin-top:3px}
+  .stt .box{width:22px;height:22px}
+  .stt td{padding-top:10px;padding-bottom:10px}
+}
 </style>
 </head>
 <body>
@@ -3321,7 +3337,8 @@ function stepsHTML() {
   const date = (k, i, v, dis) => `<span class="dt"><input class="dtx" data-${k}t="${i}" value="${esc(v ? md(v) : '')}" inputmode="numeric" autocomplete="off" maxlength="10" aria-label="${k === 'due' ? '預計完成日' : '實際完成日'}"${dis}><span class="dtc">${ICON.cal}<input type="date" tabindex="-1" data-${k}="${i}" value="${esc(v || '')}" aria-label="選擇日期"${dis}></span></span>`;
   const rows = d.steps.map((s, i) => {
     const done = s.s === DONE, ro = !canStep(s), dis = ro ? ' disabled' : '', bl = !done && blocker(d, s), open = !!S.upd[s.n] && !S.editSteps, w = names(s.w);
-    const whoCell = `<div class="who2">${w.map(n => `<span class="nm2">${esc(n)}</span>`).join('')}${ro ? '' : `<button type="button" class="nm2 add" data-act="who-pop" data-i="${i}" aria-label="選擇負責人">＋</button>`}</div>
+    const canJoin = ro && !isAdmin() && !!origStep(s.n) && !w.includes(S.user.name) && !S.editSteps;
+    const whoCell = `<div class="who2">${w.map(n => `<span class="nm2">${esc(n)}</span>`).join('')}${ro ? (canJoin ? `<button type="button" class="nm2 join" data-act="join" data-step="${esc(s.n)}">＋加入我</button>` : '') : `<button type="button" class="nm2 add" data-act="who-pop" data-i="${i}" aria-label="選擇負責人">＋</button>`}</div>
       ${S.whoPop === i && !ro ? `<div class="who-pop" role="dialog" aria-label="${esc(s.n)} 負責人"><div class="s-who">${whoChips(s.w, `data-act="who" data-i="${i}"`, false, S.whoAdd === i)}</div><button type="button" class="btn sm" data-act="who-pop" data-i="${i}">完成</button></div>` : ''}`;
     const row = `<tr class="${on.has(s.n) ? 'cur' : ''}${done ? ' done' : ''}${ro ? ' ro' : ''}${open ? ' open' : ''}">
       <td class="t-ck"><label class="ck"><input type="checkbox" data-done="${i}"${done ? ' checked' : ''}${dis} aria-label="${esc(s.n)} 完成"><span class="box">${ICON.check}</span></label></td>
@@ -4076,6 +4093,13 @@ document.addEventListener('click', e => {
     case 'gal-move': galMove(d.id); break;
     case 'gal-zoom': { galRead(); const l = [...GAL.main, ...GAL.arc]; openLb(l.map(x => x.u), Math.max(0, l.findIndex(x => x.id === d.id)), short(GAL.pid) + '・' + GAL.cid); break; }
     case 'limg': { let u = []; try { u = JSON.parse(d.urls); } catch (er) {} openLb(u, +d.k || 0, '圖片'); break; }
+    case 'join': {
+      if (dirty()) { toast('請先儲存或取消目前的修改，再加入', true); break; }
+      a.disabled = true; const { pid, cid } = S.open;
+      api('joinStep', { product: pid, category: cid, step: d.step })
+        .then(r => { S.tasks[key(pid, cid)] = toTask(r.cell); S.hist = {}; openSheet(pid, cid); render(); toast('已加入「' + d.step + '」的負責人'); })
+        .catch(er => { toast(er.message, true); a.disabled = false; });
+      break; }
     case 'chg-more': { const ln = a.closest('.cl'); if (ln) { ln.classList.toggle('open'); a.textContent = ln.classList.contains('open') ? '收起' : '展開'; } break; }
     case 'as-open': S.addOpen = true; setHtml('secSteps', stepsHTML()); setTimeout(() => { const i = $('#stepIn'); if (i) i.focus(); }, 30); break;
     case 'due-ok': case 'due-back': {
