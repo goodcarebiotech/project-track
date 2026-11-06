@@ -2570,7 +2570,7 @@ async function api(action, data = {}) {
   }
   return j;
 }
-const toStep = s => ({ n: s.n, w: s.w || '', v: s.v || '', s: s.s || TODO, m: s.m || '', d: s.d || '', at: s.at || '', by: s.by || '', ln: s.lastNote || '', u: !!(s.u && s.u !== '0'), bd: s.bd || '', bdBy: s.bdBy || '', bdAt: s.bdAt || '', mv: s.mv || null, lnBy: s.lnBy || '', lnAt: s.lnAt || '', lt: s.lt || '', lk: s.lk || '' });
+const toStep = s => ({ n: s.n, w: s.w || '', v: s.v || '', s: s.s || TODO, m: s.m || '', d: s.d || '', at: s.at || '', by: s.by || '', ln: s.lastNote || '', u: !!(s.u && s.u !== '0'), bd: s.bd || '', bdBy: s.bdBy || '', bdAt: s.bdAt || '', mv: s.mv || null, lnBy: s.lnBy || '', lnAt: s.lnAt || '', lt: s.lt || '', lk: s.lk || '', ltBy: s.ltBy || '', ltAt: s.ltAt || '', lkBy: s.lkBy || '', lkAt: s.lkAt || '' });
 const toTask = c => ({ productId: c.product, categoryId: c.category, na: !!c.na, memo: c.memo || '', images: c.images || [], gal: c.gal || { main: [], arc: [] }, lastNote: c.lastNote || '', lastTodo: c.lastTodo || '', lastTrack: c.lastTrack || '', updatedAt: c.updatedAt || '', updatedBy: c.updatedBy || '', steps: (c.steps || []).map(toStep) });
 const toLog = l => ({ ...l, productId: l.product, categoryId: l.category });
 
@@ -3305,7 +3305,9 @@ function whoChips(w, attrs, ro, addOpen) {
 }
 /* 編輯視窗（試算表式）：摘要 → ① 步驟進度表（每個步驟一列，「＋ 更新」在該步驟下方寫這次的進度）→ ② 最近紀錄 */
 const NA_HINT = '<div class="na-hint">這一格設為不需製作。關掉上方的「不需製作」就會出現步驟。</div>';
-const hasX = s => !!(((s.note || '').trim() && (s.note || '').trim() !== (s.noteToday || '').trim()) || (s.todo || '').trim() || (s.track || '').trim() || (s.imgsText || '').trim());
+const xChg = (s, f) => !!(s[f] || '').trim() && (s[f] || '').trim() !== (s[f + 'Today'] || '').trim();
+const xCap = (s, f, v, by, at) => s[f + 'Today'] !== undefined ? '<em class="ln-cap me">今天已寫，修改後會取代</em>' : v ? `<em class="ln-cap" title="${esc(v)}">上一筆・${esc(by || '')} ${at ? fmtFull(at).split(' ')[0] : ''}：${esc(v.length > 40 ? v.slice(0, 40) + '…' : v)}</em>` : '';
+const hasX = s => !!(xChg(s, 'note') || xChg(s, 'todo') || xChg(s, 'track') || (s.imgsText || '').trim());
 function sheetSummary() {
   const d = S.draft, st = statusOf(d), act = d.na ? [] : actives(d);
   const due = act.map(s => s.d).filter(isYmd).sort()[0];
@@ -3363,8 +3365,8 @@ function stepsHTML() {
     </tr>`;
     const sub = open ? `<tr class="xrow${on.has(s.n) ? ' cur' : ''}"><td class="t-ck"></td><td colspan="8"><div class="subgrid">
         <label><span>進度說明</span><textarea data-x="note" data-i="${i}" rows="2" maxlength="2000">${esc(s.note || '')}</textarea>${s.noteToday !== undefined ? '<em class="ln-cap me">今天已寫，修改後會取代</em>' : s.ln ? `<em class="ln-cap" title="${esc(s.ln)}">上一筆・${esc(s.lnBy || '')} ${s.lnAt ? fmtFull(s.lnAt).split(' ')[0] : ''}：${esc(s.ln.length > 40 ? s.ln.slice(0, 40) + '…' : s.ln)}</em>` : ''}</label>
-        <label><span>待辦&下一步</span><textarea data-x="todo" data-i="${i}" rows="2" maxlength="1000">${esc(s.todo || '')}</textarea></label>
-        <label><span>追蹤狀態</span><textarea data-x="track" data-i="${i}" rows="2" maxlength="50">${esc(s.track || '')}</textarea></label>
+        <label><span>待辦&下一步</span><textarea data-x="todo" data-i="${i}" rows="2" maxlength="1000">${esc(s.todo || '')}</textarea>${xCap(s, 'todo', s.lt, s.ltBy, s.ltAt)}</label>
+        <label><span>追蹤狀態</span><textarea data-x="track" data-i="${i}" rows="2" maxlength="50">${esc(s.track || '')}</textarea>${xCap(s, 'track', s.lk, s.lkBy, s.lkAt)}</label>
         <label><span>圖片網址</span><textarea data-x="imgsText" data-i="${i}" rows="2">${esc(s.imgsText || '')}</textarea><span class="cap-t">圖片說明</span><input class="cap-in" data-x="imgCap" data-i="${i}" maxlength="60" value="${esc(s.imgCap || '')}" aria-label="圖片說明"></label>
       </div></td></tr>` : '';
     return row + sub;
@@ -3448,7 +3450,7 @@ const payload = d => { const meta = d.newMeta || {}, byStep = {}, loose = []; (d
   const captions = {}; Object.keys(meta).forEach(u => { if (meta[u].cap) captions[u] = meta[u].cap; });
   d.steps.forEach(s => { const c = (s.imgCap || '').trim(); if (c) (s.imgsText || '').split(/\s+/).filter(Boolean).forEach(u => { captions[u] = c; }); });
   return { na: !!d.na, captions, steps: d.steps.map(s => ({ u: s.u ? '1' : '', n: s.n, s: s.s, w: names(s.w).join('／'), v: (s.v || '').trim(), m: (s.m || '').trim(), d: s.d || '', at: s.s === DONE ? s.at || '' : '',
-  note: (s.note || '').trim(), todo: (s.todo || '').trim(), track: (s.track || '').trim(), images: [...(byStep[s.n] || []), ...(s.imgsText || '').split(/\s+/).map(x => x.trim()).filter(Boolean)], ...(s.before ? { before: s.before } : {}), ...(s.when ? { when: s.when } : {}), ...(s.noteToday !== undefined ? { rt: 1 } : {}) })), images: loose }; };
+  note: (s.note || '').trim(), todo: (s.todo || '').trim(), track: (s.track || '').trim(), images: [...(byStep[s.n] || []), ...(s.imgsText || '').split(/\s+/).map(x => x.trim()).filter(Boolean)], ...(s.before ? { before: s.before } : {}), ...(s.when ? { when: s.when } : {}), ...(s.noteToday !== undefined || s.todoToday !== undefined || s.trackToday !== undefined ? { rt: 1 } : {}) })), images: loose }; };
 function applySaved(pid, cid, r) {
   const k = key(pid, cid);
   if (typeof RP !== 'undefined') RP.cache = {};
@@ -3592,7 +3594,7 @@ document.addEventListener('focusout', e => {
 });
 
 /* ---------------- 變更紀錄的寫法：刪除／修改／新增分開標示，舊內容加刪除線 ---------------- */
-const CHG_LABELS = ['進度說明', '預計完成日', '實際完成日', '預計完成', '實際完成', '負責人', '製作方', '備註', '急件', '狀態'];
+const CHG_LABELS = ['待辦&下一步', '追蹤狀態', '進度說明', '預計完成日', '實際完成日', '預計完成', '實際完成', '負責人', '製作方', '備註', '急件', '狀態'];
 function chgParse(text, step) {
   const out = [];
   String(text || '').split('；').map(x => x.trim()).filter(Boolean).forEach(seg => {
@@ -4226,7 +4228,10 @@ document.addEventListener('click', e => {
     case 'quick-note': { const n = $('#fNote'); n.value = n.value ? n.value.replace(/\s*$/, '') + '\n' + a.textContent : a.textContent; S.draft.note = n.value; updateSave(); n.focus(); break; }
     case 'hist-all': S.histAll = !S.histAll; setHtml('secHist', histHTML()); setHtml('histMore', histMoreBtn()); break;
     case 'upd': { const s = S.draft.steps[+d.i]; S.upd[s.n] = !S.upd[s.n];
-      if (S.upd[s.n] && s.note === undefined && s.ln && s.lnBy === S.user.name && s.lnAt && localDate(new Date(s.lnAt)) === localDate()) { s.note = s.ln; s.noteToday = s.ln; } setHtml('secSteps', stepsHTML()); if (S.upd[s.n]) { const t = document.querySelector(`[data-x="note"][data-i="${d.i}"]`); if (t) t.focus(); } break; }
+      const mineToday = (by, at) => by === S.user.name && at && localDate(new Date(at)) === localDate();
+      if (S.upd[s.n] && s.note === undefined && s.ln && mineToday(s.lnBy, s.lnAt)) { s.note = s.ln; s.noteToday = s.ln; }
+      if (S.upd[s.n] && s.todo === undefined && s.lt && mineToday(s.ltBy, s.ltAt)) { s.todo = s.lt; s.todoToday = s.lt; }
+      if (S.upd[s.n] && s.track === undefined && s.lk && mineToday(s.lkBy, s.lkAt)) { s.track = s.lk; s.trackToday = s.lk; } setHtml('secSteps', stepsHTML()); if (S.upd[s.n]) { const t = document.querySelector(`[data-x="note"][data-i="${d.i}"]`); if (t) t.focus(); } break; }
     case 'who-pop': S.whoPop = S.whoPop === +d.i ? -1 : +d.i; S.whoAdd = -1; setHtml('secSteps', stepsHTML()); break;
     case 'lb-close': closeLb(); break;
     case 'lb-prev': stepLb(-1); break;
