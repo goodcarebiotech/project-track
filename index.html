@@ -2163,6 +2163,22 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
 .ro-b{width:30px;height:30px;border:1px solid #DCE6F4;border-radius:8px;background:#fff;color:var(--navy);font-size:15px;cursor:pointer}
 .ro-b:disabled{opacity:.3;cursor:default}
 .ro-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+
+/* 流程頁商品列：左右捲動（v26） */
+.fl-pick{position:relative;display:flex;align-items:center;min-width:0;flex:0 1 auto;max-width:100%}
+.fl-pick .fl-chips{position:relative;flex:1 1 auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scroll-padding-inline:44px}
+.fl-pick.can-r .fl-chips{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 56px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 56px),transparent)}
+.fl-pick.can-l .fl-chips{-webkit-mask-image:linear-gradient(90deg,transparent,#000 56px);mask-image:linear-gradient(90deg,transparent,#000 56px)}
+.fl-pick.can-l.can-r .fl-chips{-webkit-mask-image:linear-gradient(90deg,transparent,#000 56px,#000 calc(100% - 56px),transparent);mask-image:linear-gradient(90deg,transparent,#000 56px,#000 calc(100% - 56px),transparent)}
+.fl-pick.drag .fl-chips{cursor:grabbing;user-select:none}
+.fl-pick.drag .chip{pointer-events:none}
+.fl-arr{position:absolute;top:50%;z-index:2;display:none;align-items:center;justify-content:center;width:30px;height:30px;margin-top:-15px;padding:0;border:1px solid #E1E1E6;border-radius:50%;background:#fff;color:#3A3A3C;box-shadow:0 2px 8px rgba(6,26,68,.14);cursor:pointer;transition:background .15s,border-color .15s}
+.fl-arr:hover{background:#F2F6FC;border-color:#C9D7EC;color:#0B4AA3}
+.fl-arr svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.fl-arr.l{left:-2px}.fl-arr.r{right:-2px}
+.fl-pick.can-l .fl-arr.l,.fl-pick.can-r .fl-arr.r{display:flex}
+@media (hover:none){.fl-arr{width:28px;height:28px;margin-top:-14px}}
+@media (max-width:760px){.fl-pick{width:100%}}
 </style>
 </head>
 <body>
@@ -2755,7 +2771,37 @@ function fitFlowTable() {
   const top = w.getBoundingClientRect().top + window.scrollY;
   w.style.maxHeight = Math.max(360, window.innerHeight - top - 6) + 'px';
 }
-window.addEventListener('resize', () => { if (S.view === 'flow') fitFlowTable(); });
+window.addEventListener('resize', () => { if (S.view === 'flow') { fitFlowTable(); if (FLC.paint) FLC.paint(); } });
+/* 流程頁上方商品列：放不下時可左右移動（兩側箭頭、滑鼠滾輪、按住拖曳、手機滑動），
+   重新畫面後維持原本位置，並把選中的商品帶到看得見的地方 */
+const FLC = { x: 0, paint: null };
+function flChipsInit() {
+  const w = $('.fl-pick'), el = w && w.querySelector('.fl-chips'); FLC.paint = null; if (!el) return;
+  el.scrollLeft = FLC.x;
+  const on = el.querySelector('.chip.on'), pad = 44;
+  if (on) {
+    if (on.offsetLeft < el.scrollLeft + pad) el.scrollLeft = Math.max(0, on.offsetLeft - pad);
+    else if (on.offsetLeft + on.offsetWidth > el.scrollLeft + el.clientWidth - pad) el.scrollLeft = on.offsetLeft + on.offsetWidth - el.clientWidth + pad;
+  }
+  const paint = () => { const max = el.scrollWidth - el.clientWidth; w.classList.toggle('can-l', el.scrollLeft > 2); w.classList.toggle('can-r', el.scrollLeft < max - 2); FLC.x = el.scrollLeft; };
+  FLC.paint = paint; paint();
+  el.addEventListener('scroll', paint, { passive: true });
+  el.addEventListener('wheel', e => {   // 一般滑鼠只有上下滾輪：在商品列上滾動就改成左右移動
+    if (el.scrollWidth <= el.clientWidth || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    el.scrollLeft += e.deltaY * (e.deltaMode === 1 ? 32 : 1); e.preventDefault();
+  }, { passive: false });
+  let sx = 0, sl = 0, moved = false, pidr = null;
+  el.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button !== 0 || el.scrollWidth <= el.clientWidth) return; sx = e.clientX; sl = el.scrollLeft; moved = false; pidr = e.pointerId; });
+  el.addEventListener('pointermove', e => {
+    if (pidr !== e.pointerId) return;
+    const dx = e.clientX - sx;
+    if (!moved && Math.abs(dx) > 5) { moved = true; w.classList.add('drag'); try { el.setPointerCapture(pidr); } catch (er) {} }
+    if (moved) el.scrollLeft = sl - dx;
+  });
+  const end = () => { if (pidr === null) return; pidr = null; w.classList.remove('drag'); if (moved) setTimeout(() => { moved = false; }, 0); };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  el.addEventListener('click', e => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);   // 拖曳放開時不要當成點選商品
+}
 /* 通用確認視窗（取代瀏覽器的 confirm） */
 function askConfirm(title, msg, okText) {
   return new Promise(res => {
@@ -2810,7 +2856,7 @@ function render() {
   if (S.view === 'log') { $('#main').innerHTML = html + logView(); if (!S.logs) loadLogs(); return; }
   if (S.view === 'stats') { $('#main').innerHTML = html + statsView(); setHH(); return; }
   if (S.view === 'report') { $('#main').innerHTML = html + reportView(); setHH(); return; }
-  if (S.view === 'flow') { $('#main').innerHTML = html + flowView(); setHH(); fitFlowTable(); return; }
+  if (S.view === 'flow') { const oc = $('.fl-chips'); if (oc) FLC.x = oc.scrollLeft; $('#main').innerHTML = html + flowView(); setHH(); flChipsInit(); fitFlowTable(); return; }
   if (S.view === 'zone') { $('#main').innerHTML = html + zoneView(); setHH(); return; }
   let chips = FILTERS.map(([id, name]) => `<button class="chip${S.filter === id ? ' on' : ''}" data-act="filter" data-v="${id}" aria-pressed="${S.filter === id}">${name}<i>${all.filter(t => cellMatch(t, id)).length}</i></button>`).join('');
   const attnN = st => all.reduce((a, t) => a + (live(t) ? t.steps.filter(s => s.s === st && personOK(s)).length : 0), 0);
@@ -2947,7 +2993,8 @@ function flowView() {
   if (!all) loadPlogs(pid);
   else if (S.plogsStale[pid]) { delete S.plogsStale[pid]; loadPlogs(pid, true); }   // 先顯示手上的資料，背景更新
   const chips = '';
-  const psel = `<div class="fl-chips" role="tablist" aria-label="選擇商品">${prods.map(p => `<button class="chip${p.id === pid ? ' on' : ''}" role="tab" aria-selected="${p.id === pid}" data-act="flowp" data-v="${esc(p.id)}" title="${esc(p.name)}">${esc(chipName(p))}</button>`).join('')}</div>`;
+  const arr = (dir, lbl) => `<button class="fl-arr ${dir < 0 ? 'l' : 'r'}" type="button" tabindex="-1" aria-label="${lbl}" data-act="flc" data-v="${dir}"><svg viewBox="0 0 24 24"><path d="${dir < 0 ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'}"/></svg></button>`;
+  const psel = `<div class="fl-pick">${arr(-1, '往左看更多商品')}<div class="fl-chips" role="tablist" aria-label="選擇商品">${prods.map(p => `<button class="chip${p.id === pid ? ' on' : ''}" role="tab" aria-selected="${p.id === pid}" data-act="flowp" data-v="${esc(p.id)}" title="${esc(p.name)}">${esc(chipName(p))}</button>`).join('')}</div>${arr(1, '往右看更多商品')}</div>`;
   const tbl = S.flowMode === 'table';
   const head = `<div class="fl-head"><div class="fl-hl">${psel}<p>${all ? (tbl ? tblN + ' 列' : logs.length + ' 筆紀錄') : '讀取中…'}</p></div>
     <div class="fl-tools"><span class="opts-l">顯示</span><button class="opt" role="checkbox" aria-checked="${!S.flowHideTodo}" data-act="opt" data-v="flowHideTodo">${cb(!S.flowHideTodo)}尚未開始</button><div class="seg sm" role="group" aria-label="顯示方式"><button class="${tbl ? '' : 'on'}" data-act="flowmode" data-v="timeline" aria-pressed="${!tbl}">時間軸</button><button class="${tbl ? 'on' : ''}" data-act="flowmode" data-v="table" aria-pressed="${tbl}">表格</button></div>
@@ -4211,6 +4258,7 @@ document.addEventListener('click', e => {
     case 'filter': S.filter = d.v; render(); break;
     case 'person': S.person = d.v; render(); break;
     case 'flowp': S.flowP = d.v; render(); break;
+    case 'flc': { const el = $('.fl-chips'); if (el) el.scrollBy({ left: Number(d.v) * Math.max(160, el.clientWidth * 0.7), behavior: 'smooth' }); break; }
     case 'flowmode': S.flowMode = d.v; store.set('ptk_flowmode', d.v, true); render(); break;
     case 'ft-add': addFlowRow(); break;
     case 'zitem': openDlg('zitem', { id: d.id }); break;
