@@ -2181,6 +2181,57 @@ input.ugck{width:20px;height:20px;accent-color:#E0313B}
 @media (max-width:760px){.fl-pick{width:100%}}
 /* 一格有兩個以上進行中的步驟：第二張起少了上方留白，狀態標籤因此偏上（舊的 .c-act+.c-act{padding-top:0} 蓋過新樣式） */
 .cell .c-act+.c-act{padding-top:8px}
+
+/* 週報：自選期間、日期顯示開關（v27） */
+.rp-nav .rp-pickb{width:auto;height:auto;padding:4px 10px;background:none;border-radius:10px;font-size:inherit;color:#fff;cursor:pointer}
+.rp-nav .rp-pickb:hover,.rp-nav .rp-pickb[aria-expanded="true"]{background:rgba(255,255,255,.16)}
+.rp-pickb span{display:inline-flex;align-items:center;gap:3px}
+.rp-pickb svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.rp-pickb[aria-expanded="true"] svg{transform:rotate(180deg)}
+.rp-rng{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 18px;padding:14px 16px}
+.rp-qs{display:flex;flex-wrap:wrap;gap:6px}
+.rp-q{height:32px;padding:0 13px;border:1px solid #DCE4F0;border-radius:999px;background:#fff;color:#3A3A3C;font-size:13.5px;font-weight:600;cursor:pointer;transition:border-color .15s,background .15s}
+.rp-q:hover{border-color:#BFD6FF;background:#F5F9FF}
+.rp-q.on{border-color:#0B4AA3;background:#0B4AA3;color:#fff}
+.rp-dd{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13.5px;color:var(--label-2)}
+.rp-dd label{display:flex;align-items:center;gap:6px;font-size:0}
+.rp-dd input{height:34px;padding:0 10px;border:1px solid #DCE4F0;border-radius:10px;background:#fff;font:inherit;font-size:14px;color:var(--label);font-variant-numeric:tabular-nums}
+.rp-dd input:focus{outline:2px solid #BFD6FF;border-color:#7AA7E8}
+.rp-dd .btn{height:34px}
+.rp.nodate .rp-sp{grid-template-columns:minmax(0,1fr) auto}
+.rp.nodate .rp-sp .sd{display:none}
+@media (max-width:640px){.rp-rng{padding:12px}.rp-dd{width:100%}.rp-dd label{flex:1}.rp-dd input{width:100%}.rp-q{height:30px;padding:0 11px;font-size:13px}}
+.rp-days.wkly{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(108px,1fr);overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.rp-days.wkly .rp-day .dd{font-size:14px;white-space:nowrap}
+@media (max-width:640px){.rp-days.wkly{grid-auto-columns:minmax(92px,1fr)}.rp-days.wkly .rp-day .dd{font-size:12.5px}}
+@media (max-width:640px){
+  .rp-days.many{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(60px,1fr);overflow-x:auto;padding-bottom:4px}
+  .rp-dd{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+  .rp-dd input{padding:0 6px;font-size:13.5px}
+  .rp-dd .btn{grid-column:1/-1}
+}
+
+/* 日報／週報：收合按鈕、挑選紀錄（v28） */
+.rp-tg{flex:none;display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;border:1px solid #DCE4F0;border-radius:8px;background:#fff;color:#4F6A92;cursor:pointer;transition:background .15s,border-color .15s,color .15s}
+.rp-tg:hover{border-color:#BFD6FF;background:#F5F9FF;color:#0B4AA3}
+.rp-tg svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s}
+.rp-tg.shut svg{transform:rotate(-90deg)}
+.rp-fold{display:flex;padding:0 2px}
+.rp-fold .rp-tg{width:34px;height:26px;border-style:dashed;background:rgba(255,255,255,.7)}
+.rp-prog li.rp-sfold{display:block;padding:8px 0}
+.rp-sfold .rp-tg{width:30px;height:22px;border-style:dashed}
+.rp-sh{display:inline-flex;align-items:center;gap:8px}
+.rp-ck{flex:none;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;padding:0;border:0;background:none;cursor:pointer;vertical-align:middle}
+.rp-tm .rp-ck{margin-right:6px}
+.rp.pk .rp-sp{grid-template-columns:22px 48px minmax(0,1fr) auto;align-items:center}
+.rp.pk.nodate .rp-sp{grid-template-columns:22px minmax(0,1fr) auto}
+.rp-sp.off,.rp-it.off{opacity:.42}
+.rp-sp.off .rp-what,.rp-it.off .rp-what{text-decoration:line-through;text-decoration-color:#9AA6B8}
+.rp-pkb{height:30px;padding:0 12px;border:1px solid #DCE4F0;border-radius:9px;background:#fff;color:#0B4AA3;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.rp-pkb:hover{background:#F5F9FF;border-color:#BFD6FF}
+.rp-pkb.on{background:#0B4AA3;border-color:#0B4AA3;color:#fff}
+@media (max-width:640px){.rp.pk .rp-sp{grid-template-columns:22px 42px minmax(0,1fr) auto}.rp-ch .rp-tg{order:0}}
+@media print{.rp-tg,.rp-fold,.rp-sfold,.rp-ck,.rp-tools,.rp-rng,.rp-nav>button,.rp-pkb,.rp-sp.off,.rp-it.off{display:none!important}}
 </style>
 </head>
 <body>
@@ -3826,7 +3877,16 @@ async function roDone(btn) {
 /* ---------------- 日報／週報（只有昶明看得到；內容是昶明自己在商品區與昶明區的更新） ---------------- */
 const REPORT_OWNER = '昶明';
 const canReport = () => !!(S.user && S.user.name === REPORT_OWNER);
-const RP = { mode: 'day', day: '', cache: {}, busy: false, full: store.get('ptk_rfull', true) !== '0', size: (() => { const v = store.get('ptk_rimg', true); return ['s', 'm', 'l'].includes(v) ? v : 'm'; })() };
+const RP = { mode: 'day', day: '', from: '', to: '', pick: false, cache: {}, busy: false, full: store.get('ptk_rfull', true) !== '0', dates: store.get('ptk_rdate', true) !== '0', size: (() => { const v = store.get('ptk_rimg', true); return ['s', 'm', 'l'].includes(v) ? v : 'm'; })() };
+/* 收合／隱藏：商品卡片(c)、步驟(s)、單筆紀錄(r) 各自記在這台電腦上，匯出給老闆前可以先整理 */
+RP.hide = (() => { try { return new Set(JSON.parse(store.get('ptk_rhide', true) || '[]')); } catch (e) { return new Set(); } })();
+RP.pk = false;
+const rpSaveHide = () => { const a = [...RP.hide]; store.set('ptk_rhide', JSON.stringify(a.slice(-3000)), true); };
+const rpKc = it => 'c|' + it.kind + '|' + it.product, rpKs = it => 's|' + it.kind + '|' + it.product + '|' + it.step, rpKr = it => 'r|' + it.kind + '|' + it.product + '|' + it.step + '|' + it.time + '|' + it.what;
+const rpVis = (it, isDay) => !RP.hide.has(rpKc(it)) && (isDay || !RP.hide.has(rpKs(it))) && !RP.hide.has(rpKr(it));
+const RP_CHEV = '<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>';
+const rpTg = (k, open, name) => `<button class="rp-tg${open ? '' : ' shut'}" data-act="rtg" data-k="${esc(k)}" aria-expanded="${open}" aria-label="${open ? '收合' : '展開'} ${esc(name)}" title="${open ? '收合' : '展開'}">${RP_CHEV}</button>`;
+const rpCk = it => { const on = !RP.hide.has(rpKr(it)); return `<button class="rp-ck" role="checkbox" aria-checked="${on}" aria-label="${on ? '隱藏' : '顯示'}這筆紀錄" data-act="rck" data-k="${esc(rpKr(it))}">${cb(on)}</button>`; };
 const rpDate = k => new Date(+k.slice(0, 4), +k.slice(5, 7) - 1, +k.slice(8, 10));
 const ymdOf = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 const WK = ['日', '一', '二', '三', '四', '五', '六'];
@@ -3834,11 +3894,33 @@ function rpWeek(day) {   // 週一～週日
   const d = rpDate(day), mon = new Date(d); mon.setDate(d.getDate() - ((d.getDay() + 6) % 7));
   return [...Array(7)].map((_, i) => { const x = new Date(mon); x.setDate(mon.getDate() + i); return ymdOf(x); });
 }
+/* 期間：日報抓當天所在的那一週；週報可自己選起訖日（沒選就是 RP.day 所在的週一～週日） */
+const RP_MAX_DAYS = 186;
+function rpRange() {
+  if (RP.mode !== 'day' && RP.from && RP.to) return [RP.from, RP.to];
+  const w = rpWeek(RP.day); return [w[0], w[6]];
+}
+function rpDays(f, t) { const out = [], d = rpDate(f), e = rpDate(t); while (d <= e && out.length <= RP_MAX_DAYS) { out.push(ymdOf(d)); d.setDate(d.getDate() + 1); } return out; }
+const rpAdd = (k, n) => { const d = rpDate(k); d.setDate(d.getDate() + n); return ymdOf(d); };
+const rpIsWeek = (f, t) => { const w = rpWeek(f); return w[0] === f && w[6] === t; };
+function rpSetRange(f, t) {
+  if (!f || !t) return;
+  if (f > t) [f, t] = [t, f];
+  if (rpDays(f, t).length > RP_MAX_DAYS) { toast('期間最多 ' + RP_MAX_DAYS + ' 天', true); t = rpAdd(f, RP_MAX_DAYS - 1); }
+  RP.from = f; RP.to = t; RP.day = t > ymdOf(new Date()) ? ymdOf(new Date()) : t;
+}
+function rpQuick(v) {
+  const today = ymdOf(new Date()), w = rpWeek(today), d = rpDate(today);
+  const mStart = (y, m) => ymdOf(new Date(y, m, 1)), mEnd = (y, m) => ymdOf(new Date(y, m + 1, 0));
+  const r = { this: [w[0], w[6]], last: [rpAdd(w[0], -7), rpAdd(w[0], -1)], two: [rpAdd(w[0], -7), w[6]],
+    month: [mStart(d.getFullYear(), d.getMonth()), mEnd(d.getFullYear(), d.getMonth())], lmonth: [mStart(d.getFullYear(), d.getMonth() - 1), mEnd(d.getFullYear(), d.getMonth() - 1)] }[v];
+  if (r) rpSetRange(r[0], r[1]);
+}
 async function rpLoad(force) {
-  const w = rpWeek(RP.day), key = w[0];
+  const [f, t] = rpRange(), key = f + '~' + t;
   if (RP.cache[key] && !force) return;
   RP.busy = true;
-  try { const r = await api('report', { from: w[0], to: w[6] }); RP.cache[key] = r.items || []; }
+  try { const r = await api('report', { from: f, to: t }); RP.cache[key] = r.items || []; }
   catch (e) { toast(e.message, true); RP.cache[key] = RP.cache[key] || []; }
   finally { RP.busy = false; }
   if (S.view === 'report') render();
@@ -3890,48 +3972,81 @@ const rpKind = k => k === 'z' ? '昶明區專案' : '商品';
 function rpStat(label, n, g) { return `<div class="rp-st${g ? ' g' : ''}"><span>${label}</span><b>${n}</b></div>`; }
 function reportView() {
   if (!RP.day) RP.day = ymdOf(new Date());
-  const week = rpWeek(RP.day), all = RP.cache[week[0]];
+  const isDay = RP.mode === 'day';
+  if (!isDay && (!RP.from || !RP.to)) { const w = rpWeek(RP.day); RP.from = w[0]; RP.to = w[6]; }
+  const [rf, rt] = rpRange(), span = rpDays(rf, rt), all = RP.cache[rf + '~' + rt];
   if (!all && !RP.busy) rpLoad();
   const today = ymdOf(new Date());
-  const isDay = RP.mode === 'day';
+  const isWk = !isDay && rpIsWeek(rf, rt), yr = rf.slice(0, 4) === rt.slice(0, 4) ? rf.slice(0, 4) : rf.slice(0, 4) + '–' + rt.slice(0, 4);
   const raw = all ? (isDay ? all.filter(x => x.day === RP.day) : all) : [];
   const items = RP.full ? raw : rpLatest(raw);
-  const groups = rpGroup(items), imgN = items.reduce((a, x) => a + x.images.length, 0);
-  const nextOff = isDay ? RP.day >= today : week[6] >= today;
+  const shown = items.filter(it => rpVis(it, isDay));   // 統計、長條圖只算看得到的
+  const groups = rpGroup(items), imgN = shown.reduce((a, x) => a + x.images.length, 0), shownG = rpGroup(shown).length;
+  const nextOff = isDay ? RP.day >= today : rt >= today;
   const band = `<div class="rp-band"><div class="rp-grid"></div><div class="rp-grid2"></div><div class="rp-orb o1"></div><div class="rp-orb o2"></div><div class="rp-beam"></div>
     <div class="rp-in">
       <div class="rp-r1"><span class="rp-brand">GOODCARE・WORK REPORT</span>
         <div class="rp-tabs" role="tablist" aria-label="日報或週報"><button role="tab" class="${isDay ? 'on' : ''}" aria-selected="${isDay}" data-act="rmode" data-v="day">日報</button><button role="tab" class="${isDay ? '' : 'on'}" aria-selected="${!isDay}" data-act="rmode" data-v="week">週報</button></div></div>
-      <div class="rp-r2"><h2>${esc(S.user.name)} ${isDay ? '日報' : '週報'}</h2>
-        <div class="rp-nav"><button data-act="rmv" data-v="-1" aria-label="${isDay ? '前一天' : '上一週'}">‹</button>
-          <div class="d"><b>${isDay ? rpMD(RP.day) : rpMD(week[0]) + ' – ' + rpMD(week[6])}</b><span>${isDay ? RP.day.slice(0, 4) + '・' + rpWd(RP.day) + (RP.day === today ? '・今天' : '') : RP.day.slice(0, 4) + '・週一至週日'}</span></div>
-          <button data-act="rmv" data-v="1" aria-label="${isDay ? '後一天' : '下一週'}"${nextOff ? ' disabled' : ''}>›</button></div></div>
-      <div class="rp-stats">${rpStat('產品／專案', all ? groups.length : '—')}${rpStat(isDay ? '工作項目' : '工作更新', all ? items.length : '—')}${rpStat('完成', all ? items.filter(x => x.done).length : '—', 1)}${rpStat('更新圖片', all ? imgN : '—')}</div>
+      <div class="rp-r2"><h2>${esc(S.user.name)} ${isDay ? '日報' : isWk ? '週報' : '工作報告'}</h2>
+        <div class="rp-nav"><button data-act="rmv" data-v="-1" aria-label="${isDay ? '前一天' : isWk ? '上一週' : '往前一段'}">‹</button>
+          ${isDay ? `<div class="d"><b>${rpMD(RP.day)}</b><span>${RP.day.slice(0, 4) + '・' + rpWd(RP.day) + (RP.day === today ? '・今天' : '')}</span></div>`
+            : `<button class="d rp-pickb" data-act="rpick" aria-expanded="${RP.pick}" title="選擇期間"><b>${rpMD(rf) + ' – ' + rpMD(rt)}</b><span>${yr}・${isWk ? '週一至週日' : '共 ' + span.length + ' 天'}<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></span></button>`}
+          <button data-act="rmv" data-v="1" aria-label="${isDay ? '後一天' : isWk ? '下一週' : '往後一段'}"${nextOff ? ' disabled' : ''}>›</button></div></div>
+      <div class="rp-stats">${rpStat('產品／專案', all ? shownG : '—')}${rpStat(isDay ? '工作項目' : '工作更新', all ? shown.length : '—')}${rpStat('完成', all ? shown.filter(x => x.done).length : '—', 1)}${rpStat('更新圖片', all ? imgN : '—')}</div>
     </div></div>`;
-  const tools = `<div class="rp-tools"><div class="seg sm" role="group" aria-label="顯示方式"><button class="${RP.full ? 'on' : ''}" aria-pressed="${RP.full}" data-act="rfull" data-v="1">完整紀錄</button><button class="${RP.full ? '' : 'on'}" aria-pressed="${!RP.full}" data-act="rfull" data-v="0">只看最新</button></div><i class="rp-sep"></i><span>圖片</span><div class="seg sm" role="group" aria-label="圖片大小">${[['s', '小'], ['m', '中'], ['l', '大']].map(([v, n]) => `<button class="${RP.size === v ? 'on' : ''}" aria-pressed="${RP.size === v}" data-act="rsize" data-v="${v}">${n}</button>`).join('')}</div></div>`;
+  const dateSeg = isDay ? '' : `<span>日期</span><div class="seg sm" role="group" aria-label="日期"><button class="${RP.dates ? 'on' : ''}" aria-pressed="${RP.dates}" data-act="rdate" data-v="1">顯示</button><button class="${RP.dates ? '' : 'on'}" aria-pressed="${!RP.dates}" data-act="rdate" data-v="0">隱藏</button></div><i class="rp-sep"></i>`;
+  const tools = `<div class="rp-tools"><div class="seg sm" role="group" aria-label="顯示方式"><button class="${RP.full ? 'on' : ''}" aria-pressed="${RP.full}" data-act="rfull" data-v="1">完整紀錄</button><button class="${RP.full ? '' : 'on'}" aria-pressed="${!RP.full}" data-act="rfull" data-v="0">只看最新</button></div><i class="rp-sep"></i>${dateSeg}<span>圖片</span><div class="seg sm" role="group" aria-label="圖片大小">${[['s', '小'], ['m', '中'], ['l', '大']].map(([v, n]) => `<button class="${RP.size === v ? 'on' : ''}" aria-pressed="${RP.size === v}" data-act="rsize" data-v="${v}">${n}</button>`).join('')}</div><i class="rp-sep"></i><button class="rp-pkb${RP.pk ? ' on' : ''}" data-act="rpk" aria-pressed="${RP.pk}">${RP.pk ? '挑選完成' : '挑選紀錄'}</button>${RP.hide.size ? '<button class="rp-pkb" data-act="rreset">全部還原</button>' : ''}</div>`;
+  const tw = rpWeek(today), q = (v, n, a, b) => `<button class="rp-q${rf === a && rt === b ? ' on' : ''}" data-act="rq" data-v="${v}">${n}</button>`;
+  const mo = rpDate(today), ms = (y, m) => ymdOf(new Date(y, m, 1)), me = (y, m) => ymdOf(new Date(y, m + 1, 0));
+  const picker = !isDay && RP.pick ? `<div class="rp-card rp-rng"><div class="rp-qs">${q('this', '本週', tw[0], tw[6])}${q('last', '上週', rpAdd(tw[0], -7), rpAdd(tw[0], -1))}${q('two', '本週＋上週', rpAdd(tw[0], -7), tw[6])}${q('month', '本月', ms(mo.getFullYear(), mo.getMonth()), me(mo.getFullYear(), mo.getMonth()))}${q('lmonth', '上個月', ms(mo.getFullYear(), mo.getMonth() - 1), me(mo.getFullYear(), mo.getMonth() - 1))}</div>
+      <div class="rp-dd"><label>從<input type="date" id="rpFrom" value="${rf}" max="${today}"></label><span>至</span><label>到<input type="date" id="rpTo" value="${rt}"></label><button class="btn" data-act="rpick">完成</button></div></div>` : '';
   let body;
   if (!all) body = `<div class="rp-card"><div class="rp-empty">讀取中…</div></div>`;
   else if (isDay) {
-    body = groups.length ? groups.map(g => `<section class="rp-card${g.kind === 'z' ? ' z' : ''}">
-        <div class="rp-ch"><span class="rp-kind">${rpKind(g.kind)}</span><span class="rp-pn">${esc(g.product)}</span><span class="rp-cnt"><b>${g.items.length}</b>項</span></div>
-        <ul class="rp-items">${g.items.map(it => `<li class="rp-it"><span class="rp-tm">${hm(new Date(it.time))}</span><span class="rp-tag">${esc(it.step)}</span><span class="rp-what">${it.late ? `<em class="rp-late">補登・實際 ${rpMD(it.late)}</em>` : ''}${rich(it.what)}${it.n > 1 ? `<small class="rp-more">已修正 ${it.n - 1} 次</small>` : ''}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}${rpThumbs(it.images)}</li>`).join('')}</ul></section>`).join('')
+    body = groups.length ? groups.map(g => {
+      const ck = rpKc(g.items[0]);
+      if (RP.hide.has(ck)) return `<div class="rp-fold">${rpTg(ck, false, g.product)}</div>`;
+      const its = RP.pk ? g.items : g.items.filter(it => !RP.hide.has(rpKr(it)));
+      if (!its.length) return '';
+      return `<section class="rp-card${g.kind === 'z' ? ' z' : ''}">
+        <div class="rp-ch">${rpTg(ck, true, g.product)}<span class="rp-kind">${rpKind(g.kind)}</span><span class="rp-pn">${esc(g.product)}</span><span class="rp-cnt"><b>${its.filter(it => !RP.hide.has(rpKr(it))).length}</b>項</span></div>
+        <ul class="rp-items">${its.map(it => `<li class="rp-it${RP.hide.has(rpKr(it)) ? ' off' : ''}"><span class="rp-tm">${RP.pk ? rpCk(it) : ''}${hm(new Date(it.time))}</span><span class="rp-tag">${esc(it.step)}</span><span class="rp-what">${it.late ? `<em class="rp-late">補登・實際 ${rpMD(it.late)}</em>` : ''}${rich(it.what)}${it.n > 1 ? `<small class="rp-more">已修正 ${it.n - 1} 次</small>` : ''}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}${rpThumbs(it.images)}</li>`).join('')}</ul></section>`; }).join('')
       : `<div class="rp-card"><div class="rp-empty">這天沒有更新</div></div>`;
   } else {
-    const per = week.map(k => all.filter(x => x.day === k).length), max = Math.max(1, ...per);
-    const showDays = week.filter((k, i) => i < 5 || per[i]);
-    const days = `<section class="rp-card"><div class="rp-wk"><h3>每天做了多少<small>點一天看當天日報</small></h3><div class="rp-days" style="--n:${showDays.length}">${showDays.map(k => { const n = per[week.indexOf(k)]; return `<button class="rp-day${k === today ? ' today' : ''}" data-act="rday" data-v="${k}"${n ? '' : ' disabled'}><span class="dw">${rpWd(k)}</span><span class="dd">${rpMD(k)}</span><span class="bars"><i style="height:${n ? Math.max(8, n / max * 100) : 0}%"></i></span><span class="dn"><b>${n}</b>項</span></button>`; }).join('')}</div></div></section>`;
+    const cnt = k => shown.filter(x => x.day === k).length;
+    let days;
+    if (span.length <= 14) {   // 兩週以內：每天一格（週末沒更新就不顯示）
+      const per = span.map(cnt), max = Math.max(1, ...per);
+      const showDays = span.filter((k, i) => { const wd = rpDate(k).getDay(); return (wd !== 0 && wd !== 6) || per[i]; });
+      days = `<section class="rp-card"><div class="rp-wk"><h3>每天做了多少<small>點一天看當天日報</small></h3><div class="rp-days${showDays.length > 7 ? ' many' : ''}" style="--n:${showDays.length}">${showDays.map(k => { const n = per[span.indexOf(k)]; return `<button class="rp-day${k === today ? ' today' : ''}" data-act="rday" data-v="${k}"${n ? '' : ' disabled'}><span class="dw">${span.length > 7 ? '週' + WK[rpDate(k).getDay()] : rpWd(k)}</span><span class="dd">${rpMD(k)}</span><span class="bars"><i style="height:${n ? Math.max(8, n / max * 100) : 0}%"></i></span><span class="dn"><b>${n}</b>項</span></button>`; }).join('')}</div></div></section>`;
+    } else {                   // 超過兩週：每週一格
+      const wks = []; span.forEach(k => { const w0 = rpWeek(k)[0]; let g = wks[wks.length - 1]; if (!g || g.w0 !== w0) wks.push(g = { w0, a: k, b: k, n: 0 }); g.b = k; g.n += cnt(k); });
+      const max = Math.max(1, ...wks.map(g => g.n));
+      days = `<section class="rp-card"><div class="rp-wk"><h3>每週做了多少<small>點一週看那一週</small></h3><div class="rp-days wkly">${wks.map((g, i) => `<button class="rp-day${g.a <= today && today <= g.b ? ' today' : ''}" data-act="rwk" data-a="${g.a}" data-b="${g.b}"${g.n ? '' : ' disabled'}><span class="dw">第 ${i + 1} 週</span><span class="dd">${rpMD(g.a)}–${rpMD(g.b)}</span><span class="bars"><i style="height:${g.n ? Math.max(8, g.n / max * 100) : 0}%"></i></span><span class="dn"><b>${g.n}</b>項</span></button>`).join('')}</div></div></section>`;
+    }
     const prods = groups.map(g => {
-      const steps = new Map(); g.items.forEach(it => { if (!steps.has(it.step)) steps.set(it.step, []); steps.get(it.step).push(it); });
-      const imgs = g.items.flatMap(it => it.images);
+      const ck = rpKc(g.items[0]);
+      if (RP.hide.has(ck)) return `<div class="rp-fold">${rpTg(ck, false, g.product)}</div>`;
+      const steps = new Map(); g.items.forEach(it => { if (!RP.pk && RP.hide.has(rpKr(it))) return; if (!steps.has(it.step)) steps.set(it.step, []); steps.get(it.step).push(it); });
+      if (!steps.size) return '';
+      const vis = [...steps.values()].flat().filter(it => rpVis(it, false)), imgs = vis.flatMap(it => it.images);
+      const openN = [...steps.entries()].filter(([n, its]) => !RP.hide.has(rpKs(its[0])) && its.some(it => !RP.hide.has(rpKr(it)))).length;
       return `<section class="rp-card${g.kind === 'z' ? ' z' : ''}">
-        <div class="rp-ch"><span class="rp-kind">${rpKind(g.kind)}</span><span class="rp-pn">${esc(g.product)}</span><span class="rp-cnt"><b>${steps.size}</b>個項目</span></div>
-        <ul class="rp-prog">${[...steps.entries()].map(([n, its]) => `<li><span class="rp-tag">${esc(n)}</span><div class="rp-steps">${its.map(it => `<div class="rp-sp"><span class="sd">${rpMD(it.day)}</span><span class="rp-what">${it.late ? `<em class="rp-late">補登・實際 ${rpMD(it.late)}</em>` : ''}${rich(it.what)}${it.n > 1 ? `<small class="rp-more">已修正 ${it.n - 1} 次</small>` : ''}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}</div>`).join('')}</div></li>`).join('')}
+        <div class="rp-ch">${rpTg(ck, true, g.product)}<span class="rp-kind">${rpKind(g.kind)}</span><span class="rp-pn">${esc(g.product)}</span><span class="rp-cnt"><b>${openN}</b>個項目</span></div>
+        <ul class="rp-prog">${[...steps.entries()].map(([n, its]) => { const sk = rpKs(its[0]); return RP.hide.has(sk) ? `<li class="rp-sfold">${rpTg(sk, false, n)}</li>` : `<li><span class="rp-sh">${rpTg(sk, true, n)}<span class="rp-tag">${esc(n)}</span></span><div class="rp-steps">${its.map(it => `<div class="rp-sp${RP.hide.has(rpKr(it)) ? ' off' : ''}">${RP.pk ? rpCk(it) : ''}<span class="sd">${rpMD(it.day)}</span><span class="rp-what">${it.late ? `<em class="rp-late">補登・實際 ${rpMD(it.late)}</em>` : ''}${rich(it.what)}${it.n > 1 ? `<small class="rp-more">已修正 ${it.n - 1} 次</small>` : ''}</span>${it.done ? '<span class="rp-done">完成</span>' : '<span></span>'}</div>`).join('')}</div></li>`; }).join('')}
           ${imgs.length ? `<li class="rp-wimg">${rpThumbs(imgs)}</li>` : ''}</ul></section>`;
     }).join('');
-    body = days + (prods || `<div class="rp-card"><div class="rp-empty">這週沒有更新</div></div>`);
+    body = days + (prods || `<div class="rp-card"><div class="rp-empty">${isWk ? '這週' : '這段期間'}沒有更新</div></div>`);
   }
-  return `<div class="rp" data-size="${RP.size}">${band}<div class="rp-body">${tools}${body}</div></div>`;
+  return `<div class="rp${!isDay && !RP.dates ? ' nodate' : ''}${RP.pk ? ' pk' : ''}" data-size="${RP.size}">${band}<div class="rp-body">${tools}${picker}${body}</div></div>`;
 }
+
+/* 期間的起訖日：改了就直接套用 */
+document.addEventListener('change', e => {
+  const t = e.target; if (!t || (t.id !== 'rpFrom' && t.id !== 'rpTo') || !t.value) return;
+  const f = $('#rpFrom').value, to = $('#rpTo').value; if (!f || !to) return;
+  rpSetRange(f, to); render();
+});
 
 /* ---------------- 圖片：主要版本（前 3 張顯示在總覽／依商品）＋留存紀錄，圖片視窗可拖曳調整 ---------------- */
 const GAL_N = 3;
@@ -4221,7 +4336,7 @@ document.addEventListener('click', e => {
     case 'glogin': if (!API_URL) loginErr('示範模式請點下方的名字登入'); else googleLogin(); break;
     case 'copy-url': { const u = location.href.replace(/([?&])openExternalBrowser=1&?/, '$1').replace(/[?&]$/, ''); (navigator.clipboard ? navigator.clipboard.writeText(u) : Promise.reject()).then(() => toast('已複製網址')).catch(() => window.prompt('請複製這個網址', u)); break; }
     case 'quick': doLogin(d.pw); break;
-    case 'view': if (d.v === 'report' && typeof RP !== 'undefined') { RP.cache = {}; if (S.view !== 'report') RP.day = ''; } goView(d.v); render(); window.scrollTo(0, 0); break;
+    case 'view': if (d.v === 'report' && typeof RP !== 'undefined') { RP.cache = {}; if (S.view !== 'report') { RP.day = ''; RP.from = ''; RP.to = ''; RP.pick = false; } } goView(d.v); render(); window.scrollTo(0, 0); break;
     case 'mode': S.mode = d.v; store.set('ptk_mode', d.v, true); render(); break;
     case 'closed': S.showClosed = !S.showClosed; render(); break;
     case 'gal': openGal(d.pid, d.cid); break;
@@ -4252,7 +4367,17 @@ document.addEventListener('click', e => {
       break; }
     case 'heromore': S.heroOpen = !S.heroOpen; render(); break;
     case 'rmode': RP.mode = d.v; render(); break;
-    case 'rmv': { const x = rpDate(RP.day); x.setDate(x.getDate() + (RP.mode === 'day' ? 1 : 7) * Number(d.v)); const t = ymdOf(new Date()); RP.day = ymdOf(x) > t ? t : ymdOf(x); render(); break; }
+    case 'rmv': {
+      const t = ymdOf(new Date());
+      if (RP.mode !== 'day' && RP.from && RP.to) { const n = rpDays(RP.from, RP.to).length * Number(d.v), f = rpAdd(RP.from, n); if (f <= t) rpSetRange(f, rpAdd(RP.to, n)); render(); break; }
+      const x = rpDate(RP.day); x.setDate(x.getDate() + (RP.mode === 'day' ? 1 : 7) * Number(d.v)); RP.day = ymdOf(x) > t ? t : ymdOf(x); render(); break; }
+    case 'rpick': RP.pick = !RP.pick; render(); break;
+    case 'rtg': case 'rck': if (RP.hide.has(d.k)) RP.hide.delete(d.k); else RP.hide.add(d.k); rpSaveHide(); render(); break;
+    case 'rpk': RP.pk = !RP.pk; render(); break;
+    case 'rreset': askConfirm('全部還原？', '收合的商品、步驟，和取消勾選的紀錄都會重新顯示。', '全部還原').then(ok => { if (!ok) return; RP.hide.clear(); rpSaveHide(); render(); }); break;
+    case 'rq': rpQuick(d.v); render(); break;
+    case 'rwk': rpSetRange(d.a, d.b); RP.pick = false; render(); window.scrollTo(0, 0); break;
+    case 'rdate': RP.dates = d.v === '1'; store.set('ptk_rdate', d.v, true); render(); break;
     case 'rday': RP.day = d.v; RP.mode = 'day'; render(); window.scrollTo(0, 0); break;
     case 'rfull': RP.full = d.v === '1'; store.set('ptk_rfull', d.v, true); render(); break;
     case 'rsize': RP.size = d.v; store.set('ptk_rimg', d.v, true); render(); break;
